@@ -211,11 +211,7 @@ KV = """
                 size_hint_y: None
                 height: self.texture_size[1]
             WrapLabel:
-                text: app.tr(
-                    "Execution: {value}",
-                    app.language,
-                    value=root.execution_instructions or app.tr("No directions provided.", app.language),
-                )
+                text: app.tr("Execution: {value}", app.language, value=root.execution_instructions or app.tr("No directions provided.", app.language))
                 color: 0.18, 0.18, 0.26, 1
                 font_size: "13sp"
     GridLayout:
@@ -328,22 +324,12 @@ KV = """
         size_hint_y: None
         height: self.texture_size[1]
     WrapLabel:
-        text: app.tr(
-            "Muscle: {muscle} | Equipment: {equipment}",
-            app.language,
-            muscle=root.muscle_group,
-            equipment=root.equipment,
-        )
+        text: app.tr("Muscle: {muscle} | Equipment: {equipment}", app.language, muscle=root.muscle_group, equipment=root.equipment)
         color: 0.2, 0.2, 0.3, 1
         size_hint_y: None
         height: self.texture_size[1]
     WrapLabel:
-        text: app.tr(
-            "Suitability: {value} | Est. time: {minutes} min",
-            app.language,
-            value=root.suitability,
-            minutes=root.estimated_minutes,
-        )
+        text: app.tr("Suitability: {value} | Est. time: {minutes} min", app.language, value=root.suitability, minutes=root.estimated_minutes)
         color: 0.2, 0.2, 0.3, 1
         size_hint_y: None
         height: self.texture_size[1]
@@ -728,11 +714,7 @@ KV = """
             size_hint_y: None
             height: dp(24)
         WrapLabel:
-            text: app.tr(
-                "Choose a goal for {user}.",
-                app.language,
-                user=app.root.current_user_display,
-            )
+            text: app.tr("Choose a goal for {user}.", app.language, user=app.root.current_user_display)
             color: 0.18, 0.18, 0.24, 1
         Spinner:
             id: goal_prompt_spinner
@@ -956,12 +938,7 @@ KV = """
                     height: self.texture_size[1] if not app.root.live_icon_source else dp(0)
                     opacity: 0 if app.root.live_icon_source else 1
                 Label:
-                    text: app.tr(
-                        "Target: {muscle} | Equipment: {equipment}",
-                        app.language,
-                        muscle=app.root.live_muscle_display,
-                        equipment=app.root.live_equipment_display,
-                    )
+                    text: app.tr("Target: {muscle} | Equipment: {equipment}", app.language, muscle=app.root.live_muscle_display, equipment=app.root.live_equipment_display)
                     color: 0.18, 0.18, 0.24, 1
                     size_hint_y: None
                     height: self.texture_size[1]
@@ -971,11 +948,7 @@ KV = """
                     size_hint_y: None
                     height: self.texture_size[1]
                 Label:
-                    text: app.tr(
-                        "Planned duration: {value}",
-                        app.language,
-                        value=app.root.live_exercise_target_display,
-                    )
+                    text: app.tr("Planned duration: {value}", app.language, value=app.root.live_exercise_target_display)
                     color: 0.14, 0.22, 0.34, 1
                     size_hint_y: None
                     height: self.texture_size[1]
@@ -1274,11 +1247,7 @@ KV = """
                 size_hint_y: None
                 height: dp(22)
             WrapLabel:
-                text: app.tr(
-                    "Current user: [b]{value}[/b]",
-                    app.language,
-                    value=app.root.current_user_display,
-                )
+                text: app.tr("Current user: [b]{value}[/b]", app.language, value=app.root.current_user_display)
                 markup: True
                 font_size: "16sp"
                 color: 0.12, 0.14, 0.22, 1
@@ -1684,11 +1653,7 @@ KV = """
                     text_size: self.width, None
                     halign: "center"
                 WrapLabel:
-                    text: app.tr(
-                        "Current user: {value}",
-                        app.language,
-                        value=app.root.current_user_display,
-                    )
+                    text: app.tr("Current user: {value}", app.language, value=app.root.current_user_display)
                     color: 0.2, 0.2, 0.3, 1
                     text_size: self.width, None
                     halign: "center"
@@ -1828,11 +1793,7 @@ KV = """
                 size_hint_y: None
                 height: dp(26)
             WrapLabel:
-                text: app.tr(
-                    "Current user: {value}",
-                    app.language,
-                    value=app.root.current_user_display,
-                )
+                text: app.tr("Current user: {value}", app.language, value=app.root.current_user_display)
                 color: 0.2, 0.2, 0.3, 1
             GridLayout:
                 cols: 2
@@ -1906,11 +1867,7 @@ KV = """
                     size_hint_y: None
                     height: dp(22)
                 Label:
-                    text: app.tr(
-                        "Total workouts: [b]{value}[/b]",
-                        app.language,
-                        value=app.root.stats_total_workouts,
-                    )
+                    text: app.tr("Total workouts: [b]{value}[/b]", app.language, value=app.root.stats_total_workouts)
                     markup: True
                     font_size: "15sp"
                     color: 0.16, 0.18, 0.26, 1
@@ -1919,11 +1876,7 @@ KV = """
                     size_hint_y: None
                     height: dp(20)
                 Label:
-                    text: app.tr(
-                        "Total time: [b]{value} min[/b]",
-                        app.language,
-                        value=app.root.stats_total_minutes,
-                    )
+                    text: app.tr("Total time: [b]{value} min[/b]", app.language, value=app.root.stats_total_minutes)
                     markup: True
                     font_size: "15sp"
                     color: 0.16, 0.18, 0.26, 1
@@ -1932,11 +1885,7 @@ KV = """
                     size_hint_y: None
                     height: dp(20)
                 Label:
-                    text: app.tr(
-                        "Total load: [b]{value}[/b]",
-                        app.language,
-                        value=app.root.stats_total_weight,
-                    )
+                    text: app.tr("Total load: [b]{value}[/b]", app.language, value=app.root.stats_total_weight)
                     markup: True
                     font_size: "15sp"
                     color: 0.16, 0.18, 0.26, 1
@@ -1945,11 +1894,7 @@ KV = """
                     size_hint_y: None
                     height: dp(20)
                 Label:
-                    text: app.tr(
-                        "Top exercise: [b]{value}[/b]",
-                        app.language,
-                        value=app.root.stats_top_exercise,
-                    )
+                    text: app.tr("Top exercise: [b]{value}[/b]", app.language, value=app.root.stats_top_exercise)
                     markup: True
                     font_size: "15sp"
                     color: 0.16, 0.18, 0.26, 1
@@ -2071,12 +2016,7 @@ KV = """
             height: dp(36)
             spacing: dp(8)
             Label:
-                text: app.tr(
-                    "Total time: {current} / {max} min",
-                    app.language,
-                    current=app.root.rec_total_minutes,
-                    max=app.root.rec_max_minutes_text or "0",
-                )
+                text: app.tr("Total time: {current} / {max} min", app.language, current=app.root.rec_total_minutes, max=app.root.rec_max_minutes_text or "0")
                 color: 0.18, 0.18, 0.24, 1
             Button:
                 text: app.tr("Start training", app.language)
@@ -2136,21 +2076,13 @@ KV = """
                     text: app.root.summary_sets_display
                     color: 0.16, 0.2, 0.3, 1
             Label:
-                text: app.tr(
-                    "Completed exercises: {value}",
-                    app.language,
-                    value=app.root.summary_completed_display,
-                )
+                text: app.tr("Completed exercises: {value}", app.language, value=app.root.summary_completed_display)
                 color: 0.15, 0.18, 0.26, 1
                 text_size: self.width, None
                 size_hint_y: None
                 height: self.texture_size[1]
             Label:
-                text: app.tr(
-                    "Skipped exercises: {value}",
-                    app.language,
-                    value=app.root.summary_skipped_display,
-                )
+                text: app.tr("Skipped exercises: {value}", app.language, value=app.root.summary_skipped_display)
                 color: 0.2, 0.16, 0.18, 1
                 text_size: self.width, None
                 size_hint_y: None
