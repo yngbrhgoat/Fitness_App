@@ -28,6 +28,7 @@ from kivy.uix.widget import Widget
 from kivy.metrics import dp
 
 import exercise_database
+import localization
 
 KV = """
 #:import dp kivy.metrics.dp
@@ -195,7 +196,7 @@ KV = """
             size_hint_y: None
             height: self.minimum_height
             Label:
-                text: root.name
+                text: root.display_name
                 font_size: "18sp"
                 bold: True
                 color: 0.1, 0.12, 0.2, 1
@@ -210,7 +211,11 @@ KV = """
                 size_hint_y: None
                 height: self.texture_size[1]
             WrapLabel:
-                text: "Execution: {}".format(root.execution_instructions or "No directions provided.")
+                text: app.tr(
+                    "Execution: {value}",
+                    app.language,
+                    value=root.execution_instructions or app.tr("No directions provided.", app.language),
+                )
                 color: 0.18, 0.18, 0.26, 1
                 font_size: "13sp"
     GridLayout:
@@ -222,16 +227,16 @@ KV = """
         col_force_default: True
         col_default_width: self.width / 3
         GridInfoLabel:
-            text: "Suitability: {}".format(root.suitability_display)
+            text: app.tr("Suitability: {value}", app.language, value=root.suitability_display)
             color: 0.2, 0.2, 0.3, 1
         GridInfoLabel:
-            text: "Muscle: {}".format(root.muscle_group)
+            text: app.tr("Muscle: {value}", app.language, value=root.muscle_group)
             color: 0.15, 0.15, 0.2, 1
         GridInfoLabel:
-            text: "Equipment: {}".format(root.equipment)
+            text: app.tr("Equipment: {value}", app.language, value=root.equipment)
             color: 0.15, 0.15, 0.2, 1
     Label:
-        text: "Recommendation: {}".format(root.recommendation)
+        text: app.tr("Recommendation: {value}", app.language, value=root.recommendation)
         color: 0.2, 0.2, 0.28, 1
         size_hint_y: None
         height: self.texture_size[1]
@@ -258,17 +263,17 @@ KV = """
         size_hint_y: None
         height: self.texture_size[1]
     Label:
-        text: "Duration: {}".format(root.duration_display)
+        text: app.tr("Duration: {value}", app.language, value=root.duration_display)
         color: 0.18, 0.18, 0.22, 1
         size_hint_y: None
         height: self.texture_size[1]
     Label:
-        text: "Goal: {}".format(root.goal_display)
+        text: app.tr("Goal: {value}", app.language, value=root.goal_display)
         color: 0.16, 0.18, 0.24, 1
         size_hint_y: None
         height: self.texture_size[1]
     Label:
-        text: "Completed sets: {}".format(root.sets_display)
+        text: app.tr("Completed sets: {value}", app.language, value=root.sets_display)
         color: 0.16, 0.18, 0.24, 1
         size_hint_y: None
         height: self.texture_size[1]
@@ -310,7 +315,7 @@ KV = """
             fit_mode: "contain"
             opacity: 1 if root.icon_source else 0
         Label:
-            text: root.name
+            text: root.display_name
             font_size: "17sp"
             bold: True
             color: 0.1, 0.12, 0.2, 1
@@ -323,17 +328,27 @@ KV = """
         size_hint_y: None
         height: self.texture_size[1]
     WrapLabel:
-        text: "Muscle: {} | Equipment: {}".format(root.muscle_group, root.equipment)
+        text: app.tr(
+            "Muscle: {muscle} | Equipment: {equipment}",
+            app.language,
+            muscle=root.muscle_group,
+            equipment=root.equipment,
+        )
         color: 0.2, 0.2, 0.3, 1
         size_hint_y: None
         height: self.texture_size[1]
     WrapLabel:
-        text: "Suitability: {} | Est. time: {} min".format(root.suitability, root.estimated_minutes)
+        text: app.tr(
+            "Suitability: {value} | Est. time: {minutes} min",
+            app.language,
+            value=root.suitability,
+            minutes=root.estimated_minutes,
+        )
         color: 0.2, 0.2, 0.3, 1
         size_hint_y: None
         height: self.texture_size[1]
     WrapLabel:
-        text: "Recommendation score: {}".format(root.score_display)
+        text: app.tr("Recommendation score: {score}", app.language, score=root.score_display)
         color: 0.16, 0.16, 0.22, 1
         size_hint_y: None
         height: self.texture_size[1]
@@ -348,10 +363,10 @@ KV = """
         height: dp(36)
         spacing: dp(8)
         Button:
-            text: "Add to plan"
+            text: app.tr("Add to plan", app.language)
             on_release: app.root.add_recommendation_to_plan(root.name)
         Button:
-            text: "Details"
+            text: app.tr("Details", app.language)
             on_release: app.root.open_recommendation_details(root.name)
 
 <PlanItem>:
@@ -385,17 +400,17 @@ KV = """
             halign: "left"
             valign: "middle"
         Button:
-            text: "Up"
+            text: app.tr("Up", app.language)
             size_hint_x: None
             width: dp(70)
             on_release: app.root.move_plan_item(root.name, -1)
         Button:
-            text: "Down"
+            text: app.tr("Down", app.language)
             size_hint_x: None
             width: dp(70)
             on_release: app.root.move_plan_item(root.name, 1)
         Button:
-            text: "Remove"
+            text: app.tr("Remove", app.language)
             size_hint_x: None
             width: dp(90)
             on_release: app.root.remove_plan_item(root.name)
@@ -406,7 +421,7 @@ KV = """
         height: dp(30) if root.weight_visible else dp(0)
         opacity: 1 if root.weight_visible else 0
         Label:
-            text: "Weight"
+            text: app.tr("Weight", app.language)
             color: 0.16, 0.18, 0.24, 1
             size_hint_x: None
             width: dp(60)
@@ -445,13 +460,13 @@ KV = """
             height: dp(26)
             spacing: dp(8)
             Label:
-                text: "Select date"
+                text: app.tr("Select date", app.language)
                 bold: True
                 color: 0.12, 0.14, 0.22, 1
                 valign: "middle"
                 text_size: self.size
             Label:
-                text: "Selected: {}".format(root.selected_label)
+                text: app.tr("Selected: {value}", app.language, value=root.selected_label)
                 color: 0.18, 0.18, 0.24, 1
                 halign: "right"
                 valign: "middle"
@@ -490,7 +505,7 @@ KV = """
             height: dp(32)
             spacing: dp(6)
             Button:
-                text: "<< Year"
+                text: app.tr("<< Year", app.language)
                 size_hint_x: None
                 width: dp(84)
                 background_normal: ""
@@ -499,7 +514,7 @@ KV = """
                 color: 1, 1, 1, 1
                 on_release: root.shift_year(-1)
             Button:
-                text: "-3 mo"
+                text: app.tr("-3 mo", app.language)
                 size_hint_x: None
                 width: dp(70)
                 background_normal: ""
@@ -509,7 +524,7 @@ KV = """
                 on_release: root.shift_month(-3)
             Widget:
             Button:
-                text: "+3 mo"
+                text: app.tr("+3 mo", app.language)
                 size_hint_x: None
                 width: dp(70)
                 background_normal: ""
@@ -518,7 +533,7 @@ KV = """
                 color: 1, 1, 1, 1
                 on_release: root.shift_month(3)
             Button:
-                text: "Year >>"
+                text: app.tr("Year >>", app.language)
                 size_hint_x: None
                 width: dp(84)
                 background_normal: ""
@@ -542,13 +557,13 @@ KV = """
             height: dp(40)
             spacing: dp(8)
             Button:
-                text: "Today"
+                text: app.tr("Today", app.language)
                 on_release: root.select_today()
             Button:
-                text: "Use date"
+                text: app.tr("Use date", app.language)
                 on_release: root.confirm_selection()
             Button:
-                text: "Cancel"
+                text: app.tr("Cancel", app.language)
                 on_release: root.dismiss()
 
 <WorkoutLogModal>:
@@ -566,7 +581,7 @@ KV = """
                 size: self.size
                 radius: [10,]
         Label:
-            text: "Log a completed workout"
+            text: app.tr("Log a completed workout", app.language)
             font_size: "18sp"
             bold: True
             color: 0.12, 0.14, 0.22, 1
@@ -586,7 +601,7 @@ KV = """
                     size_hint_y: None
                     height: self.minimum_height
                     WrapLabel:
-                        text: "Workout date (YYYY-MM-DD)"
+                        text: app.tr("Workout date (YYYY-MM-DD)", app.language)
                         color: 0.18, 0.18, 0.22, 1
                     BoxLayout:
                         spacing: dp(6)
@@ -594,22 +609,22 @@ KV = """
                             id: workout_date_input
                             multiline: False
                             readonly: True
-                            hint_text: "pick date"
+                            hint_text: app.tr("pick date", app.language)
                         Button:
-                            text: "Pick"
+                            text: app.tr("Pick", app.language)
                             size_hint_x: None
                             width: dp(70)
                             on_release: app.root.open_date_picker(workout_date_input)
                     WrapLabel:
-                        text: "Duration (minutes)"
+                        text: app.tr("Duration (minutes)", app.language)
                         color: 0.18, 0.18, 0.22, 1
                     TextInput:
                         id: duration_input
                         multiline: False
                         input_filter: "int"
-                        hint_text: "e.g. 45"
+                        hint_text: app.tr("e.g. 45", app.language)
                     WrapLabel:
-                        text: "Goal (optional)"
+                        text: app.tr("Goal (optional)", app.language)
                         color: 0.18, 0.18, 0.22, 1
                     Spinner:
                         id: workout_goal_spinner
@@ -617,25 +632,25 @@ KV = """
                         values: app.root.workout_goal_options
                         on_text: app.root.workout_goal_spinner_text = self.text
                     WrapLabel:
-                        text: "Total sets completed (optional)"
+                        text: app.tr("Total sets completed (optional)", app.language)
                         color: 0.18, 0.18, 0.22, 1
                     TextInput:
                         id: total_sets_input
                         multiline: False
                         input_filter: "int"
-                        hint_text: "e.g. 12"
+                        hint_text: app.tr("e.g. 12", app.language)
                     WrapLabel:
-                        text: "Exercises (comma or newline separated)"
+                        text: app.tr("Exercises (comma or newline separated)", app.language)
                         color: 0.18, 0.18, 0.22, 1
                     TextInput:
                         id: exercises_input
                         multiline: True
                         size_hint_y: None
                         height: dp(80)
-                        hint_text: "Push-Up, Plank, Jump Rope"
+                        hint_text: app.tr("Push-Up, Plank, Jump Rope", app.language)
                         on_text: app.root.refresh_workout_weight_inputs(self.text)
                     WrapLabel:
-                        text: "Weights (optional)"
+                        text: app.tr("Weights (optional)", app.language)
                         color: 0.18, 0.18, 0.22, 1
                         size_hint_y: None
                         height: dp(18) if app.root.history_weight_visible else dp(0)
@@ -648,22 +663,22 @@ KV = """
                         height: self.minimum_height if app.root.history_weight_visible else dp(0)
                         opacity: 1 if app.root.history_weight_visible else 0
                     WrapLabel:
-                        text: "Filter exercises"
+                        text: app.tr("Filter exercises", app.language)
                         color: 0.18, 0.18, 0.22, 1
                     BoxLayout:
                         spacing: dp(6)
                         TextInput:
                             id: history_exercise_filter_input
                             multiline: False
-                            hint_text: "type to search"
+                            hint_text: app.tr("type to search", app.language)
                             on_text: app.root.filter_history_exercise_options(self.text)
                         Button:
-                            text: "Clear"
+                            text: app.tr("Clear", app.language)
                             size_hint_x: None
                             width: dp(70)
                             on_release: app.root.clear_history_exercise_filter()
                     WrapLabel:
-                        text: "Add exercise from list"
+                        text: app.tr("Add exercise from list", app.language)
                         color: 0.18, 0.18, 0.22, 1
                     BoxLayout:
                         spacing: dp(6)
@@ -673,7 +688,7 @@ KV = """
                             values: app.root.history_exercise_filtered_options
                             on_text: app.root.history_exercise_spinner_text = self.text
                         Button:
-                            text: "Add"
+                            text: app.tr("Add", app.language)
                             size_hint_x: None
                             width: dp(80)
                             on_release: app.root.add_history_exercise_from_menu()
@@ -685,10 +700,10 @@ KV = """
             height: dp(40)
             spacing: dp(8)
             Button:
-                text: "Save workout"
+                text: app.tr("Save workout", app.language)
                 on_release: app.root.handle_add_workout()
             Button:
-                text: "Cancel"
+                text: app.tr("Cancel", app.language)
                 on_release: root.dismiss()
 
 <GoalPromptModal>:
@@ -706,14 +721,18 @@ KV = """
                 size: self.size
                 radius: [10,]
         Label:
-            text: "Set your training goal"
+            text: app.tr("Set your training goal", app.language)
             font_size: "18sp"
             bold: True
             color: 0.12, 0.14, 0.22, 1
             size_hint_y: None
             height: dp(24)
         WrapLabel:
-            text: "Choose a goal for {}.".format(app.root.current_user_display)
+            text: app.tr(
+                "Choose a goal for {user}.",
+                app.language,
+                user=app.root.current_user_display,
+            )
             color: 0.18, 0.18, 0.24, 1
         Spinner:
             id: goal_prompt_spinner
@@ -728,10 +747,10 @@ KV = """
             height: dp(40)
             spacing: dp(8)
             Button:
-                text: "Save goal"
+                text: app.tr("Save goal", app.language)
                 on_release: app.root.save_user_profile() and root.dismiss()
             Button:
-                text: "Skip for now"
+                text: app.tr("Skip for now", app.language)
                 on_release: app.root.skip_goal_prompt()
 
 <RecommendationDetailsModal>:
@@ -749,7 +768,7 @@ KV = """
                 size: self.size
                 radius: [10,]
         Label:
-            text: "Exercise details"
+            text: app.tr("Exercise details", app.language)
             font_size: "18sp"
             bold: True
             color: 0.12, 0.14, 0.22, 1
@@ -771,11 +790,11 @@ KV = """
                     text: root.description
                     color: 0.16, 0.18, 0.24, 1
                 WrapLabel:
-                    text: "Execution directions"
+                    text: app.tr("Execution directions", app.language)
                     color: 0.12, 0.14, 0.22, 1
                     bold: True
                 WrapLabel:
-                    text: root.execution_instructions or "No directions provided."
+                    text: root.execution_instructions or app.tr("No directions provided.", app.language)
                     color: 0.16, 0.18, 0.24, 1
                 GridLayout:
                     cols: 2
@@ -784,61 +803,61 @@ KV = """
                     size_hint_y: None
                     height: self.minimum_height
                     GridInfoLabel:
-                        text: "Goal"
+                        text: app.tr("Goal", app.language)
                         color: 0.18, 0.18, 0.22, 1
                     WrapLabel:
                         text: root.goal_label or "—"
                         color: 0.16, 0.2, 0.3, 1
                     GridInfoLabel:
-                        text: "Muscle"
+                        text: app.tr("Muscle", app.language)
                         color: 0.18, 0.18, 0.22, 1
                     WrapLabel:
                         text: root.muscle_group or "—"
                         color: 0.16, 0.2, 0.3, 1
                     GridInfoLabel:
-                        text: "Equipment"
+                        text: app.tr("Equipment", app.language)
                         color: 0.18, 0.18, 0.22, 1
                     WrapLabel:
                         text: root.equipment or "—"
                         color: 0.16, 0.2, 0.3, 1
                     GridInfoLabel:
-                        text: "Suitability"
+                        text: app.tr("Suitability", app.language)
                         color: 0.18, 0.18, 0.22, 1
                     WrapLabel:
                         text: root.suitability or "—"
                         color: 0.16, 0.2, 0.3, 1
                     GridInfoLabel:
-                        text: "Est. time"
+                        text: app.tr("Est. time", app.language)
                         color: 0.18, 0.18, 0.22, 1
                     WrapLabel:
-                        text: "{} min".format(root.estimated_minutes) if root.estimated_minutes else "—"
+                        text: app.tr("{minutes} min", app.language, minutes=root.estimated_minutes) if root.estimated_minutes else "—"
                         color: 0.16, 0.2, 0.3, 1
                     GridInfoLabel:
-                        text: "Score"
+                        text: app.tr("Score", app.language)
                         color: 0.18, 0.18, 0.22, 1
                     WrapLabel:
                         text: root.score_display or "—"
                         color: 0.16, 0.2, 0.3, 1
                     GridInfoLabel:
-                        text: "Sets"
+                        text: app.tr("Sets", app.language)
                         color: 0.18, 0.18, 0.22, 1
                     WrapLabel:
                         text: root.sets_display
                         color: 0.16, 0.2, 0.3, 1
                     GridInfoLabel:
-                        text: "Reps"
+                        text: app.tr("Reps", app.language)
                         color: 0.18, 0.18, 0.22, 1
                     WrapLabel:
                         text: root.reps_display
                         color: 0.16, 0.2, 0.3, 1
                     GridInfoLabel:
-                        text: "Time"
+                        text: app.tr("Time", app.language)
                         color: 0.18, 0.18, 0.22, 1
                     WrapLabel:
                         text: root.time_display
                         color: 0.16, 0.2, 0.3, 1
                 WrapLabel:
-                    text: "Recommendation: {}".format(root.recommendation)
+                    text: app.tr("Recommendation: {value}", app.language, value=root.recommendation)
                     color: 0.16, 0.2, 0.3, 1
         BoxLayout:
             size_hint_y: None
@@ -847,13 +866,13 @@ KV = """
             padding: dp(6), 0
             Widget:
             Button:
-                text: "Add to plan"
+                text: app.tr("Add to plan", app.language)
                 size_hint: None, None
                 width: dp(140)
                 height: dp(32)
-                on_release: app.root.add_recommendation_to_plan(root.exercise_name); root.dismiss()
+                on_release: app.root.add_recommendation_to_plan(root.exercise_key); root.dismiss()
             Button:
-                text: "Close"
+                text: app.tr("Close", app.language)
                 size_hint: None, None
                 width: dp(110)
                 height: dp(32)
@@ -937,7 +956,12 @@ KV = """
                     height: self.texture_size[1] if not app.root.live_icon_source else dp(0)
                     opacity: 0 if app.root.live_icon_source else 1
                 Label:
-                    text: "Target: {} | Equipment: {}".format(app.root.live_muscle_display, app.root.live_equipment_display)
+                    text: app.tr(
+                        "Target: {muscle} | Equipment: {equipment}",
+                        app.language,
+                        muscle=app.root.live_muscle_display,
+                        equipment=app.root.live_equipment_display,
+                    )
                     color: 0.18, 0.18, 0.24, 1
                     size_hint_y: None
                     height: self.texture_size[1]
@@ -947,7 +971,11 @@ KV = """
                     size_hint_y: None
                     height: self.texture_size[1]
                 Label:
-                    text: "Planned duration: {}".format(app.root.live_exercise_target_display)
+                    text: app.tr(
+                        "Planned duration: {value}",
+                        app.language,
+                        value=app.root.live_exercise_target_display,
+                    )
                     color: 0.14, 0.22, 0.34, 1
                     size_hint_y: None
                     height: self.texture_size[1]
@@ -957,7 +985,7 @@ KV = """
                     opacity: 1 if app.root.live_weight_visible else 0
                     spacing: dp(6)
                     Label:
-                        text: "Weight"
+                        text: app.tr("Weight", app.language)
                         color: 0.16, 0.18, 0.24, 1
                         size_hint_x: None
                         width: dp(70)
@@ -980,12 +1008,12 @@ KV = """
                     height: dp(36)
                     spacing: dp(8)
                     Button:
-                        text: "Show details" if not app.root.live_details_expanded else "Hide details"
+                        text: app.tr("Show details", app.language) if not app.root.live_details_expanded else app.tr("Hide details", app.language)
                         size_hint_x: None
                         width: dp(150)
                         on_release: app.root.toggle_live_details()
                     Label:
-                        text: "Set: {}".format(app.root.live_current_set_display)
+                        text: app.tr("Set: {value}", app.language, value=app.root.live_current_set_display)
                         color: 0.16, 0.18, 0.24, 1
                         text_size: self.size
                         valign: "middle"
@@ -1007,11 +1035,11 @@ KV = """
                     text: app.root.live_exercise_description
                     color: 0.14, 0.16, 0.24, 1
                 WrapLabel:
-                    text: "Execution directions"
+                    text: app.tr("Execution directions", app.language)
                     color: 0.12, 0.14, 0.22, 1
                     bold: True
                 WrapLabel:
-                    text: app.root.live_exercise_instructions or "No directions provided."
+                    text: app.root.live_exercise_instructions or app.tr("No directions provided.", app.language)
                     color: 0.14, 0.16, 0.24, 1
                 WrapLabel:
                     text: app.root.live_recommendation_display
@@ -1058,7 +1086,7 @@ KV = """
                             orientation: "vertical"
                             padding: dp(6)
                             Label:
-                                text: "Set time"
+                                text: app.tr("Set time", app.language)
                                 font_size: "13sp"
                                 color: 0.16, 0.18, 0.24, 1
                                 size_hint_y: None
@@ -1072,7 +1100,7 @@ KV = """
                             orientation: "vertical"
                             padding: dp(6)
                             Label:
-                                text: "Break timer"
+                                text: app.tr("Break timer", app.language)
                                 font_size: "13sp"
                                 color: 0.16, 0.18, 0.24, 1
                                 size_hint_y: None
@@ -1090,7 +1118,7 @@ KV = """
                             orientation: "vertical"
                             padding: dp(6)
                             Label:
-                                text: "Exercise time"
+                                text: app.tr("Exercise time", app.language)
                                 font_size: "12sp"
                                 color: 0.16, 0.18, 0.24, 1
                                 size_hint_y: None
@@ -1104,7 +1132,7 @@ KV = """
                             orientation: "vertical"
                             padding: dp(6)
                             Label:
-                                text: "Per-set target"
+                                text: app.tr("Per-set target", app.language)
                                 font_size: "12sp"
                                 color: 0.16, 0.18, 0.24, 1
                                 size_hint_y: None
@@ -1127,7 +1155,7 @@ KV = """
                         size: self.size
                         radius: [8,]
                 Button:
-                    text: "START WORKOUT"
+                    text: app.tr("START WORKOUT", app.language)
                     size_hint: None, None
                     width: dp(230) if app.root.live_active and not app.root.live_started else dp(0)
                     height: dp(46) if app.root.live_active and not app.root.live_started else dp(0)
@@ -1142,7 +1170,7 @@ KV = """
                     width: dp(190)
                     spacing: dp(6)
                     Label:
-                        text: "Break (s)"
+                        text: app.tr("Break (s)", app.language)
                         color: 0.16, 0.18, 0.24, 1
                         size_hint_x: None
                         width: dp(80)
@@ -1156,7 +1184,7 @@ KV = """
                         on_text_validate: app.root.set_live_rest_seconds(self.text)
                         on_focus: app.root.set_live_rest_seconds(self.text) if not self.focus else None
                 Label:
-                    text: "Applies after each exercise and when tapping Next."
+                    text: app.tr("Applies after each exercise and when tapping Next.", app.language)
                     color: 0.18, 0.2, 0.28, 1
             InstructionBadge:
                 text: app.root.live_instruction
@@ -1168,7 +1196,7 @@ KV = """
                 color: app.root.live_hint_color
                 bold: True
             Label:
-                text: "Upcoming: {}".format(app.root.live_upcoming_display)
+                text: app.tr("Upcoming: {value}", app.language, value=app.root.live_upcoming_display)
                 color: 0.16, 0.16, 0.22, 1
                 text_size: self.width, None
                 size_hint_y: None
@@ -1180,22 +1208,22 @@ KV = """
                 size_hint_y: None
                 height: self.minimum_height
                 Button:
-                    text: "Pause" if not app.root.live_paused else "Resume"
+                    text: app.tr("Pause", app.language) if not app.root.live_paused else app.tr("Resume", app.language)
                     on_release: app.root.toggle_live_pause()
                 Button:
-                    text: "Complete set"
+                    text: app.tr("Complete set", app.language)
                     on_release: app.root.manual_complete_set()
                 Button:
-                    text: "Skip exercise"
+                    text: app.tr("Skip exercise", app.language)
                     on_release: app.root.skip_current_exercise()
                 Button:
-                    text: "Next exercise"
+                    text: app.tr("Next exercise", app.language)
                     on_release: app.root.manual_next_exercise()
                 Button:
-                    text: "End workout"
+                    text: app.tr("End workout", app.language)
                     on_release: app.root.end_live_session(early=True)
                 Button:
-                    text: "Back to plan"
+                    text: app.tr("Back to plan", app.language)
                     on_release: app.root.go_recommend()
             Widget:
                 size_hint_y: None
@@ -1207,19 +1235,19 @@ KV = """
         padding: dp(20)
         spacing: dp(16)
         Label:
-            text: "Welcome to the Exercise Manager"
+            text: app.tr("Welcome to the Exercise Manager", app.language)
             font_size: "20sp"
             bold: True
             color: 0.12, 0.14, 0.22, 1
             size_hint_y: None
             height: dp(30)
         Label:
-            text: "Choose what you want to do"
+            text: app.tr("Choose what you want to do", app.language)
             color: 0.2, 0.2, 0.3, 1
             size_hint_y: None
             height: dp(22)
         WrapLabel:
-            text: "Live Mode: build a plan under Recommend, then press Start."
+            text: app.tr("Live Mode: build a plan under Recommend, then press Start.", app.language)
             font_size: "18sp"
             bold: True
             color: 0.16, 0.16, 0.22, 1
@@ -1239,14 +1267,18 @@ KV = """
                     size: self.size
                     radius: [10,]
             Label:
-                text: "Your profile"
+                text: app.tr("Your profile", app.language)
                 font_size: "17sp"
                 bold: True
                 color: 0.12, 0.14, 0.22, 1
                 size_hint_y: None
                 height: dp(22)
             WrapLabel:
-                text: "Current user: [b]{}[/b]".format(app.root.current_user_display)
+                text: app.tr(
+                    "Current user: [b]{value}[/b]",
+                    app.language,
+                    value=app.root.current_user_display,
+                )
                 markup: True
                 font_size: "16sp"
                 color: 0.12, 0.14, 0.22, 1
@@ -1257,18 +1289,25 @@ KV = """
                 size_hint_y: None
                 height: self.minimum_height
                 Label:
-                    text: "Goal"
+                    text: app.tr("Goal", app.language)
                     color: 0.18, 0.18, 0.22, 1
                 Spinner:
                     text: app.root.user_profile_goal
                     values: app.root.user_goal_options
                     on_text: app.root.user_profile_goal = self.text
+                Label:
+                    text: app.tr("Language", app.language)
+                    color: 0.18, 0.18, 0.22, 1
+                Spinner:
+                    text: app.root.language_spinner_text
+                    values: app.root.language_options
+                    on_text: app.root.on_language_selected(self.text)
             BoxLayout:
                 size_hint_y: None
                 height: dp(36)
                 spacing: dp(8)
                 Button:
-                    text: "Save profile"
+                    text: app.tr("Save profile", app.language)
                     on_release: app.root.save_user_profile()
             WrapLabel:
                 text: app.root.user_profile_status_text
@@ -1287,7 +1326,7 @@ KV = """
                     size_hint_y: None
                     height: self.minimum_height
                     Button:
-                        text: "Browse"
+                        text: app.tr("Browse", app.language)
                         font_size: "26sp"
                         bold: True
                         background_normal: ""
@@ -1295,7 +1334,7 @@ KV = """
                         color: 1, 1, 1, 1
                         on_release: app.root.go_browse()
                     Button:
-                        text: "Add"
+                        text: app.tr("Add", app.language)
                         font_size: "26sp"
                         bold: True
                         background_normal: ""
@@ -1303,7 +1342,7 @@ KV = """
                         color: 1, 1, 1, 1
                         on_release: app.root.go_add()
                     Button:
-                        text: "Users"
+                        text: app.tr("Users", app.language)
                         font_size: "26sp"
                         bold: True
                         background_normal: ""
@@ -1315,7 +1354,7 @@ KV = """
                     height: dp(70)
                     spacing: dp(12)
                     Button:
-                        text: "History"
+                        text: app.tr("History", app.language)
                         font_size: "26sp"
                         bold: True
                         background_normal: ""
@@ -1323,7 +1362,7 @@ KV = """
                         color: 1, 1, 1, 1
                         on_release: app.root.go_history()
                     Button:
-                        text: "Recommend"
+                        text: app.tr("Recommend", app.language)
                         font_size: "26sp"
                         bold: True
                         background_normal: ""
@@ -1355,11 +1394,11 @@ KV = """
                 col_force_default: True
                 col_default_width: self.width / 3
                 FilterLabel:
-                    text: "Target suitability"
+                    text: app.tr("Target suitability", app.language)
                 FilterLabel:
-                    text: "Muscle group"
+                    text: app.tr("Muscle group", app.language)
                 FilterLabel:
-                    text: "Required equipment"
+                    text: app.tr("Required equipment", app.language)
                 Spinner:
                     id: goal_spinner
                     text: app.root.goal_spinner_text
@@ -1389,7 +1428,7 @@ KV = """
                     background_color: app.root.filter_equipment_color
                     color: app.root.filter_equipment_text_color
         EmptyStateCard:
-            text: "No exercise currently available for these filters." if app.root.browse_empty else ""
+            text: app.tr("No exercise currently available for these filters.", app.language) if app.root.browse_empty else ""
         RecycleView:
             id: exercise_list
             viewclass: "ExerciseCard"
@@ -1419,13 +1458,13 @@ KV = """
                     pos: self.pos
                     size: self.size
             Label:
-                text: "Add a new exercise"
+                text: app.tr("Add a new exercise", app.language)
                 bold: True
                 color: 0.12, 0.14, 0.25, 1
                 size_hint_y: None
                 height: dp(22)
             Label:
-                text: "Defaults: rating 5. Directions required."
+                text: app.tr("Defaults: rating 5. Directions required.", app.language)
                 color: 0.2, 0.2, 0.28, 1
                 size_hint_y: None
                 height: dp(20)
@@ -1436,32 +1475,32 @@ KV = """
                 size_hint_y: None
                 height: self.minimum_height
                 WrapLabel:
-                    text: "Name"
+                    text: app.tr("Name", app.language)
                     color: 0.18, 0.18, 0.22, 1
                 TextInput:
                     id: name_input
                     multiline: False
-                    hint_text: "e.g. Bulgarian Split Squat"
+                    hint_text: app.tr("e.g. Bulgarian Split Squat", app.language)
                 WrapLabel:
-                    text: "Description"
+                    text: app.tr("Description", app.language)
                     color: 0.18, 0.18, 0.22, 1
                 TextInput:
                     id: description_input
                     multiline: True
                     size_hint_y: None
                     height: dp(64)
-                    hint_text: "Short overview"
+                    hint_text: app.tr("Short overview", app.language)
                 WrapLabel:
-                    text: "Execution directions"
+                    text: app.tr("Execution directions", app.language)
                     color: 0.18, 0.18, 0.22, 1
                 TextInput:
                     id: instructions_input
                     multiline: True
                     size_hint_y: None
                     height: dp(90)
-                    hint_text: "Step-by-step directions"
+                    hint_text: app.tr("Step-by-step directions", app.language)
                 WrapLabel:
-                    text: "Muscle group (choose known)"
+                    text: app.tr("Muscle group (choose known)", app.language)
                     color: 0.18, 0.18, 0.22, 1
                 Spinner:
                     id: muscle_add_spinner
@@ -1469,7 +1508,7 @@ KV = """
                     values: app.root.muscle_choice_options
                     on_text: app.root.add_muscle_spinner_text = self.text
                 WrapLabel:
-                    text: "Allowed muscle groups"
+                    text: app.tr("Allowed muscle groups", app.language)
                     color: 0.18, 0.18, 0.22, 1
                 Label:
                     text: app.root.muscle_choice_display
@@ -1478,7 +1517,7 @@ KV = """
                     size_hint_y: None
                     height: self.texture_size[1]
                 WrapLabel:
-                    text: "Required equipment"
+                    text: app.tr("Required equipment", app.language)
                     color: 0.18, 0.18, 0.22, 1
                 Spinner:
                     id: equipment_add_spinner
@@ -1486,7 +1525,7 @@ KV = """
                     values: app.root.equipment_choice_options
                     on_text: app.root.on_add_equipment_change(self.text)
                 WrapLabel:
-                    text: "Allowed equipment"
+                    text: app.tr("Allowed equipment", app.language)
                     color: 0.18, 0.18, 0.22, 1
                 Label:
                     text: app.root.equipment_choice_display
@@ -1495,23 +1534,23 @@ KV = """
                     size_hint_y: None
                     height: self.texture_size[1]
                 WrapLabel:
-                    text: "Equipment default"
+                    text: app.tr("Equipment default", app.language)
                     color: 0.18, 0.18, 0.22, 1
                 Label:
-                    text: app.root.add_equipment_spinner_text or "Bodyweight"
+                    text: app.root.add_equipment_spinner_text or app.tr("Bodyweight", app.language)
                     color: 0.2, 0.2, 0.28, 1
                     size_hint_y: None
                     height: dp(18)
                 WrapLabel:
-                    text: "Supports external weight"
+                    text: app.tr("Supports external weight", app.language)
                     color: 0.18, 0.18, 0.22, 1
                 Spinner:
                     id: supports_weight_spinner
                     text: app.root.add_supports_weight_spinner_text
-                    values: ("No", "Yes")
+                    values: app.root.supports_weight_options
                     on_text: app.root.set_add_supports_weight(self.text)
                 WrapLabel:
-                    text: "Default weight (optional)"
+                    text: app.tr("Default weight (optional)", app.language)
                     color: 0.18, 0.18, 0.22, 1
                     size_hint_y: None
                     height: dp(18) if app.root.add_supports_weight else dp(0)
@@ -1525,7 +1564,7 @@ KV = """
                         id: default_weight_input
                         multiline: False
                         input_filter: "float"
-                        hint_text: "e.g. 12.5"
+                        hint_text: app.tr("e.g. 12.5", app.language)
                         disabled: not app.root.add_supports_weight
                     Spinner:
                         id: default_weight_unit_spinner
@@ -1533,7 +1572,7 @@ KV = """
                         values: app.root.weight_unit_options
                         disabled: not app.root.add_supports_weight
                 WrapLabel:
-                    text: "Icon (optional)"
+                    text: app.tr("Icon (optional)", app.language)
                     color: 0.18, 0.18, 0.22, 1
                 Spinner:
                     id: icon_spinner
@@ -1541,7 +1580,7 @@ KV = """
                     values: app.root.icon_choice_options
                     on_text: app.root.on_icon_choice_change(self.text)
                 WrapLabel:
-                    text: "Icon preview"
+                    text: app.tr("Icon preview", app.language)
                     color: 0.18, 0.18, 0.22, 1
                 Image:
                     source: app.root.add_icon_source
@@ -1550,7 +1589,7 @@ KV = """
                     fit_mode: "contain"
                     opacity: 1 if app.root.add_icon_source else 0
                 WrapLabel:
-                    text: "Target suitability goal"
+                    text: app.tr("Target suitability goal", app.language)
                     color: 0.18, 0.18, 0.22, 1
                 Spinner:
                     id: goal_add_spinner
@@ -1558,42 +1597,42 @@ KV = """
                     values: app.root.goal_choice_options
                     on_text: app.root.add_goal_spinner_text = self.text
                 WrapLabel:
-                    text: "Suitability rating (1-10, default 5)"
+                    text: app.tr("Suitability rating (1-10, default 5)", app.language)
                     color: 0.18, 0.18, 0.22, 1
                 Spinner:
                     id: rating_spinner
                     text: app.root.rating_spinner_text
                     values: ("1","2","3","4","5","6","7","8","9","10")
                 WrapLabel:
-                    text: "Recommended sets (optional, e.g. 3)"
+                    text: app.tr("Recommended sets (optional, e.g. 3)", app.language)
                     color: 0.18, 0.18, 0.22, 1
                 TextInput:
                     id: sets_input
                     multiline: False
                     input_filter: "int"
-                    hint_text: "e.g. 3 (optional)"
+                    hint_text: app.tr("e.g. 3 (optional)", app.language)
                 WrapLabel:
-                    text: "Recommended reps (optional, e.g. 10)"
+                    text: app.tr("Recommended reps (optional, e.g. 10)", app.language)
                     color: 0.18, 0.18, 0.22, 1
                 TextInput:
                     id: reps_input
                     multiline: False
                     input_filter: "int"
-                    hint_text: "e.g. 10 (optional)"
+                    hint_text: app.tr("e.g. 10 (optional)", app.language)
                 WrapLabel:
-                    text: "Recommended time (sec, optional, e.g. 45)"
+                    text: app.tr("Recommended time (sec, optional, e.g. 45)", app.language)
                     color: 0.18, 0.18, 0.22, 1
                 TextInput:
                     id: time_input
                     multiline: False
                     input_filter: "int"
-                    hint_text: "e.g. 45 (seconds, optional)"
+                    hint_text: app.tr("e.g. 45 (seconds, optional)", app.language)
             BoxLayout:
                 size_hint_y: None
                 height: dp(40)
                 spacing: dp(10)
                 Button:
-                    text: "Add Exercise"
+                    text: app.tr("Add Exercise", app.language)
                     on_press: app.root.handle_add_exercise()
             WrapLabel:
                 text: app.root.status_text
@@ -1619,7 +1658,7 @@ KV = """
                 size_hint_y: None
                 height: self.minimum_height
                 WrapLabel:
-                    text: "Select user"
+                    text: app.tr("Select user", app.language)
                     font_size: "18sp"
                     bold: True
                     color: 0.12, 0.14, 0.22, 1
@@ -1640,12 +1679,16 @@ KV = """
                         halign: "center"
                         valign: "middle"
                 WrapLabel:
-                    text: "Pick a user to get started."
+                    text: app.tr("Pick a user to get started.", app.language)
                     color: 0.2, 0.2, 0.3, 1
                     text_size: self.width, None
                     halign: "center"
                 WrapLabel:
-                    text: "Current user: {}".format(app.root.current_user_display)
+                    text: app.tr(
+                        "Current user: {value}",
+                        app.language,
+                        value=app.root.current_user_display,
+                    )
                     color: 0.2, 0.2, 0.3, 1
                     text_size: self.width, None
                     halign: "center"
@@ -1654,7 +1697,7 @@ KV = """
                     size_hint_y: None
                     height: dp(40)
                     Button:
-                        text: "Open history"
+                        text: app.tr("Open history", app.language)
                         size_hint_x: None
                         width: dp(160)
                         on_release: app.root.go_history()
@@ -1671,14 +1714,14 @@ KV = """
                 size_hint_y: None
                 height: self.minimum_height
                 Label:
-                    text: "New here?"
+                    text: app.tr("New here?", app.language)
                     font_size: "17sp"
                     bold: True
                     color: 0.12, 0.14, 0.22, 1
                     size_hint_y: None
                     height: dp(24)
                 WrapLabel:
-                    text: "Create a profile with a username and goal."
+                    text: app.tr("Create a profile with a username and goal.", app.language)
                     color: 0.2, 0.2, 0.3, 1
                     text_size: self.width, None
                     halign: "center"
@@ -1687,7 +1730,7 @@ KV = """
                     size_hint_y: None
                     height: dp(40)
                     Button:
-                        text: "Register"
+                        text: app.tr("Register", app.language)
                         size_hint_x: None
                         width: dp(160)
                         on_release: app.root.go_register()
@@ -1711,14 +1754,14 @@ KV = """
             size_hint_y: None
             height: self.minimum_height
             Label:
-                text: "Register new user"
+                text: app.tr("Register new user", app.language)
                 font_size: "18sp"
                 bold: True
                 color: 0.12, 0.14, 0.22, 1
                 size_hint_y: None
                 height: dp(26)
             WrapLabel:
-                text: "Set a username and choose a goal to get started."
+                text: app.tr("Set a username and choose a goal to get started.", app.language)
                 color: 0.2, 0.2, 0.3, 1
             GridLayout:
                 cols: 2
@@ -1727,21 +1770,21 @@ KV = """
                 size_hint_y: None
                 height: self.minimum_height
                 WrapLabel:
-                    text: "Username"
+                    text: app.tr("Username", app.language)
                     color: 0.18, 0.18, 0.22, 1
                 TextInput:
                     id: register_username_input
-                    hint_text: "e.g. alex"
+                    hint_text: app.tr("e.g. alex", app.language)
                     multiline: False
                 WrapLabel:
-                    text: "Display name (optional)"
+                    text: app.tr("Display name (optional)", app.language)
                     color: 0.18, 0.18, 0.22, 1
                 TextInput:
                     id: register_display_input
-                    hint_text: "Name shown in app"
+                    hint_text: app.tr("Name shown in app", app.language)
                     multiline: False
                 WrapLabel:
-                    text: "Goal"
+                    text: app.tr("Goal", app.language)
                     color: 0.18, 0.18, 0.22, 1
                 Spinner:
                     id: register_goal_spinner
@@ -1756,10 +1799,10 @@ KV = """
                 height: dp(40)
                 spacing: dp(8)
                 Button:
-                    text: "Register"
+                    text: app.tr("Register", app.language)
                     on_release: app.root.handle_register_user()
                 Button:
-                    text: "Cancel"
+                    text: app.tr("Cancel", app.language)
                     on_release: app.root.go_users()
 
 <HistoryScreen>:
@@ -1778,14 +1821,18 @@ KV = """
                     pos: self.pos
                     size: self.size
             Label:
-                text: "Workout history"
+                text: app.tr("Workout history", app.language)
                 font_size: "18sp"
                 bold: True
                 color: 0.12, 0.14, 0.22, 1
                 size_hint_y: None
                 height: dp(26)
             WrapLabel:
-                text: "Current user: {}".format(app.root.current_user_display)
+                text: app.tr(
+                    "Current user: {value}",
+                    app.language,
+                    value=app.root.current_user_display,
+                )
                 color: 0.2, 0.2, 0.3, 1
             GridLayout:
                 cols: 2
@@ -1794,7 +1841,7 @@ KV = """
                 size_hint_y: None
                 height: self.minimum_height
                 WrapLabel:
-                    text: "Start date (YYYY-MM-DD)"
+                    text: app.tr("Start date (YYYY-MM-DD)", app.language)
                     color: 0.18, 0.18, 0.22, 1
                 BoxLayout:
                     spacing: dp(6)
@@ -1802,14 +1849,14 @@ KV = """
                         id: start_date_input
                         multiline: False
                         readonly: True
-                        hint_text: "optional"
+                        hint_text: app.tr("optional", app.language)
                     Button:
-                        text: "Pick"
+                        text: app.tr("Pick", app.language)
                         size_hint_x: None
                         width: dp(70)
                         on_release: app.root.open_date_picker(start_date_input)
                 WrapLabel:
-                    text: "End date (YYYY-MM-DD)"
+                    text: app.tr("End date (YYYY-MM-DD)", app.language)
                     color: 0.18, 0.18, 0.22, 1
                 BoxLayout:
                     spacing: dp(6)
@@ -1817,9 +1864,9 @@ KV = """
                         id: end_date_input
                         multiline: False
                         readonly: True
-                        hint_text: "optional"
+                        hint_text: app.tr("optional", app.language)
                     Button:
-                        text: "Pick"
+                        text: app.tr("Pick", app.language)
                         size_hint_x: None
                         width: dp(70)
                         on_release: app.root.open_date_picker(end_date_input)
@@ -1829,12 +1876,12 @@ KV = """
                 spacing: dp(10)
                 padding: dp(12), 0, dp(12), 0
                 Button:
-                    text: "Clear filter"
+                    text: app.tr("Clear filter", app.language)
                     size_hint_x: None
                     width: dp(150)
                     on_release: app.root.clear_history_filter()
                 Button:
-                    text: "Apply filter"
+                    text: app.tr("Apply filter", app.language)
                     size_hint_x: None
                     width: dp(150)
                     on_release: app.root.apply_history_filter()
@@ -1852,14 +1899,18 @@ KV = """
                         size: self.size
                         radius: [10,]
                 Label:
-                    text: "Stats"
+                    text: app.tr("Stats", app.language)
                     bold: True
                     font_size: "16sp"
                     color: 0.12, 0.14, 0.22, 1
                     size_hint_y: None
                     height: dp(22)
                 Label:
-                    text: "Total workouts: [b]{}[/b]".format(app.root.stats_total_workouts)
+                    text: app.tr(
+                        "Total workouts: [b]{value}[/b]",
+                        app.language,
+                        value=app.root.stats_total_workouts,
+                    )
                     markup: True
                     font_size: "15sp"
                     color: 0.16, 0.18, 0.26, 1
@@ -1868,7 +1919,11 @@ KV = """
                     size_hint_y: None
                     height: dp(20)
                 Label:
-                    text: "Total time: [b]{} min[/b]".format(app.root.stats_total_minutes)
+                    text: app.tr(
+                        "Total time: [b]{value} min[/b]",
+                        app.language,
+                        value=app.root.stats_total_minutes,
+                    )
                     markup: True
                     font_size: "15sp"
                     color: 0.16, 0.18, 0.26, 1
@@ -1877,7 +1932,11 @@ KV = """
                     size_hint_y: None
                     height: dp(20)
                 Label:
-                    text: "Total load: [b]{}[/b]".format(app.root.stats_total_weight)
+                    text: app.tr(
+                        "Total load: [b]{value}[/b]",
+                        app.language,
+                        value=app.root.stats_total_weight,
+                    )
                     markup: True
                     font_size: "15sp"
                     color: 0.16, 0.18, 0.26, 1
@@ -1886,7 +1945,11 @@ KV = """
                     size_hint_y: None
                     height: dp(20)
                 Label:
-                    text: "Top exercise: [b]{}[/b]".format(app.root.stats_top_exercise)
+                    text: app.tr(
+                        "Top exercise: [b]{value}[/b]",
+                        app.language,
+                        value=app.root.stats_top_exercise,
+                    )
                     markup: True
                     font_size: "15sp"
                     color: 0.16, 0.18, 0.26, 1
@@ -1900,12 +1963,12 @@ KV = """
                 spacing: dp(10)
                 padding: dp(12), 0, dp(12), 0
                 Button:
-                    text: "Log a completed workout"
+                    text: app.tr("Log a completed workout", app.language)
                     size_hint_x: None
                     width: dp(220)
                     on_release: app.root.open_workout_log_modal()
                 Button:
-                    text: "Refresh history"
+                    text: app.tr("Refresh history", app.language)
                     size_hint_x: None
                     width: dp(180)
                     on_release: app.root._load_history()
@@ -1937,7 +2000,7 @@ KV = """
             size_hint_y: None
             height: self.minimum_height
             WrapLabel:
-                text: "Goal"
+                text: app.tr("Goal", app.language)
                 color: 0.18, 0.18, 0.22, 1
             Spinner:
                 id: rec_goal_spinner
@@ -1945,7 +2008,7 @@ KV = """
                 values: app.root.goal_choice_options
                 on_text: app.root.rec_goal_spinner_text = self.text
             WrapLabel:
-                text: "Max time (minutes)"
+                text: app.tr("Max time (minutes)", app.language)
                 color: 0.18, 0.18, 0.22, 1
             TextInput:
                 id: rec_max_time
@@ -1957,17 +2020,17 @@ KV = """
             height: dp(40)
             spacing: dp(8)
             Button:
-                text: "Clear plan"
+                text: app.tr("Clear plan", app.language)
                 on_release: app.root.clear_recommendation_plan()
             Button:
-                text: "Generate recommendations"
+                text: app.tr("Generate recommendations", app.language)
                 on_release: app.root.handle_generate_recommendations()
         StatusBanner:
             text: app.root.rec_status_text
             status_color: app.root.rec_status_color
             is_error: app.root.rec_status_is_error
         Label:
-            text: "Recommended exercises"
+            text: app.tr("Recommended exercises", app.language)
             bold: True
             color: 0.12, 0.14, 0.22, 1
             size_hint_y: None
@@ -1986,7 +2049,7 @@ KV = """
                 height: self.minimum_height
                 spacing: dp(10)
         WrapLabel:
-            text: "Add your first exercise to get started." if not app.root.rec_plan else "Your training plan (reorder with Up/Down)"
+            text: app.tr("Add your first exercise to get started.", app.language) if not app.root.rec_plan else app.tr("Your training plan (reorder with Up/Down)", app.language)
             bold: False if not app.root.rec_plan else True
             color: (0.35, 0.35, 0.4, 1) if not app.root.rec_plan else (0.12, 0.14, 0.22, 1)
         RecycleView:
@@ -2008,10 +2071,15 @@ KV = """
             height: dp(36)
             spacing: dp(8)
             Label:
-                text: "Total time: {} / {} min".format(app.root.rec_total_minutes, app.root.rec_max_minutes_text or "0")
+                text: app.tr(
+                    "Total time: {current} / {max} min",
+                    app.language,
+                    current=app.root.rec_total_minutes,
+                    max=app.root.rec_max_minutes_text or "0",
+                )
                 color: 0.18, 0.18, 0.24, 1
             Button:
-                text: "Start training"
+                text: app.tr("Start training", app.language)
                 on_release: app.root.handle_start_training()
 
 <SummaryScreen>:
@@ -2030,7 +2098,7 @@ KV = """
                     pos: self.pos
                     size: self.size
             Label:
-                text: "Workout summary"
+                text: app.tr("Workout summary", app.language)
                 font_size: "20sp"
                 bold: True
                 color: 0.1, 0.12, 0.2, 1
@@ -2043,44 +2111,52 @@ KV = """
                 size_hint_y: None
                 height: self.minimum_height
                 Label:
-                    text: "Finished at"
+                    text: app.tr("Finished at", app.language)
                     color: 0.18, 0.18, 0.22, 1
                 WrapLabel:
                     text: app.root.summary_performed_at_display
                     color: 0.16, 0.2, 0.3, 1
                     halign: "left"
                 Label:
-                    text: "Goal"
+                    text: app.tr("Goal", app.language)
                     color: 0.18, 0.18, 0.22, 1
                 WrapLabel:
                     text: app.root.summary_goal_display
                     color: 0.16, 0.2, 0.3, 1
                 Label:
-                    text: "Total duration"
+                    text: app.tr("Total duration", app.language)
                     color: 0.18, 0.18, 0.22, 1
                 WrapLabel:
                     text: app.root.summary_duration_display
                     color: 0.16, 0.2, 0.3, 1
                 Label:
-                    text: "Completed sets"
+                    text: app.tr("Completed sets", app.language)
                     color: 0.18, 0.18, 0.22, 1
                 WrapLabel:
                     text: app.root.summary_sets_display
                     color: 0.16, 0.2, 0.3, 1
             Label:
-                text: "Completed exercises: {}".format(app.root.summary_completed_display)
+                text: app.tr(
+                    "Completed exercises: {value}",
+                    app.language,
+                    value=app.root.summary_completed_display,
+                )
                 color: 0.15, 0.18, 0.26, 1
                 text_size: self.width, None
                 size_hint_y: None
                 height: self.texture_size[1]
             Label:
-                text: "Skipped exercises: {}".format(app.root.summary_skipped_display)
+                text: app.tr(
+                    "Skipped exercises: {value}",
+                    app.language,
+                    value=app.root.summary_skipped_display,
+                )
                 color: 0.2, 0.16, 0.18, 1
                 text_size: self.width, None
                 size_hint_y: None
                 height: self.texture_size[1]
             Label:
-                text: "Attempted exercises with status:"
+                text: app.tr("Attempted exercises with status:", app.language)
                 bold: True
                 color: 0.12, 0.14, 0.22, 1
                 size_hint_y: None
@@ -2096,10 +2172,10 @@ KV = """
                 height: dp(44)
                 spacing: dp(10)
                 Button:
-                    text: "Return to main menu"
+                    text: app.tr("Return to main menu", app.language)
                     on_release: app.root.go_home()
                 Button:
-                    text: "Start a new training session"
+                    text: app.tr("Start a new training session", app.language)
                     on_release: app.root.start_new_session()
 <RootWidget>:
     orientation: "vertical"
@@ -2122,7 +2198,7 @@ KV = """
                 pos: self.pos
                 size: self.size
         Label:
-            text: "Exercise Manager"
+            text: app.tr("Exercise Manager", app.language)
             font_size: "18sp"
             bold: True
             color: 0.1, 0.12, 0.2, 1
@@ -2137,37 +2213,37 @@ KV = """
                 width: self.minimum_width
                 spacing: dp(10)
                 NavButton:
-                    text: "Home"
+                    text: app.tr("Home", app.language)
                     size_hint_x: None
                     width: dp(90)
                     on_release: root.go_home()
                 NavButton:
-                    text: "Browse"
+                    text: app.tr("Browse", app.language)
                     size_hint_x: None
                     width: dp(90)
                     on_release: root.go_browse()
                 NavButton:
-                    text: "Add"
+                    text: app.tr("Add", app.language)
                     size_hint_x: None
                     width: dp(90)
                     on_release: root.go_add()
                 NavButton:
-                    text: "Users"
+                    text: app.tr("Users", app.language)
                     size_hint_x: None
                     width: dp(90)
                     on_release: root.go_users()
                 NavButton:
-                    text: "History"
+                    text: app.tr("History", app.language)
                     size_hint_x: None
                     width: dp(90)
                     on_release: root.go_history()
                 NavButton:
-                    text: "Recommend"
+                    text: app.tr("Recommend", app.language)
                     size_hint_x: None
                     width: dp(110)
                     on_release: root.go_recommend()
                 NavButton:
-                    text: "Live"
+                    text: app.tr("Live", app.language)
                     size_hint_x: None
                     width: dp(90)
                     disabled: not app.root.live_active
@@ -2195,11 +2271,14 @@ KV = """
             name: "summary"
 """
 
+ALL_FILTER = "__all__"
+
 
 class ExerciseCard(BoxLayout):
     """Card widget that displays exercise details in browse lists."""
     # Kivy properties bound by the KV layout for exercise cards.
     name = StringProperty()
+    display_name = StringProperty()
     icon_source = StringProperty("")
     description = StringProperty()
     execution_instructions = StringProperty()
@@ -2301,6 +2380,7 @@ class RecommendationCard(BoxLayout):
     """Card widget that presents a recommended exercise."""
     # Kivy properties bound by recommendation list entries.
     name = StringProperty()
+    display_name = StringProperty()
     icon_source = StringProperty("")
     description = StringProperty()
     execution_instructions = StringProperty()
@@ -2329,8 +2409,19 @@ class DatePickerPopup(ModalView):
         self.selected_label = chosen.isoformat()
         self._shown_year = chosen.year
         self._shown_month = chosen.month
-        self.month_label = chosen.strftime("%B %Y")
+        self.month_label = localization.format_month_year(
+            self._shown_year,
+            self._shown_month,
+            self._current_language(),
+        )
         Clock.schedule_once(self._populate_calendar, 0)
+
+    def _current_language(self) -> str:
+        """Return the active language code."""
+        app = App.get_running_app()
+        if app and getattr(app, "language", None):
+            return app.language
+        return localization.DEFAULT_LANGUAGE
 
     def shift_month(self, delta: int) -> None:
         """Move the calendar view by the requested number of months."""
@@ -2365,7 +2456,11 @@ class DatePickerPopup(ModalView):
         if update_month:
             self._shown_year = selected.year
             self._shown_month = selected.month
-            self.month_label = selected.strftime("%B %Y")
+            self.month_label = localization.format_month_year(
+                self._shown_year,
+                self._shown_month,
+                self._current_language(),
+            )
         self._populate_calendar()
 
     def _set_selected_day(self, day: int, *_: Any) -> None:
@@ -2383,7 +2478,11 @@ class DatePickerPopup(ModalView):
         new_year, month_index = divmod(total_months, 12)
         self._shown_year = new_year
         self._shown_month = month_index + 1
-        self.month_label = date(self._shown_year, self._shown_month, 1).strftime("%B %Y")
+        self.month_label = localization.format_month_year(
+            self._shown_year,
+            self._shown_month,
+            self._current_language(),
+        )
         self._populate_calendar()
 
     def _populate_calendar(self, *_: Any) -> None:
@@ -2393,7 +2492,7 @@ class DatePickerPopup(ModalView):
             return
         grid = self.ids.day_grid
         grid.clear_widgets()
-        for weekday in ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"):
+        for weekday in localization.weekday_labels(self._current_language()):
             grid.add_widget(
                 Label(
                     text=weekday,
@@ -2462,6 +2561,7 @@ class RecommendationDetailsModal(ModalView):
     """Modal showing detailed information for one recommendation."""
     # Kivy properties bound by the detail template.
     exercise_name = StringProperty("")
+    exercise_key = StringProperty("")
     description = StringProperty("")
     execution_instructions = StringProperty("")
     muscle_group = StringProperty("")
@@ -2491,6 +2591,9 @@ class RootWidget(BoxLayout):
     history_exercise_filtered_options = ListProperty()
     workout_goal_options = ListProperty()
     icon_choice_options = ListProperty()
+    language_options = ListProperty()
+    language_spinner_text = StringProperty("")
+    supports_weight_options = ListProperty()
     weight_unit_options = ListProperty(["kg"])
     _goal_weight_multipliers = {
         "muscle_building": 1.0,
@@ -2499,9 +2602,9 @@ class RootWidget(BoxLayout):
         "endurance_increase": 0.7,
     }
 
-    goal_spinner_text = StringProperty("All goals")
-    muscle_spinner_text = StringProperty("All muscle groups")
-    equipment_spinner_text = StringProperty("All equipment")
+    goal_spinner_text = StringProperty("")
+    muscle_spinner_text = StringProperty("")
+    equipment_spinner_text = StringProperty("")
     filter_goal_color = ListProperty((0.93, 0.95, 0.98, 1))
     filter_goal_text_color = ListProperty((0.2, 0.2, 0.25, 1))
     filter_muscle_color = ListProperty((0.93, 0.95, 0.98, 1))
@@ -2512,31 +2615,31 @@ class RootWidget(BoxLayout):
     add_muscle_spinner_text = StringProperty("")
     add_equipment_spinner_text = StringProperty("")
     add_supports_weight = BooleanProperty(False)
-    add_supports_weight_spinner_text = StringProperty("No")
+    add_supports_weight_spinner_text = StringProperty("")
     add_weight_unit_spinner_text = StringProperty("kg")
     rating_spinner_text = StringProperty("5")
-    icon_choice_spinner_text = StringProperty("No icon")
-    history_exercise_spinner_text = StringProperty("Select exercise")
-    workout_goal_spinner_text = StringProperty("No goal")
+    icon_choice_spinner_text = StringProperty("")
+    history_exercise_spinner_text = StringProperty("")
+    workout_goal_spinner_text = StringProperty("")
     history_exercise_filter = StringProperty("")
 
-    filter_goal = StringProperty("All")
-    filter_muscle_group = StringProperty("All")
-    filter_equipment = StringProperty("All")
+    filter_goal = StringProperty(ALL_FILTER)
+    filter_muscle_group = StringProperty(ALL_FILTER)
+    filter_equipment = StringProperty(ALL_FILTER)
     status_text = StringProperty("")
     status_color = ListProperty((0.14, 0.4, 0.2, 1))
     muscle_choice_display = StringProperty("")
     equipment_choice_display = StringProperty("")
     add_icon_source = StringProperty("")
-    user_spinner_text = StringProperty("Select user")
-    current_user_display = StringProperty("No user selected")
+    user_spinner_text = StringProperty("")
+    current_user_display = StringProperty("")
     user_status_text = StringProperty("")
     user_status_color = ListProperty((0.14, 0.4, 0.2, 1))
-    register_goal_spinner_text = StringProperty("No goal")
+    register_goal_spinner_text = StringProperty("")
     register_status_text = StringProperty("")
     register_status_color = ListProperty((0.14, 0.4, 0.2, 1))
     user_profile_name = StringProperty("")
-    user_profile_goal = StringProperty("No goal")
+    user_profile_goal = StringProperty("")
     user_profile_status_text = StringProperty("")
     user_profile_status_color = ListProperty((0.14, 0.4, 0.2, 1))
     history_status_text = StringProperty("")
@@ -2559,9 +2662,9 @@ class RootWidget(BoxLayout):
     live_paused = BooleanProperty(False)
     live_started = BooleanProperty(False)
     live_exercises = ListProperty()
-    live_progress_display = StringProperty("No session")
-    live_state_display = StringProperty("Not started")
-    live_exercise_title = StringProperty("No exercise running")
+    live_progress_display = StringProperty("")
+    live_state_display = StringProperty("")
+    live_exercise_title = StringProperty("")
     live_icon_display = StringProperty("")
     live_icon_source = StringProperty("")
     live_muscle_display = StringProperty("")
@@ -2570,15 +2673,15 @@ class RootWidget(BoxLayout):
     live_exercise_description = StringProperty("")
     live_exercise_instructions = StringProperty("")
     live_details_expanded = BooleanProperty(False)
-    live_exercise_target_display = StringProperty("—")
-    live_set_target_display = StringProperty("—")
+    live_exercise_target_display = StringProperty("")
+    live_set_target_display = StringProperty("")
     live_rest_setting_text = StringProperty("30")
     live_weight_value_text = StringProperty("")
     live_weight_unit_text = StringProperty("kg")
     live_weight_visible = BooleanProperty(False)
     live_exercise_timer = StringProperty("00:00")
     live_set_timer = StringProperty("00:00")
-    live_rest_timer = StringProperty("—")
+    live_rest_timer = StringProperty("")
     live_current_set_display = StringProperty("")
     live_exercise_progress = NumericProperty(0.0)
     live_progress_timer = StringProperty("00:00")
@@ -2589,13 +2692,13 @@ class RootWidget(BoxLayout):
     live_hint_color = ListProperty((0.14, 0.4, 0.2, 1))
     live_signal_text = StringProperty("")
     live_signal_color = ListProperty((0.16, 0.32, 0.6, 1))
-    live_upcoming_display = StringProperty("None")
+    live_upcoming_display = StringProperty("")
     summary_duration_display = StringProperty("00:00")
     summary_sets_display = StringProperty("0")
-    summary_completed_display = StringProperty("None")
-    summary_skipped_display = StringProperty("None")
+    summary_completed_display = StringProperty("")
+    summary_skipped_display = StringProperty("")
     summary_attempts_display = StringProperty("")
-    summary_goal_display = StringProperty("—")
+    summary_goal_display = StringProperty("")
     summary_performed_at_display = StringProperty("")
 
     def __init__(self, **kwargs):
@@ -2611,8 +2714,14 @@ class RootWidget(BoxLayout):
         self.current_user_id: Optional[int] = None
         self.history_start: Optional[str] = None
         self.history_end: Optional[str] = None
-        self._goal_label_map = {self._pretty_goal(goal): goal for goal in exercise_database.GOALS}
-        self._goal_code_label_map = {goal: self._pretty_goal(goal) for goal in exercise_database.GOALS}
+        self._goal_label_map: dict[str, str] = {}
+        self._goal_code_label_map: dict[str, str] = {}
+        self._exercise_display_to_key: dict[str, str] = {}
+        self._exercise_key_to_display: dict[str, str] = {}
+        self._muscle_display_to_key: dict[str, str] = {}
+        self._muscle_key_to_display: dict[str, str] = {}
+        self._equipment_display_to_key: dict[str, str] = {}
+        self._equipment_key_to_display: dict[str, str] = {}
         self._workout_log_modal: Optional[WorkoutLogModal] = None
         self._goal_prompt_modal: Optional[GoalPromptModal] = None
         self._recommendation_detail_modal: Optional[RecommendationDetailsModal] = None
@@ -2633,20 +2742,102 @@ class RootWidget(BoxLayout):
         self._live_current_logged = False
         self.live_rest_seconds = 30
         self.live_rest_setting_text = str(int(self.live_rest_seconds))
+        self._apply_language_defaults()
+        self._rebuild_goal_maps()
         self._icon_lookup = self._build_icon_lookup()
         self.icon_choice_options = self._build_icon_choice_options()
         if self.icon_choice_spinner_text not in self.icon_choice_options:
-            self.icon_choice_spinner_text = "No icon"
+            self.icon_choice_spinner_text = self._no_icon_label
         self.on_icon_choice_change(self.icon_choice_spinner_text)
         self._signal_clear_event = None
         self._live_phase = "idle"
         self._update_rec_plan_height()
         Clock.schedule_once(self._bootstrap_data, 0)
 
+    def _current_language(self) -> str:
+        """Return the active language code."""
+        app = App.get_running_app()
+        if app and getattr(app, "language", None):
+            return app.language
+        return localization.DEFAULT_LANGUAGE
+
+    def _t(self, text: str, **kwargs: Any) -> str:
+        """Translate UI text for the active language."""
+        return localization.translate(text, self._current_language(), **kwargs)
+
+    def _apply_language_defaults(self) -> None:
+        """Set translated defaults for shared labels and options."""
+        self._all_goals_label = self._t("All goals")
+        self._all_muscle_groups_label = self._t("All muscle groups")
+        self._all_equipment_label = self._t("All equipment")
+        self._no_goal_label = self._t("No goal")
+        self._select_user_label = self._t("Select user")
+        self._no_user_label = self._t("No user selected")
+        self._no_icon_label = self._t("No icon")
+        self._select_icon_label = self._t("Select icon")
+        self._no_icons_label = self._t("No icons found")
+        self._select_exercise_label = self._t("Select exercise")
+        self._no_matches_label = self._t("No matches")
+        self._no_exercises_label = self._t("No exercises")
+        self._none_label = self._t("None")
+        self.supports_weight_options = [self._t("No"), self._t("Yes")]
+        self.language_options = list(localization.LANGUAGE_LABELS.values())
+        self.language_spinner_text = localization.LANGUAGE_LABELS.get(
+            self._current_language(),
+            localization.LANGUAGE_LABELS[localization.DEFAULT_LANGUAGE],
+        )
+        if not self.goal_spinner_text:
+            self.goal_spinner_text = self._all_goals_label
+        if not self.muscle_spinner_text:
+            self.muscle_spinner_text = self._all_muscle_groups_label
+        if not self.equipment_spinner_text:
+            self.equipment_spinner_text = self._all_equipment_label
+        if not self.workout_goal_spinner_text:
+            self.workout_goal_spinner_text = self._no_goal_label
+        if not self.history_exercise_spinner_text:
+            self.history_exercise_spinner_text = self._select_exercise_label
+        if not self.user_spinner_text:
+            self.user_spinner_text = self._select_user_label
+        if not self.current_user_display:
+            self.current_user_display = self._no_user_label
+        if not self.register_goal_spinner_text:
+            self.register_goal_spinner_text = self._no_goal_label
+        if not self.user_profile_goal:
+            self.user_profile_goal = self._no_goal_label
+        if not self.add_supports_weight_spinner_text:
+            self.add_supports_weight_spinner_text = self._t("Yes") if self.add_supports_weight else self._t("No")
+        if not self.icon_choice_spinner_text:
+            self.icon_choice_spinner_text = self._no_icon_label
+        if not self.live_progress_display:
+            self.live_progress_display = self._t("No session running")
+        if not self.live_state_display:
+            self.live_state_display = self._t("Not started")
+        if not self.live_exercise_title:
+            self.live_exercise_title = self._t("No exercise running")
+        if not self.live_exercise_target_display:
+            self.live_exercise_target_display = "—"
+        if not self.live_set_target_display:
+            self.live_set_target_display = "—"
+        if not self.live_rest_timer:
+            self.live_rest_timer = "—"
+        if not self.live_upcoming_display:
+            self.live_upcoming_display = self._none_label
+        if self.summary_completed_display == "":
+            self.summary_completed_display = self._none_label
+        if self.summary_skipped_display == "":
+            self.summary_skipped_display = self._none_label
+        if not self.summary_goal_display:
+            self.summary_goal_display = "—"
+
+    def _rebuild_goal_maps(self) -> None:
+        """Refresh localized goal label maps for the active language."""
+        self._goal_label_map = {self._pretty_goal(goal): goal for goal in exercise_database.GOALS}
+        self._goal_code_label_map = {goal: self._pretty_goal(goal) for goal in exercise_database.GOALS}
+
     def _pretty_goal(self, goal: str) -> str:
         """Return a title-cased goal label for UI display."""
         # Keep label formatting consistent across screens.
-        return goal.replace("_", " ").title()
+        return localization.translate_goal(goal, self._current_language())
 
     def _normalize_equipment_items(self, equipment: str) -> list[str]:
         """Normalize equipment tags into canonical display values."""
@@ -2662,6 +2853,34 @@ class RootWidget(BoxLayout):
         """Join normalized tags for UI presentation."""
         # Use the shared formatting helper for consistent output.
         return exercise_database.format_tag_list(items)
+
+    def _localize_muscle_label(self, value: str) -> str:
+        """Translate canonical muscle group labels for display."""
+        return localization.translate_muscle(value, self._current_language())
+
+    def _localize_equipment_label(self, value: str) -> str:
+        """Translate canonical equipment labels for display."""
+        return localization.translate_equipment(value, self._current_language())
+
+    def _localize_exercise_name(self, name: str) -> str:
+        """Translate seeded exercise names when possible."""
+        return localization.translate_exercise_name(name, self._current_language())
+
+    def _localize_exercise_description(self, name: str, description: str) -> str:
+        """Translate seeded exercise descriptions when possible."""
+        return localization.translate_exercise_description(name, description, self._current_language())
+
+    def _localize_exercise_instructions(self, name: str, instructions: str) -> str:
+        """Translate seeded exercise instructions when possible."""
+        return localization.translate_exercise_instructions(name, instructions, self._current_language())
+
+    def _display_exercise_name(self, name: str) -> str:
+        """Return the localized display name for a canonical exercise name."""
+        return self._exercise_key_to_display.get(name, self._localize_exercise_name(name))
+
+    def _resolve_exercise_name(self, name: str) -> str:
+        """Map a displayed exercise name back to its canonical value."""
+        return self._exercise_display_to_key.get(name, name)
 
     def _normalize_weight_unit(self, value: str) -> Optional[str]:
         """Normalize weight units to kg."""
@@ -2685,7 +2904,7 @@ class RootWidget(BoxLayout):
     ) -> str:
         """Build a friendly weight label for UI display."""
         if not supports_weight:
-            return "Bodyweight"
+            return self._t("Bodyweight")
         if value is None or not unit:
             return "—"
         formatted = self._format_weight_value(value)
@@ -2707,14 +2926,15 @@ class RootWidget(BoxLayout):
 
     def _record_for_name(self, name: str) -> Optional[dict[str, Any]]:
         """Return a record dict matching the given exercise name."""
-        key = name.strip().lower()
+        canonical = self._resolve_exercise_name(name)
+        key = canonical.strip().lower()
         matches = [r for r in self.records if r.get("name", "").lower() == key]
         if not matches:
             return None
         goal_code = None
-        if self.workout_goal_spinner_text and self.workout_goal_spinner_text != "No goal":
+        if self.workout_goal_spinner_text and self.workout_goal_spinner_text != self._no_goal_label:
             goal_code = self._goal_label_map.get(self.workout_goal_spinner_text)
-        if goal_code is None and self.user_profile_goal and self.user_profile_goal != "No goal":
+        if goal_code is None and self.user_profile_goal and self.user_profile_goal != self._no_goal_label:
             goal_code = self._goal_label_map.get(self.user_profile_goal)
         if goal_code:
             match = next((r for r in matches if r.get("goal") == goal_code), None)
@@ -2756,7 +2976,7 @@ class RootWidget(BoxLayout):
         # Present a stable, sorted list with a fallback option.
         icon_dir = Path(__file__).with_name("Pictures")
         if not icon_dir.is_dir():
-            return ["No icon"]
+            return [self._no_icon_label]
         choices: list[str] = []
         for entry in sorted(icon_dir.iterdir(), key=lambda path: path.name.lower()):
             if not entry.is_file():
@@ -2766,7 +2986,7 @@ class RootWidget(BoxLayout):
             slug = self._slugify_icon_name(entry.stem)
             if slug and slug not in choices:
                 choices.append(slug)
-        return ["No icon"] + choices if choices else ["No icon"]
+        return [self._no_icon_label] + choices if choices else [self._no_icon_label]
 
     def _resolve_icon_source(self, icon_name: str) -> str:
         """Resolve an icon name to a file path using fuzzy matching."""
@@ -2795,8 +3015,8 @@ class RootWidget(BoxLayout):
     def on_icon_choice_change(self, value: str) -> None:
         """Handle spinner selection for exercise icon choice."""
         # Normalize and resolve the icon source for preview.
-        if not value or value in {"No icon", "Select icon", "No icons found"}:
-            self.icon_choice_spinner_text = "No icon"
+        if not value or value in {self._no_icon_label, self._select_icon_label, self._no_icons_label}:
+            self.icon_choice_spinner_text = self._no_icon_label
             self.add_icon_source = ""
             return
         self.icon_choice_spinner_text = value
@@ -2827,7 +3047,7 @@ class RootWidget(BoxLayout):
         # Prefer a user profile goal when possible.
         if self.user_profile_goal and self.user_profile_goal in self.goal_choice_options:
             return self.user_profile_goal
-        return "No goal"
+        return self._no_goal_label
 
     def on_user_profile_goal(self, *_: Any) -> None:
         """Sync dependent goal state when the profile goal changes."""
@@ -2853,12 +3073,178 @@ class RootWidget(BoxLayout):
         if self.goal_choice_options and not self.rec_goal_spinner_text:
             self.rec_goal_spinner_text = self.goal_choice_options[0]
 
+    def on_language_selected(self, label: str) -> None:
+        """Switch the UI language based on spinner selection."""
+        # Map display label back to language code.
+        selected_code = None
+        for code, name in localization.LANGUAGE_LABELS.items():
+            if name == label:
+                selected_code = code
+                break
+        if not selected_code:
+            selected_code = localization.DEFAULT_LANGUAGE
+        app = App.get_running_app()
+        if app and getattr(app, "language", None) != selected_code:
+            app.language = selected_code
+        self.language_spinner_text = localization.LANGUAGE_LABELS.get(selected_code, label)
+        self.apply_language()
+
+    def apply_language(self) -> None:
+        """Refresh translated labels and lists after a language change."""
+        # Preserve selections using canonical keys before rebuilding labels.
+        old_goal_map = dict(self._goal_label_map)
+        old_muscle_map = dict(self._muscle_display_to_key)
+        old_equipment_map = dict(self._equipment_display_to_key)
+        old_exercise_map = dict(self._exercise_display_to_key)
+        old_no_icon = getattr(self, "_no_icon_label", "No icon")
+        old_select_icon = getattr(self, "_select_icon_label", "Select icon")
+        old_no_icons = getattr(self, "_no_icons_label", "No icons found")
+        old_select_exercise = getattr(self, "_select_exercise_label", "Select exercise")
+        old_no_matches = getattr(self, "_no_matches_label", "No matches")
+        old_no_exercises = getattr(self, "_no_exercises_label", "No exercises")
+
+        add_goal_code = old_goal_map.get(self.add_goal_spinner_text)
+        register_goal_code = old_goal_map.get(self.register_goal_spinner_text)
+        profile_goal_code = old_goal_map.get(self.user_profile_goal)
+        rec_goal_code = old_goal_map.get(self.rec_goal_spinner_text)
+        workout_goal_code = localization.goal_code_from_label(self.workout_goal_spinner_text)
+
+        add_muscle_key = old_muscle_map.get(self.add_muscle_spinner_text)
+        add_equipment_key = old_equipment_map.get(self.add_equipment_spinner_text)
+
+        history_exercise_key = old_exercise_map.get(self.history_exercise_spinner_text)
+        icon_choice = self.icon_choice_spinner_text
+        icon_is_placeholder = icon_choice in {old_no_icon, old_select_icon, old_no_icons}
+
+        self._apply_language_defaults()
+        self._rebuild_goal_maps()
+        self.records = self._load_records()
+        self._update_filter_options()
+
+        if self.rec_recommendations:
+            for rec in self.rec_recommendations:
+                record = next((r for r in self.records if r["name"] == rec.get("name")), None)
+                if record:
+                    rec["display_name"] = record.get("display_name", rec.get("name", ""))
+                    rec["description"] = record.get("description", rec.get("description", ""))
+                    rec["execution_instructions"] = record.get(
+                        "execution_instructions", rec.get("execution_instructions", "")
+                    )
+                    rec["muscle_group"] = record.get("muscle_group", rec.get("muscle_group", ""))
+                    rec["equipment"] = record.get("equipment", rec.get("equipment", ""))
+                    rec["recommendation"] = record.get("recommendation", rec.get("recommendation", ""))
+                    rec["goal_label"] = record.get("goal_label", rec.get("goal_label", ""))
+            self._recommend_screen().ids.rec_list.data = self.rec_recommendations
+
+        if self.rec_plan:
+            for item in self.rec_plan:
+                record = next((r for r in self.records if r["name"] == item.get("name")), None)
+                if record:
+                    item["display_name"] = record.get("display_name", item.get("name", ""))
+                    item["execution_instructions"] = record.get(
+                        "execution_instructions", item.get("execution_instructions", "")
+                    )
+                    item["muscle_group"] = record.get("muscle_group", item.get("muscle_group", ""))
+                    item["equipment"] = record.get("equipment", item.get("equipment", ""))
+                    item["recommendation"] = record.get("recommendation", item.get("recommendation", ""))
+                item["display"] = self._t(
+                    "{name} ({minutes} min)",
+                    name=item.get("display_name", item.get("name", "")),
+                    minutes=item.get("estimated_minutes", "0"),
+                )
+            self._refresh_recommendation_view()
+
+        if self.live_exercises:
+            for ex in self.live_exercises:
+                record = next((r for r in self.records if r["name"] == ex.get("name")), None)
+                if record:
+                    ex["display_name"] = record.get("display_name", ex.get("name", ""))
+                    ex["description"] = record.get("description", ex.get("description", ""))
+                    ex["execution_instructions"] = record.get(
+                        "execution_instructions", ex.get("execution_instructions", "")
+                    )
+                    ex["muscle_group"] = record.get("muscle_group", ex.get("muscle_group", ""))
+                    ex["equipment"] = record.get("equipment", ex.get("equipment", ""))
+                    ex["recommendation"] = record.get("recommendation", ex.get("recommendation", ""))
+
+        if self.filter_goal != ALL_FILTER:
+            self.goal_spinner_text = self._goal_code_label_map.get(self.filter_goal, self._all_goals_label)
+        else:
+            self.goal_spinner_text = self._all_goals_label
+        if self.filter_muscle_group != ALL_FILTER:
+            self.muscle_spinner_text = self._muscle_key_to_display.get(
+                self.filter_muscle_group, self._all_muscle_groups_label
+            )
+        else:
+            self.muscle_spinner_text = self._all_muscle_groups_label
+        if self.filter_equipment != ALL_FILTER:
+            self.equipment_spinner_text = self._equipment_key_to_display.get(
+                self.filter_equipment, self._all_equipment_label
+            )
+        else:
+            self.equipment_spinner_text = self._all_equipment_label
+
+        if add_goal_code:
+            self.add_goal_spinner_text = self._goal_code_label_map.get(add_goal_code, self._preferred_goal_label())
+        elif self.goal_choice_options:
+            self.add_goal_spinner_text = self._preferred_goal_label()
+
+        if register_goal_code:
+            self.register_goal_spinner_text = self._goal_code_label_map.get(register_goal_code, self._no_goal_label)
+        else:
+            self.register_goal_spinner_text = self._no_goal_label
+
+        if profile_goal_code:
+            self.user_profile_goal = self._goal_code_label_map.get(profile_goal_code, self._no_goal_label)
+        else:
+            self.user_profile_goal = self._no_goal_label
+
+        if rec_goal_code:
+            self.rec_goal_spinner_text = self._goal_code_label_map.get(rec_goal_code, "")
+        elif self.goal_choice_options:
+            self.rec_goal_spinner_text = self.goal_choice_options[0]
+
+        if workout_goal_code:
+            self.workout_goal_spinner_text = self._goal_code_label_map.get(workout_goal_code, self._no_goal_label)
+        else:
+            self.workout_goal_spinner_text = self._no_goal_label
+
+        if add_muscle_key:
+            self.add_muscle_spinner_text = self._muscle_key_to_display.get(add_muscle_key, "")
+        elif self.muscle_choice_options:
+            self.add_muscle_spinner_text = self.muscle_choice_options[0]
+
+        if add_equipment_key:
+            self.add_equipment_spinner_text = self._equipment_key_to_display.get(add_equipment_key, "")
+        elif self.equipment_choice_options:
+            self.add_equipment_spinner_text = self.equipment_choice_options[0]
+
+        if icon_is_placeholder:
+            self.icon_choice_spinner_text = self._no_icon_label
+        elif self.icon_choice_spinner_text not in self.icon_choice_options:
+            self.icon_choice_spinner_text = self._no_icon_label
+
+        if history_exercise_key:
+            self.history_exercise_spinner_text = self._exercise_key_to_display.get(
+                history_exercise_key, self._select_exercise_label
+            )
+        elif self.history_exercise_spinner_text in {old_select_exercise, old_no_matches, old_no_exercises}:
+            self.history_exercise_spinner_text = self._select_exercise_label
+
+        self.add_supports_weight_spinner_text = self._t("Yes") if self.add_supports_weight else self._t("No")
+        self._update_filter_colors()
+        self.apply_filters()
+        self._load_history()
+        self._update_live_labels()
+
     def _load_records(self) -> list[dict[str, Any]]:
         """Fetch exercise rows and normalize them for UI usage."""
         # Convert database rows into dictionaries used by filters and lists.
         with exercise_database.get_connection() as conn:
             rows = exercise_database.fetch_all(conn)
         records: list[dict[str, Any]] = []
+        self._exercise_display_to_key = {}
+        self._exercise_key_to_display = {}
         for (
             name,
             icon,
@@ -2877,21 +3263,33 @@ class RootWidget(BoxLayout):
         ) in rows:
             if not name or not description:
                 continue
+            canonical_name = name
+            display_name = self._localize_exercise_name(canonical_name)
+            display_description = self._localize_exercise_description(canonical_name, description)
+            display_instructions = self._localize_exercise_instructions(
+                canonical_name, execution_instructions or ""
+            )
             muscle_items = self._normalize_muscle_groups(muscle_group)
             equipment_items = self._normalize_equipment_items(equipment)
-            muscle_display = self._format_tag_display(muscle_items) or muscle_group
-            equipment_display = self._format_tag_display(equipment_items) or equipment
+            muscle_display_items = [self._localize_muscle_label(item) for item in muscle_items]
+            equipment_display_items = [self._localize_equipment_label(item) for item in equipment_items]
+            muscle_display = self._format_tag_display(muscle_display_items) or muscle_group
+            equipment_display = self._format_tag_display(equipment_display_items) or equipment
             recommendation_parts = []
             if sets is not None and reps is not None:
-                recommendation_parts.append(f"{sets} sets x {reps} reps")
+                recommendation_parts.append(
+                    self._t("{sets} sets x {reps} reps", sets=sets, reps=reps)
+                )
             elif sets is not None:
-                recommendation_parts.append(f"{sets} sets")
+                recommendation_parts.append(self._t("{sets} sets", sets=sets))
             if time_seconds is not None:
-                recommendation_parts.append(f"{time_seconds}s hold")
+                recommendation_parts.append(
+                    self._t("{seconds}s hold", seconds=time_seconds)
+                )
             icon_value = icon or ""
             icon_source = self._resolve_icon_source(icon_value)
-            if not icon_source and name:
-                icon_source = self._resolve_icon_source(name)
+            if not icon_source and canonical_name:
+                icon_source = self._resolve_icon_source(canonical_name)
             supports_weight_flag = bool(supports_weight)
             if supports_weight is None:
                 supports_weight_flag = exercise_database.infer_supports_weight(equipment_display)
@@ -2907,15 +3305,26 @@ class RootWidget(BoxLayout):
             if supports_weight_flag and adjusted_weight_value is not None:
                 weight_label = self._format_weight_value(adjusted_weight_value)
                 if weight_label and normalized_weight_unit:
-                    recommendation_parts.append(f"Weight {weight_label} {normalized_weight_unit}")
-            recommendation = " • ".join(recommendation_parts) if recommendation_parts else "Adjust volume to preference"
+                    recommendation_parts.append(
+                        self._t(
+                            "Weight {value} {unit}",
+                            value=weight_label,
+                            unit=normalized_weight_unit,
+                        )
+                    )
+            recommendation = " • ".join(recommendation_parts) if recommendation_parts else self._t(
+                "Adjust volume to preference"
+            )
+            self._exercise_key_to_display.setdefault(canonical_name, display_name)
+            self._exercise_display_to_key.setdefault(display_name, canonical_name)
             records.append(
                 {
-                    "name": name,
+                    "name": canonical_name,
+                    "display_name": display_name,
                     "icon": icon_value,
                     "icon_source": icon_source,
-                    "description": description,
-                    "execution_instructions": execution_instructions or "",
+                    "description": display_description,
+                    "execution_instructions": display_instructions,
                     "equipment": equipment_display,
                     "equipment_items": set(equipment_items),
                     "muscle_group": muscle_display,
@@ -2938,48 +3347,75 @@ class RootWidget(BoxLayout):
     def _update_filter_options(self) -> None:
         """Refresh filter option lists and spinner defaults."""
         # Regenerate filter choices based on available records.
-        muscle_choices = sorted(
+        selected_muscle_key = self._muscle_display_to_key.get(self.add_muscle_spinner_text)
+        selected_equipment_key = self._equipment_display_to_key.get(self.add_equipment_spinner_text)
+        muscle_keys = sorted(
             {item for record in self.records for item in record.get("muscle_groups", set())}
         )
-        equipment_choices = sorted(
+        equipment_keys = sorted(
             {item for record in self.records for item in record.get("equipment_items", set())}
         )
-        if "Dumbbell" not in equipment_choices:
-            equipment_choices.append("Dumbbell")
+        if "Dumbbell" not in equipment_keys:
+            equipment_keys.append("Dumbbell")
+
+        self._muscle_key_to_display = {
+            key: self._localize_muscle_label(key) for key in muscle_keys
+        }
+        self._muscle_display_to_key = {value: key for key, value in self._muscle_key_to_display.items()}
+        muscle_choices = [self._muscle_key_to_display[key] for key in muscle_keys]
         self.muscle_choice_options = muscle_choices
-        self.muscle_choice_display = ", ".join(muscle_choices) if muscle_choices else "No known groups yet."
+        self.muscle_choice_display = ", ".join(muscle_choices) if muscle_choices else self._t("No known groups yet.")
+        if selected_muscle_key:
+            self.add_muscle_spinner_text = self._muscle_key_to_display.get(selected_muscle_key, "")
         if not self.add_muscle_spinner_text and muscle_choices:
             self.add_muscle_spinner_text = muscle_choices[0]
         if muscle_choices and self.add_muscle_spinner_text not in muscle_choices:
             self.add_muscle_spinner_text = muscle_choices[0]
 
-        self.equipment_choice_options = equipment_choices if equipment_choices else ["Bodyweight"]
+        self._equipment_key_to_display = {
+            key: self._localize_equipment_label(key) for key in equipment_keys
+        }
+        self._equipment_display_to_key = {
+            value: key for key, value in self._equipment_key_to_display.items()
+        }
+        equipment_choices = [self._equipment_key_to_display[key] for key in equipment_keys]
+        if not equipment_choices:
+            equipment_choices = [self._t("Bodyweight")]
+            self._equipment_key_to_display = {"Bodyweight": equipment_choices[0]}
+            self._equipment_display_to_key = {equipment_choices[0]: "Bodyweight"}
+        self.equipment_choice_options = equipment_choices
         self.equipment_choice_display = ", ".join(self.equipment_choice_options) if self.equipment_choice_options else ""
+        if selected_equipment_key:
+            self.add_equipment_spinner_text = self._equipment_key_to_display.get(selected_equipment_key, "")
+        if not self.add_equipment_spinner_text and equipment_choices:
+            self.add_equipment_spinner_text = equipment_choices[0]
         self.on_add_equipment_change(self._resolve_equipment_choice(self.add_equipment_spinner_text))
 
-        self.goal_options = ["All goals"] + self.goal_choice_options
-        self.user_goal_options = ["No goal"] + self.goal_choice_options
-        muscle_options = ["All muscle groups"] + muscle_choices
-        equipment_options = ["All equipment"] + equipment_choices
+        self.goal_options = [self._all_goals_label] + self.goal_choice_options
+        self.user_goal_options = [self._no_goal_label] + self.goal_choice_options
+        muscle_options = [self._all_muscle_groups_label] + muscle_choices
+        equipment_options = [self._all_equipment_label] + equipment_choices
         if self.muscle_spinner_text not in muscle_options:
-            self.muscle_spinner_text = "All muscle groups"
-            self.filter_muscle_group = "All"
+            self.muscle_spinner_text = self._all_muscle_groups_label
+            self.filter_muscle_group = ALL_FILTER
         if self.equipment_spinner_text not in equipment_options:
-            self.equipment_spinner_text = "All equipment"
-            self.filter_equipment = "All"
+            self.equipment_spinner_text = self._all_equipment_label
+            self.filter_equipment = ALL_FILTER
         self.muscle_options = muscle_options
         self.equipment_options = equipment_options
         if self.goal_choice_options and self.add_goal_spinner_text not in self.goal_choice_options:
             self.add_goal_spinner_text = self._preferred_goal_label()
         if self.user_profile_goal not in self.user_goal_options:
-            self.user_profile_goal = "No goal"
-        self.history_exercise_options = sorted({r["name"] for r in self.records})
+            self.user_profile_goal = self._no_goal_label
+        self.history_exercise_options = sorted(
+            {r.get("display_name", r.get("name", "")) for r in self.records if r.get("name")}
+        )
         self._refresh_history_exercise_filtered_options()
-        self.workout_goal_options = ["No goal"] + self.goal_choice_options
+        self.workout_goal_options = [self._no_goal_label] + self.goal_choice_options
         if self.workout_goal_spinner_text not in self.workout_goal_options:
-            self.workout_goal_spinner_text = "No goal"
+            self.workout_goal_spinner_text = self._no_goal_label
         if self.register_goal_spinner_text not in self.user_goal_options:
-            self.register_goal_spinner_text = "No goal"
+            self.register_goal_spinner_text = self._no_goal_label
         self._sync_recommendation_goal()
         self._update_filter_colors()
 
@@ -3006,7 +3442,7 @@ class RootWidget(BoxLayout):
         active_text = (1, 1, 1, 1)
         self.filter_goal_color, self.filter_goal_text_color = self._resolve_filter_colors(
             self.goal_spinner_text,
-            "All goals",
+            self._all_goals_label,
             (0.18, 0.5, 0.85, 1),
             inactive_color,
             inactive_text,
@@ -3014,7 +3450,7 @@ class RootWidget(BoxLayout):
         )
         self.filter_muscle_color, self.filter_muscle_text_color = self._resolve_filter_colors(
             self.muscle_spinner_text,
-            "All muscle groups",
+            self._all_muscle_groups_label,
             (0.2, 0.65, 0.38, 1),
             inactive_color,
             inactive_text,
@@ -3022,7 +3458,7 @@ class RootWidget(BoxLayout):
         )
         self.filter_equipment_color, self.filter_equipment_text_color = self._resolve_filter_colors(
             self.equipment_spinner_text,
-            "All equipment",
+            self._all_equipment_label,
             (0.9, 0.55, 0.2, 1),
             inactive_color,
             inactive_text,
@@ -3032,10 +3468,10 @@ class RootWidget(BoxLayout):
     def _normalize_filter_selection(self, selection: Any) -> set[str]:
         """Normalize filter values into a comparable set."""
         # Treat "All" and empty values as no filter.
-        if not selection or selection == "All":
+        if not selection or selection == ALL_FILTER:
             return set()
         if isinstance(selection, (list, tuple, set)):
-            return {item for item in selection if item and item != "All"}
+            return {item for item in selection if item and item != ALL_FILTER}
         return {str(selection)}
 
     def _record_matches_tag_filters(self, record: dict[str, Any]) -> bool:
@@ -3095,9 +3531,11 @@ class RootWidget(BoxLayout):
         self.history_exercise_filtered_options = filtered
         if filtered:
             if self.history_exercise_spinner_text not in filtered:
-                self.history_exercise_spinner_text = "Select exercise"
+                self.history_exercise_spinner_text = self._select_exercise_label
         else:
-            self.history_exercise_spinner_text = "No matches" if self.history_exercise_options else "No exercises"
+            self.history_exercise_spinner_text = (
+                self._no_matches_label if self.history_exercise_options else self._no_exercises_label
+            )
 
     def filter_history_exercise_options(self, query: str) -> None:
         """Apply the history exercise filter to the dropdown."""
@@ -3120,19 +3558,21 @@ class RootWidget(BoxLayout):
         # Ensure the add form always has a valid equipment selection.
         if current and current in self.equipment_choice_options:
             return current
-        if "Bodyweight" in self.equipment_choice_options:
-            return "Bodyweight"
+        bodyweight_label = self._localize_equipment_label("Bodyweight")
+        if bodyweight_label in self.equipment_choice_options:
+            return bodyweight_label
         if self.equipment_choice_options:
             return self.equipment_choice_options[0]
-        return "Bodyweight"
+        return bodyweight_label
 
     def set_add_supports_weight(self, value: str) -> None:
         """Update the add-exercise weight support selection."""
         # Keep the spinner text and boolean flag aligned.
         normalized = (value or "").strip().lower()
-        supports = normalized in {"yes", "true", "1"}
+        yes_label = self._t("Yes").strip().lower()
+        supports = normalized in {yes_label, "yes", "ja", "true", "1"}
         self.add_supports_weight = supports
-        self.add_supports_weight_spinner_text = "Yes" if supports else "No"
+        self.add_supports_weight_spinner_text = self._t("Yes") if supports else self._t("No")
         if supports and not self.add_weight_unit_spinner_text:
             self.add_weight_unit_spinner_text = "kg"
 
@@ -3140,9 +3580,10 @@ class RootWidget(BoxLayout):
         """Update equipment selection and infer weight support."""
         # Auto-suggest weight support based on equipment choice.
         self.add_equipment_spinner_text = value
-        supports = exercise_database.infer_supports_weight(value)
+        equipment_key = self._equipment_display_to_key.get(value, value)
+        supports = exercise_database.infer_supports_weight(equipment_key)
         self.add_supports_weight = supports
-        self.add_supports_weight_spinner_text = "Yes" if supports else "No"
+        self.add_supports_weight_spinner_text = self._t("Yes") if supports else self._t("No")
         if supports and not self.add_weight_unit_spinner_text:
             self.add_weight_unit_spinner_text = "kg"
 
@@ -3255,7 +3696,10 @@ class RootWidget(BoxLayout):
     def on_goal_change(self, value: str) -> None:
         """Handle selection changes for the goal filter."""
         # Update filter state and refresh the browse list.
-        self.filter_goal = "All" if value == "All goals" else self._goal_label_map.get(value, "All")
+        if value == self._all_goals_label:
+            self.filter_goal = ALL_FILTER
+        else:
+            self.filter_goal = self._goal_label_map.get(value, ALL_FILTER)
         self.goal_spinner_text = value
         self._update_filter_colors()
         self.apply_filters()
@@ -3263,7 +3707,10 @@ class RootWidget(BoxLayout):
     def on_muscle_change(self, value: str) -> None:
         """Handle selection changes for the muscle filter."""
         # Update filter state and refresh the browse list.
-        self.filter_muscle_group = "All" if value == "All muscle groups" else value
+        if value == self._all_muscle_groups_label:
+            self.filter_muscle_group = ALL_FILTER
+        else:
+            self.filter_muscle_group = self._muscle_display_to_key.get(value, value)
         self.muscle_spinner_text = value
         self._update_filter_colors()
         self.apply_filters()
@@ -3271,7 +3718,10 @@ class RootWidget(BoxLayout):
     def on_equipment_change(self, value: str) -> None:
         """Handle selection changes for the equipment filter."""
         # Update filter state and refresh the browse list.
-        self.filter_equipment = "All" if value == "All equipment" else value
+        if value == self._all_equipment_label:
+            self.filter_equipment = ALL_FILTER
+        else:
+            self.filter_equipment = self._equipment_display_to_key.get(value, value)
         self.equipment_spinner_text = value
         self._update_filter_colors()
         self.apply_filters()
@@ -3281,7 +3731,7 @@ class RootWidget(BoxLayout):
         # Build the filtered list with goal-aware grouping.
         filtered: list[dict[str, str]] = []
         goal_priority = {goal: idx for idx, goal in enumerate(exercise_database.GOALS)}
-        if self.filter_goal == "All":
+        if self.filter_goal == ALL_FILTER:
             grouped: dict[str, dict[str, Any]] = {}
             for record in self.records:
                 if not record.get("name") or not record.get("description"):
@@ -3297,11 +3747,12 @@ class RootWidget(BoxLayout):
                 elif record["rating"] == existing["rating"]:
                     if goal_priority.get(record["goal"], 0) < goal_priority.get(existing["goal"], 0):
                         grouped[record["name"]] = record
-            for record in sorted(grouped.values(), key=lambda r: r["name"]):
+            for record in sorted(grouped.values(), key=lambda r: r.get("display_name") or r["name"]):
                 suitability_display = f'{record["goal_label"]} ({record["suitability_display"]})'
                 filtered.append(
                     {
                         "name": record["name"],
+                        "display_name": record.get("display_name", record["name"]),
                         "icon_source": record.get("icon_source", ""),
                         "description": record["description"],
                         "execution_instructions": record.get("execution_instructions", ""),
@@ -3324,6 +3775,7 @@ class RootWidget(BoxLayout):
                 filtered.append(
                     {
                         "name": record["name"],
+                        "display_name": record.get("display_name", record["name"]),
                         "icon_source": record.get("icon_source", ""),
                         "description": record["description"],
                         "execution_instructions": record.get("execution_instructions", ""),
@@ -3377,14 +3829,15 @@ class RootWidget(BoxLayout):
                 self.user_profile_name = current["display_name"]
                 preferred_goal = current.get("preferred_goal")
                 if preferred_goal:
-                    self.user_profile_goal = self._goal_code_label_map.get(preferred_goal, "No goal")
+                    goal_code = localization.goal_code_from_label(preferred_goal) or preferred_goal
+                    self.user_profile_goal = self._goal_code_label_map.get(goal_code, self._no_goal_label)
                 else:
-                    self.user_profile_goal = "No goal"
+                    self.user_profile_goal = self._no_goal_label
         if not self.current_user_id:
-            self.current_user_display = "No user selected"
-            self.user_spinner_text = "Select user"
+            self.current_user_display = self._no_user_label
+            self.user_spinner_text = self._select_user_label
             self.user_profile_name = ""
-            self.user_profile_goal = "No goal"
+            self.user_profile_goal = self._no_goal_label
 
         self._load_history()
 
@@ -3410,7 +3863,7 @@ class RootWidget(BoxLayout):
         """Ensure a user is selected before continuing."""
         # Redirect to the user screen when missing.
         if not self.current_user_id:
-            self._set_user_status("Select or create a user to continue.", error=True)
+            self._set_user_status(self._t("Select or create a user to continue."), error=True)
             try:
                 self.ids.screen_manager.current = "user"
             except Exception:
@@ -3424,19 +3877,19 @@ class RootWidget(BoxLayout):
         try:
             ids = self._register_screen().ids
         except Exception:
-            self._set_register_status("Registration screen not available.", error=True)
+            self._set_register_status(self._t("Registration screen not available."), error=True)
             return
         username = ids.register_username_input.text.strip()
         if not username:
-            self._set_register_status("Username is required.", error=True)
+            self._set_register_status(self._t("Username is required."), error=True)
             return
         display_name = ids.register_display_input.text.strip() or None
         goal_label = ids.register_goal_spinner.text.strip()
         preferred_goal = None
-        if goal_label and goal_label != "No goal":
+        if goal_label and goal_label != self._no_goal_label:
             preferred_goal = self._goal_label_map.get(goal_label)
             if not preferred_goal:
-                self._set_register_status("Select a valid goal option.", error=True)
+                self._set_register_status(self._t("Select a valid goal option."), error=True)
                 return
 
         try:
@@ -3446,39 +3899,39 @@ class RootWidget(BoxLayout):
                 preferred_goal=preferred_goal,
             )
         except ValueError as exc:
-            self._set_register_status(str(exc), error=True)
+            self._set_register_status(self._t(str(exc)), error=True)
             return
         except sqlite3.IntegrityError:
-            self._set_register_status("Username already exists. Choose another.", error=True)
+            self._set_register_status(self._t("Username already exists. Choose another."), error=True)
             return
         except sqlite3.DatabaseError as exc:
-            self._set_register_status(f"Database error: {exc}", error=True)
+            self._set_register_status(self._t("Database error: {error}", error=exc), error=True)
             return
 
         ids.register_username_input.text = ""
         ids.register_display_input.text = ""
-        self.register_goal_spinner_text = "No goal"
+        self.register_goal_spinner_text = self._no_goal_label
         self.current_user_id = new_user_id
         self._load_users()
-        self._set_user_status(f"User '{username}' registered.")
-        self._set_register_status(f"User '{username}' registered.")
+        self._set_user_status(self._t("User '{username}' registered.", username=username))
+        self._set_register_status(self._t("User '{username}' registered.", username=username))
         self.go_home()
 
     def save_user_profile(self) -> bool:
         """Persist profile edits for the selected user."""
         # Validate the name and goal selection before updating.
         if not self.current_user_id:
-            self._set_user_profile_status("Select a user to update the profile.", error=True)
+            self._set_user_profile_status(self._t("Select a user to update the profile."), error=True)
             return False
         display_name = self.user_profile_name.strip()
         if not display_name:
-            self._set_user_profile_status("Display name cannot be empty.", error=True)
+            self._set_user_profile_status(self._t("Display name cannot be empty."), error=True)
             return False
         preferred_goal = None
-        if self.user_profile_goal and self.user_profile_goal != "No goal":
+        if self.user_profile_goal and self.user_profile_goal != self._no_goal_label:
             preferred_goal = self._goal_label_map.get(self.user_profile_goal)
             if not preferred_goal:
-                self._set_user_profile_status("Select a valid goal option.", error=True)
+                self._set_user_profile_status(self._t("Select a valid goal option."), error=True)
                 return False
         try:
             exercise_database.update_user_profile(
@@ -3487,11 +3940,11 @@ class RootWidget(BoxLayout):
                 preferred_goal=preferred_goal,
             )
         except sqlite3.DatabaseError as exc:
-            self._set_user_profile_status(f"Database error: {exc}", error=True)
+            self._set_user_profile_status(self._t("Database error: {error}", error=exc), error=True)
             return False
         self.current_user_display = display_name
         self._load_users()
-        self._set_user_profile_status("Profile saved.")
+        self._set_user_profile_status(self._t("Profile saved."))
         self._sync_recommendation_goal()
         return True
 
@@ -3507,10 +3960,11 @@ class RootWidget(BoxLayout):
         self.user_profile_name = selected.get("display_name") or selected["username"]
         preferred_goal = selected.get("preferred_goal")
         if preferred_goal:
-            self.user_profile_goal = self._goal_code_label_map.get(preferred_goal, "No goal")
+            goal_code = localization.goal_code_from_label(preferred_goal) or preferred_goal
+            self.user_profile_goal = self._goal_code_label_map.get(goal_code, self._no_goal_label)
         else:
-            self.user_profile_goal = "No goal"
-        self._set_user_status(f"User '{username}' selected.")
+            self.user_profile_goal = self._no_goal_label
+        self._set_user_status(self._t("User '{username}' selected.", username=username))
         self._load_history()
         self.go_home()
 
@@ -3531,9 +3985,13 @@ class RootWidget(BoxLayout):
         known = self._known_exercise_names()
         if not known:
             return None
-        unknown = [name for name in exercises if name.strip().lower() not in known]
+        unknown = [
+            name
+            for name in exercises
+            if self._resolve_exercise_name(name).strip().lower() not in known
+        ]
         if unknown:
-            return f"Unknown exercises: {', '.join(unknown)}"
+            return self._t("Unknown exercises: {names}", names=", ".join(unknown))
         return None
 
     def _parse_date_value(self, value: str, *, allow_empty: bool = False) -> Optional[str]:
@@ -3543,11 +4001,11 @@ class RootWidget(BoxLayout):
         if not value:
             if allow_empty:
                 return None
-            raise ValueError("Date is required (YYYY-MM-DD).")
+            raise ValueError(self._t("Date is required (YYYY-MM-DD)."))
         try:
             parsed = date.fromisoformat(value)
         except ValueError:
-            raise ValueError("Use YYYY-MM-DD format.")
+            raise ValueError(self._t("Use YYYY-MM-DD format."))
         return parsed.isoformat()
 
     def open_date_picker(self, target_input: Any) -> None:
@@ -3583,7 +4041,7 @@ class RootWidget(BoxLayout):
     def _reset_history_exercise_picker(self, ids: Optional[Any] = None) -> None:
         """Reset the history exercise picker to its default state."""
         # Clear filter text and restore the full option list.
-        self.history_exercise_spinner_text = "Select exercise"
+        self.history_exercise_spinner_text = self._select_exercise_label
         self.history_exercise_filter = ""
         self._refresh_history_exercise_filtered_options()
         form_ids = ids or self._workout_form_ids()
@@ -3612,7 +4070,7 @@ class RootWidget(BoxLayout):
         if not ids or "workout_weight_container" not in ids:
             return
         exercises = self._split_exercises(exercises_text)
-        current_names = {name for name in exercises}
+        current_names = {self._resolve_exercise_name(name) for name in exercises}
         if self._history_weight_values:
             self._history_weight_values = {
                 key: value for key, value in self._history_weight_values.items() if key in current_names
@@ -3622,21 +4080,22 @@ class RootWidget(BoxLayout):
         self.history_weight_visible = False
 
         for name in exercises:
-            record = self._record_for_name(name)
+            canonical_name = self._resolve_exercise_name(name)
+            record = self._record_for_name(canonical_name)
             if not record or not record.get("supports_weight"):
                 continue
             self.history_weight_visible = True
-            stored = self._history_weight_values.get(name, {})
+            stored = self._history_weight_values.get(canonical_name, {})
             default_value = self._format_weight_value(record.get("default_weight_value"))
             default_unit = record.get("default_weight_unit") or "kg"
             value_text = stored.get("value", default_value)
             unit_text = stored.get("unit", default_unit)
-            self._set_history_weight_value(name, value_text, unit_text)
+            self._set_history_weight_value(canonical_name, value_text, unit_text)
 
             row = BoxLayout(orientation="horizontal", spacing=dp(6), size_hint_y=None, height=dp(30))
             row.add_widget(
                 Label(
-                    text=name,
+                    text=self._display_exercise_name(canonical_name),
                     color=(0.18, 0.18, 0.24, 1),
                     size_hint_x=0.45,
                     halign="left",
@@ -3655,20 +4114,20 @@ class RootWidget(BoxLayout):
                 size_hint_x=0.2,
             )
             weight_input.bind(
-                on_text_validate=lambda instance, exercise=name, unit_widget=unit_spinner: self._set_history_weight_value(
-                    exercise, instance.text, unit_widget.text
+                on_text_validate=lambda instance, exercise=canonical_name, unit_widget=unit_spinner: (
+                    self._set_history_weight_value(exercise, instance.text, unit_widget.text)
                 )
             )
             weight_input.bind(
-                on_focus=lambda instance, focused, exercise=name, unit_widget=unit_spinner: (
+                on_focus=lambda instance, focused, exercise=canonical_name, unit_widget=unit_spinner: (
                     self._set_history_weight_value(exercise, instance.text, unit_widget.text)
                     if not focused
                     else None
                 )
             )
             unit_spinner.bind(
-                on_text=lambda instance, text, exercise=name, input_widget=weight_input: self._set_history_weight_value(
-                    exercise, input_widget.text, text
+                on_text=lambda instance, text, exercise=canonical_name, input_widget=weight_input: (
+                    self._set_history_weight_value(exercise, input_widget.text, text)
                 )
             )
             row.add_widget(weight_input)
@@ -3749,7 +4208,7 @@ class RootWidget(BoxLayout):
                 self._goal_prompt_modal.dismiss()
             except Exception:
                 pass
-        if self.user_profile_goal == "No goal":
+        if self.user_profile_goal == self._no_goal_label:
             preferred = self._preferred_goal_label()
             if preferred and preferred in self.user_goal_options:
                 self.user_profile_goal = preferred
@@ -3762,7 +4221,7 @@ class RootWidget(BoxLayout):
     def skip_goal_prompt(self) -> None:
         """Skip setting a goal and close the prompt."""
         # Explicitly mark the profile goal as unset.
-        self.user_profile_goal = "No goal"
+        self.user_profile_goal = self._no_goal_label
         self._set_user_profile_status("")
         self._dismiss_goal_prompt_modal()
 
@@ -3773,12 +4232,12 @@ class RootWidget(BoxLayout):
         if not ids:
             return
         selected = ids.history_exercise_spinner.text.strip()
-        if not selected or selected in {"Select exercise", "No matches", "No exercises"}:
+        if not selected or selected in {self._select_exercise_label, self._no_matches_label, self._no_exercises_label}:
             return
         existing = self._split_exercises(ids.exercises_input.text)
         existing_lower = {name.lower() for name in existing}
         if selected.lower() in existing_lower:
-            self._set_history_status(f"{selected} is already listed.")
+            self._set_history_status(self._t("{selected} is already listed.", selected=selected))
             return
         if ids.exercises_input.text.strip():
             ids.exercises_input.text = ids.exercises_input.text.rstrip() + "\n" + selected
@@ -3786,8 +4245,8 @@ class RootWidget(BoxLayout):
             ids.exercises_input.text = selected
         self.confirm_value_input(ids.exercises_input)
         self.refresh_workout_weight_inputs(ids.exercises_input.text)
-        self._set_history_status(f"Added {selected}.")
-        self.history_exercise_spinner_text = "Select exercise"
+        self._set_history_status(self._t("Added {selected}.", selected=selected))
+        self.history_exercise_spinner_text = self._select_exercise_label
 
     def _load_history(self, *_: Any) -> None:
         """Load workout history entries and update the history UI."""
@@ -3800,7 +4259,7 @@ class RootWidget(BoxLayout):
         if not self.current_user_id:
             history_list = history_screen.ids.history_list
             history_list.clear_widgets()
-            self._set_history_status("Select or register a user to see history.", error=False)
+            self._set_history_status(self._t("Select or register a user to see history."), error=False)
             self._load_stats(clear=True)
             return
 
@@ -3811,33 +4270,46 @@ class RootWidget(BoxLayout):
                 end_date=self.history_end,
             )
         except sqlite3.DatabaseError as exc:
-            self._set_history_status(f"Database error: {exc}", error=True)
+            self._set_history_status(self._t("Database error: {error}", error=exc), error=True)
             return
 
         cards: list[WorkoutCard] = []
         for entry in history_entries:
-            exercises_display = ", ".join(entry.get("exercises", [])) if entry.get("exercises") else "No exercises recorded"
+            exercise_names = entry.get("exercises", []) or []
+            display_names = [self._display_exercise_name(name) for name in exercise_names]
+            exercises_display = ", ".join(display_names) if display_names else self._t("No exercises recorded")
             attempts = entry.get("exercise_attempts") or []
             if attempts:
                 attempt_labels = []
                 for att in attempts:
-                    status = att.get("status", "completed").title()
+                    raw_status = att.get("status", "completed")
+                    status = self._t("Completed") if raw_status == "completed" else self._t("Skipped")
                     weight_label = self._format_weight_label(att.get("weight_value"), att.get("weight_unit"))
+                    display_name = self._display_exercise_name(att.get("name", self._t("Exercise")))
                     if weight_label != "—":
-                        attempt_labels.append(f"{att.get('name', 'Exercise')} ({status}, {weight_label})")
+                        attempt_labels.append(f"{display_name} ({status}, {weight_label})")
                     else:
-                        attempt_labels.append(f"{att.get('name', 'Exercise')} ({status})")
-                attempts_display = "Attempts: " + ", ".join(attempt_labels)
+                        attempt_labels.append(f"{display_name} ({status})")
+                attempts_display = self._t("Attempts: {attempts}", attempts=", ".join(attempt_labels))
             else:
-                attempts_display = "Attempts: none recorded"
-            goal_display = entry.get("goal") or "—"
+                attempts_display = self._t("Attempts: none recorded")
+            goal_value = entry.get("goal") or ""
+            goal_code = localization.goal_code_from_label(goal_value) or goal_value
+            if goal_value:
+                goal_display = self._goal_code_label_map.get(goal_code, goal_value)
+            else:
+                goal_display = "—"
             sets_display = str(entry.get("total_sets_completed") or 0)
             duration_minutes = entry.get("duration_minutes") or 0
             duration_seconds = entry.get("duration_seconds")
             if duration_seconds is not None:
-                duration_display = f"{duration_minutes} min ({duration_seconds}s)"
+                duration_display = self._t(
+                    "{minutes} min ({seconds}s)",
+                    minutes=duration_minutes,
+                    seconds=duration_seconds,
+                )
             else:
-                duration_display = f"{duration_minutes} min"
+                duration_display = self._t("{minutes} min", minutes=duration_minutes)
             card = WorkoutCard(
                 date_display=entry["performed_at"],
                 duration_display=duration_display,
@@ -3852,9 +4324,11 @@ class RootWidget(BoxLayout):
         for card in cards:
             history_list.add_widget(card)
         if cards:
-            self._set_history_status(f"{len(cards)} workout(s) loaded.")
+            self._set_history_status(
+                self._t("{count} workout(s) loaded.", count=len(cards))
+            )
         else:
-            self._set_history_status("No workouts in this date range.", error=False)
+            self._set_history_status(self._t("No workouts in this date range."), error=False)
         self._load_stats()
 
     def apply_history_filter(self) -> None:
@@ -3877,19 +4351,19 @@ class RootWidget(BoxLayout):
         ids.end_date_input.text = ""
         self.history_start = None
         self.history_end = None
-        self._set_history_status("Filters cleared.")
+        self._set_history_status(self._t("Filters cleared."))
         self._load_history()
 
     def handle_add_workout(self) -> None:
         """Validate workout form inputs and log a session."""
         # Ensure required fields are present and valid.
         if not self.current_user_id:
-            self._set_history_status("Select or register a user first.", error=True)
+            self._set_history_status(self._t("Select or register a user first."), error=True)
             return
 
         ids = self._workout_form_ids()
         if not ids:
-            self._set_history_status("Open the workout form to log a session.", error=True)
+            self._set_history_status(self._t("Open the workout form to log a session."), error=True)
             return
         try:
             workout_date = self._parse_date_value(ids.workout_date_input.text, allow_empty=False)
@@ -3903,12 +4377,12 @@ class RootWidget(BoxLayout):
             if duration_minutes <= 0:
                 raise ValueError
         except ValueError:
-            self._set_history_status("Duration must be a positive number of minutes.", error=True)
+            self._set_history_status(self._t("Duration must be a positive number of minutes."), error=True)
             return
 
         exercises = self._split_exercises(ids.exercises_input.text)
         if not exercises:
-            self._set_history_status("Add at least one exercise.", error=True)
+            self._set_history_status(self._t("Add at least one exercise."), error=True)
             return
         validation_error = self._validate_history_exercises(exercises)
         if validation_error:
@@ -3917,8 +4391,8 @@ class RootWidget(BoxLayout):
 
         goal_label = ids.workout_goal_spinner.text.strip()
         goal = None
-        if goal_label and goal_label != "No goal":
-            goal = goal_label
+        if goal_label and goal_label != self._no_goal_label:
+            goal = self._goal_label_map.get(goal_label) or goal_label
 
         sets_raw = ids.total_sets_input.text.strip()
         total_sets_completed = None
@@ -3928,11 +4402,12 @@ class RootWidget(BoxLayout):
                 if total_sets_completed < 0:
                     raise ValueError
             except ValueError:
-                self._set_history_status("Total sets must be 0 or greater.", error=True)
+                self._set_history_status(self._t("Total sets must be 0 or greater."), error=True)
                 return
 
         exercise_weights = []
-        for name in exercises:
+        canonical_exercises = [self._resolve_exercise_name(name) for name in exercises]
+        for name in canonical_exercises:
             record = self._record_for_name(name)
             if record and record.get("supports_weight"):
                 stored = self._history_weight_values.get(name)
@@ -3945,7 +4420,10 @@ class RootWidget(BoxLayout):
                 try:
                     weight_value = self._parse_optional_float(value_text)
                 except ValueError as exc:
-                    self._set_history_status(f"Weight for {name}: {exc}", error=True)
+                    self._set_history_status(
+                        self._t("Weight for {name}: {error}", name=self._display_exercise_name(name), error=exc),
+                        error=True,
+                    )
                     return
                 weight_unit = self._normalize_weight_unit(unit_text) or "kg"
                 if weight_value is None:
@@ -3959,16 +4437,16 @@ class RootWidget(BoxLayout):
                 user_id=self.current_user_id,
                 performed_at=workout_date,
                 duration_minutes=duration_minutes,
-                exercises=exercises,
+                exercises=canonical_exercises,
                 goal=goal,
                 total_sets_completed=total_sets_completed,
                 exercise_weights=exercise_weights,
             )
         except (ValueError, sqlite3.DatabaseError) as exc:
-            self._set_history_status(str(exc), error=True)
+            self._set_history_status(self._t(str(exc)), error=True)
             return
 
-        self._set_history_status("Workout saved.")
+        self._set_history_status(self._t("Workout saved."))
         self._reset_workout_log_form(clear_status=False)
         self._load_history()
         self._dismiss_workout_log_modal()
@@ -3989,7 +4467,10 @@ class RootWidget(BoxLayout):
                 end_date=self.history_end,
             )
         except sqlite3.DatabaseError as exc:
-            self._set_history_status(f"Database error while loading stats: {exc}", error=True)
+            self._set_history_status(
+                self._t("Database error while loading stats: {error}", error=exc),
+                error=True,
+            )
             return
 
         self.stats_total_workouts = str(stats.get("total_workouts", 0))
@@ -4005,7 +4486,7 @@ class RootWidget(BoxLayout):
         top = stats.get("top_exercise")
         if top:
             count = stats.get("top_exercise_count", 0)
-            self.stats_top_exercise = f"{top} ({count}x)"
+            self.stats_top_exercise = f"{self._display_exercise_name(top)} ({count}x)"
         else:
             self.stats_top_exercise = "—"
 
@@ -4025,7 +4506,7 @@ class RootWidget(BoxLayout):
             return ""
         if len(labels) == 1:
             return labels.pop()
-        return "Multiple goals"
+        return self._t("Multiple goals")
 
     def _rest_seconds_for_plan(self) -> int:
         """Return configured rest seconds with safe fallback."""
@@ -4154,20 +4635,20 @@ class RootWidget(BoxLayout):
         if not self._require_user():
             return
         if not self.rec_goal_spinner_text:
-            self._set_rec_status("Choose a goal.", error=True)
+            self._set_rec_status(self._t("Choose a goal."), error=True)
             return
         try:
             max_minutes = int(self._recommend_screen().ids.rec_max_time.text.strip() or "0")
             if max_minutes <= 0:
                 raise ValueError
         except ValueError:
-            self._set_rec_status("Enter a positive max time (minutes).", error=True)
+            self._set_rec_status(self._t("Enter a positive max time (minutes)."), error=True)
             return
 
         self.rec_max_minutes_text = str(max_minutes)
         goal_code = self._goal_label_map.get(self.rec_goal_spinner_text)
         if not goal_code:
-            self._set_rec_status("Unknown goal selection.", error=True)
+            self._set_rec_status(self._t("Unknown goal selection."), error=True)
             return
 
         recency_map = self._recency_days_map()
@@ -4189,6 +4670,7 @@ class RootWidget(BoxLayout):
             recommendations.append(
                 {
                     "name": record["name"],
+                    "display_name": record.get("display_name", record["name"]),
                     "icon": record.get("icon", ""),
                     "icon_source": record.get("icon_source", ""),
                     "description": record["description"],
@@ -4212,13 +4694,13 @@ class RootWidget(BoxLayout):
                 }
             )
 
-        recommendations.sort(key=lambda r: (-r["score"], r["name"]))
+        recommendations.sort(key=lambda r: (-r["score"], r.get("display_name") or r["name"]))
         self.rec_recommendations = recommendations
         self._recommend_screen().ids.rec_list.data = recommendations
-        self._set_rec_status(f"{len(recommendations)} exercises recommended.")
+        self._set_rec_status(self._t("{count} exercises recommended.", count=len(recommendations)))
         # Reset plan only if the selected goal conflicts with the existing plan.
         plan_goal = self._plan_goal_label()
-        if plan_goal and plan_goal != "Multiple goals" and plan_goal != self.rec_goal_spinner_text:
+        if plan_goal and plan_goal != self._t("Multiple goals") and plan_goal != self.rec_goal_spinner_text:
             self._reset_plan(silent=True)
 
     def _find_recommendation(self, name: str) -> Optional[dict[str, Any]]:
@@ -4243,7 +4725,8 @@ class RootWidget(BoxLayout):
             except Exception:
                 pass
         modal = RecommendationDetailsModal()
-        modal.exercise_name = rec.get("name", "")
+        modal.exercise_name = rec.get("display_name", rec.get("name", ""))
+        modal.exercise_key = rec.get("name", "")
         modal.description = rec.get("description", "")
         modal.execution_instructions = rec.get("execution_instructions", "")
         modal.muscle_group = rec.get("muscle_group", "")
@@ -4263,7 +4746,7 @@ class RootWidget(BoxLayout):
         if time_seconds is None:
             modal.time_display = "—"
         else:
-            modal.time_display = f"{time_seconds} sec"
+            modal.time_display = self._t("{seconds} sec", seconds=time_seconds)
         modal.bind(on_dismiss=self._clear_recommendation_detail_modal)
         self._recommendation_detail_modal = modal
         modal.open()
@@ -4282,7 +4765,7 @@ class RootWidget(BoxLayout):
             else:
                 r["show_details"] = bool(r.get("show_details", False))
         self._recommend_screen().ids.rec_list.data = self.rec_recommendations
-        self._set_rec_status("Details toggled.")
+        self._set_rec_status(self._t("Details toggled."))
 
     def add_recommendation_to_plan(self, name: str) -> None:
         """Add a recommendation to the workout plan."""
@@ -4291,7 +4774,7 @@ class RootWidget(BoxLayout):
         if not rec:
             return
         if any(item["name"] == name for item in self.rec_plan):
-            self._set_rec_status(f"{name} is already in the plan.", error=True)
+            self._set_rec_status(self._t("{name} is already in the plan.", name=rec.get("display_name", name)), error=True)
             return
         icon_source = rec.get("icon_source") or self._resolve_icon_source(rec.get("icon", "") or rec.get("name", ""))
         supports_weight = bool(rec.get("supports_weight"))
@@ -4299,6 +4782,7 @@ class RootWidget(BoxLayout):
         weight_unit = rec.get("default_weight_unit") or ("kg" if supports_weight else None)
         plan_item = {
             "name": rec["name"],
+            "display_name": rec.get("display_name", rec["name"]),
             "icon": rec.get("icon", ""),
             "icon_source": icon_source,
             "execution_instructions": rec.get("execution_instructions", ""),
@@ -4314,11 +4798,15 @@ class RootWidget(BoxLayout):
             "recommendation": rec.get("recommendation", ""),
             "estimated_minutes": rec["estimated_minutes"],
             "estimated_seconds": rec.get("estimated_seconds"),
-            "display": f'{rec["name"]} ({rec["estimated_minutes"]} min)',
+            "display": self._t(
+                "{name} ({minutes} min)",
+                name=rec.get("display_name", rec["name"]),
+                minutes=rec["estimated_minutes"],
+            ),
         }
         self.rec_plan.append(plan_item)
         self._refresh_recommendation_view()
-        self._set_rec_status(f"Added {name} to plan.")
+        self._set_rec_status(self._t("Added {name} to plan.", name=rec.get("display_name", name)))
         # Remove from recommendations list when selected.
         self.rec_recommendations = [r for r in self.rec_recommendations if r["name"] != name]
         self._recommend_screen().ids.rec_list.data = self.rec_recommendations
@@ -4332,7 +4820,11 @@ class RootWidget(BoxLayout):
                 "name": item["name"],
                 "icon_source": item.get("icon_source")
                 or self._resolve_icon_source(item.get("icon", "") or item.get("name", "")),
-                "display": f'{item["name"]} ({item["estimated_minutes"]} min)',
+                "display": self._t(
+                    "{name} ({minutes} min)",
+                    name=item.get("display_name", item["name"]),
+                    minutes=item["estimated_minutes"],
+                ),
                 "index": str(idx),
                 "weight_value_text": self._format_weight_value(item.get("weight_value")),
                 "weight_unit_text": item.get("weight_unit") or "kg",
@@ -4357,7 +4849,7 @@ class RootWidget(BoxLayout):
                 if value <= 0:
                     raise ValueError
             except ValueError:
-                self._set_rec_status("Weight must be a positive number.", error=True)
+                self._set_rec_status(self._t("Weight must be a positive number."), error=True)
                 return
         item["weight_value"] = value
         item["weight_unit"] = unit
@@ -4381,7 +4873,11 @@ class RootWidget(BoxLayout):
                 est_seconds = self._estimate_exercise_seconds(item)
                 item["estimated_seconds"] = est_seconds
                 item["estimated_minutes"] = str(self._minutes_from_seconds(est_seconds))
-                item["display"] = f'{item["name"]} ({item["estimated_minutes"]} min)'
+                item["display"] = self._t(
+                    "{name} ({minutes} min)",
+                    name=item.get("display_name", item["name"]),
+                    minutes=item["estimated_minutes"],
+                )
             self._refresh_recommendation_view()
         else:
             self._validate_plan_time()
@@ -4394,7 +4890,7 @@ class RootWidget(BoxLayout):
                 new_idx = max(0, min(len(self.rec_plan) - 1, idx + direction))
                 if new_idx != idx:
                     self.rec_plan.insert(new_idx, self.rec_plan.pop(idx))
-                    self._set_rec_status(f"Moved {name}.")
+                    self._set_rec_status(self._t("Moved {name}.", name=item.get("display_name", name)))
                     self._refresh_recommendation_view()
                 return
 
@@ -4402,7 +4898,7 @@ class RootWidget(BoxLayout):
         """Remove a plan item and optionally restore it to recommendations."""
         # Keep recommendation list consistent with the current goal.
         self.rec_plan = [item for item in self.rec_plan if item["name"] != name]
-        self._set_rec_status(f"Removed {name} from plan.")
+        self._set_rec_status(self._t("Removed {name} from plan.", name=self._display_exercise_name(name)))
         self._refresh_recommendation_view()
         # Return the exercise to recommendations list in sorted order if it fits the current goal.
         if self.rec_goal_spinner_text:
@@ -4417,6 +4913,7 @@ class RootWidget(BoxLayout):
                 self.rec_recommendations.append(
                     {
                         "name": match["name"],
+                        "display_name": match.get("display_name", match["name"]),
                         "description": match["description"],
                         "execution_instructions": match.get("execution_instructions", ""),
                         "muscle_group": match["muscle_group"],
@@ -4441,7 +4938,9 @@ class RootWidget(BoxLayout):
                         "show_details": False,
                     }
                 )
-                self.rec_recommendations.sort(key=lambda r: (-r["score"], r["name"]))
+                self.rec_recommendations.sort(
+                    key=lambda r: (-r["score"], r.get("display_name") or r["name"])
+                )
                 self._recommend_screen().ids.rec_list.data = self.rec_recommendations
 
     def _reset_plan(self, *, silent: bool = False) -> None:
@@ -4453,7 +4952,7 @@ class RootWidget(BoxLayout):
         rv.data = []
         rv.refresh_from_data()
         if not silent:
-            self._set_rec_status("Plan cleared.")
+            self._set_rec_status(self._t("Plan cleared."))
 
     def clear_recommendation_plan(self) -> None:
         """Clear the plan via the public action."""
@@ -4475,23 +4974,40 @@ class RootWidget(BoxLayout):
         if not target:
             return True
         delta = total_minutes - target
-        rest_note = f"Includes {self._rest_seconds_for_plan()}s rest between sets/exercises."
-        status_lower = (self.rec_status_text or "").lower()
-        is_time_status = "plan time" in status_lower or "target" in status_lower
+        rest_note = self._t(
+            "Includes {seconds}s rest between sets/exercises.",
+            seconds=self._rest_seconds_for_plan(),
+        )
         if abs(delta) <= 5:
-            if not status_lower or is_time_status:
-                self._set_rec_status(
-                    f"Plan ready. Total {total_minutes} min vs {target} min target (±5 min). {rest_note}"
+            self._set_rec_status(
+                self._t(
+                    "Plan ready. Total {total} min vs {target} min target (±5 min). {rest_note}",
+                    total=total_minutes,
+                    target=target,
+                    rest_note=rest_note,
                 )
+            )
             return True
         if delta > 5:
             self._set_rec_status(
-                f"Plan time {total_minutes} min exceeds target {target} min by {delta} min. {rest_note}",
+                self._t(
+                    "Plan time {total} min exceeds target {target} min by {delta} min. {rest_note}",
+                    total=total_minutes,
+                    target=target,
+                    delta=delta,
+                    rest_note=rest_note,
+                ),
                 error=True,
             )
             return False
         self._set_rec_status(
-            f"Plan time {total_minutes} min is {abs(delta)} min below target {target} min. {rest_note}",
+            self._t(
+                "Plan time {total} min is {delta} min below target {target} min. {rest_note}",
+                total=total_minutes,
+                delta=abs(delta),
+                target=target,
+                rest_note=rest_note,
+            ),
             error=True,
         )
         return False
@@ -4502,7 +5018,7 @@ class RootWidget(BoxLayout):
         if not self._require_user():
             return
         if not self.rec_plan:
-            self._set_rec_status("Add at least one exercise to the plan.", error=True)
+            self._set_rec_status(self._t("Add at least one exercise to the plan."), error=True)
             return
         if not self._validate_plan_time():
             return
@@ -4512,11 +5028,12 @@ class RootWidget(BoxLayout):
         for item in self.rec_plan:
             record = name_to_record.get(item["name"])
             if not record:
-                missing.append(item["name"])
+                missing.append(item.get("display_name", item["name"]))
                 continue
             session_plan.append(
                 {
                     "name": record["name"],
+                    "display_name": record.get("display_name", record["name"]),
                     "icon": record.get("icon", ""),
                     "icon_source": record.get("icon_source", ""),
                     "description": record.get("description", ""),
@@ -4538,17 +5055,20 @@ class RootWidget(BoxLayout):
                 }
             )
         if missing:
-            self._set_rec_status(f"Missing data for: {', '.join(missing)}", error=True)
+            self._set_rec_status(self._t("Missing data for: {names}", names=", ".join(missing)), error=True)
             return
         if not session_plan:
-            self._set_rec_status("Could not start live mode. Add exercises again.", error=True)
+            self._set_rec_status(self._t("Could not start live mode. Add exercises again."), error=True)
             return
         self._begin_live_session(session_plan)
         try:
             self.ids.screen_manager.current = "live"
         except Exception:
             pass
-        self._set_rec_status(f"Live mode started with {len(session_plan)} exercise(s).", error=False)
+        self._set_rec_status(
+            self._t("Live mode started with {count} exercise(s).", count=len(session_plan)),
+            error=False,
+        )
 
     def _parse_optional_int(self, value: str) -> Optional[int]:
         """Parse a positive integer or return None."""
@@ -4562,7 +5082,7 @@ class RootWidget(BoxLayout):
                 raise ValueError
             return parsed
         except ValueError:
-            raise ValueError("Enter positive numbers only.")
+            raise ValueError(self._t("Enter positive numbers only."))
 
     def _parse_optional_float(self, value: str) -> Optional[float]:
         """Parse a positive float or return None."""
@@ -4576,7 +5096,7 @@ class RootWidget(BoxLayout):
                 raise ValueError
             return parsed
         except ValueError:
-            raise ValueError("Enter positive numbers only.")
+            raise ValueError(self._t("Enter positive numbers only."))
 
     def _set_status(self, message: str, *, error: bool = False) -> None:
         """Update status banner on the add exercise screen."""
@@ -4610,7 +5130,7 @@ class RootWidget(BoxLayout):
         self.add_weight_unit_spinner_text = "kg"
         self.on_add_equipment_change(self._resolve_equipment_choice(""))
         self.rating_spinner_text = "5"
-        self.icon_choice_spinner_text = "No icon"
+        self.icon_choice_spinner_text = self._no_icon_label
         self.add_icon_source = ""
 
     def handle_add_exercise(self) -> None:
@@ -4620,32 +5140,36 @@ class RootWidget(BoxLayout):
         name = ids.name_input.text.strip()
         description = ids.description_input.text.strip()
         instructions = ids.instructions_input.text.strip()
-        equipment = ids.equipment_add_spinner.text.strip() or "Bodyweight"
+        equipment_display = ids.equipment_add_spinner.text.strip() or self._localize_equipment_label("Bodyweight")
         goal_label = ids.goal_add_spinner.text
         goal = self._goal_label_map.get(goal_label)
-        muscle_group = ids.muscle_add_spinner.text.strip()
+        muscle_display = ids.muscle_add_spinner.text.strip()
         icon_choice = ""
         if "icon_spinner" in ids:
             icon_choice = ids.icon_spinner.text.strip()
-        icon = "" if icon_choice in {"", "No icon", "Select icon", "No icons found"} else icon_choice
+        icon = "" if icon_choice in {"", self._no_icon_label, self._select_icon_label, self._no_icons_label} else icon_choice
+        equipment_key = self._equipment_display_to_key.get(equipment_display, "Bodyweight")
+        muscle_key = self._muscle_display_to_key.get(muscle_display, muscle_display)
 
-        if not (name and description and instructions and muscle_group and goal and equipment):
+        if not (name and description and instructions and muscle_display and goal and equipment_display):
             self._set_status(
-                "Name, description, execution directions, muscle group, equipment, and goal are required.",
+                self._t(
+                    "Name, description, execution directions, muscle group, equipment, and goal are required."
+                ),
                 error=True,
             )
             return
 
-        if muscle_group not in self.muscle_choice_options:
-            self._set_status("Choose a muscle group from the known list.", error=True)
+        if muscle_display not in self.muscle_choice_options:
+            self._set_status(self._t("Choose a muscle group from the known list."), error=True)
             return
 
-        if equipment not in self.equipment_choice_options:
-            self._set_status("Choose equipment from the known list.", error=True)
+        if equipment_display not in self.equipment_choice_options:
+            self._set_status(self._t("Choose equipment from the known list."), error=True)
             return
 
         if any(r["name"].lower() == name.lower() for r in self.records):
-            self._set_status("Exercise name already exists. Choose another name.", error=True)
+            self._set_status(self._t("Exercise name already exists. Choose another name."), error=True)
             return
 
         try:
@@ -4653,7 +5177,7 @@ class RootWidget(BoxLayout):
             if rating < 1 or rating > 10:
                 raise ValueError
         except ValueError:
-            self._set_status("Rating must be 1-10.", error=True)
+            self._set_status(self._t("Rating must be 1-10."), error=True)
             return
 
         try:
@@ -4671,7 +5195,7 @@ class RootWidget(BoxLayout):
             try:
                 default_weight_value = self._parse_optional_float(ids.default_weight_input.text)
             except ValueError as exc:
-                self._set_status(f"Default weight: {exc}", error=True)
+                self._set_status(self._t("Default weight: {error}", error=exc), error=True)
                 return
             if "default_weight_unit_spinner" in ids:
                 default_weight_unit = self._normalize_weight_unit(ids.default_weight_unit_spinner.text) or "kg"
@@ -4681,8 +5205,8 @@ class RootWidget(BoxLayout):
                 name=name,
                 short_description=description,
                 execution_instructions=instructions,
-                required_equipment=equipment,
-                target_muscle_group=muscle_group,
+                required_equipment=equipment_key,
+                target_muscle_group=muscle_key,
                 goal=goal,
                 suitability_rating=rating,
                 recommended_sets=sets,
@@ -4694,13 +5218,13 @@ class RootWidget(BoxLayout):
                 icon=icon,
             )
         except sqlite3.IntegrityError:
-            self._set_status("Exercise name already exists. Choose another name.", error=True)
+            self._set_status(self._t("Exercise name already exists. Choose another name."), error=True)
             return
         except sqlite3.DatabaseError as exc:
-            self._set_status(f"Database error: {exc}", error=True)
+            self._set_status(self._t("Database error: {error}", error=exc), error=True)
             return
 
-        self._set_status("Exercise added.")
+        self._set_status(self._t("Exercise added."))
         self._refresh_records()
         self._reset_form()
 
@@ -4744,7 +5268,7 @@ class RootWidget(BoxLayout):
         if preferred and preferred in self.user_goal_options:
             self.register_goal_spinner_text = preferred
         else:
-            self.register_goal_spinner_text = "No goal"
+            self.register_goal_spinner_text = self._no_goal_label
         self._set_register_status("")
         self.ids.screen_manager.current = "register"
 
@@ -4783,7 +5307,7 @@ class RootWidget(BoxLayout):
         """Navigate to the live workout screen if active."""
         # Guard against starting live without a plan.
         if not self.live_active:
-            self._set_rec_status("Start a session from Recommend first.", error=True)
+            self._set_rec_status(self._t("Start a session from Recommend first."), error=True)
             return
         try:
             self.ids.screen_manager.current = "live"
@@ -4912,8 +5436,11 @@ class RootWidget(BoxLayout):
     def _update_live_upcoming(self) -> None:
         """Update the list of upcoming exercises."""
         # Compute the remaining exercise names for display.
-        upcoming = [ex["name"] for ex in self.live_exercises[self._live_current_index + 1 :]]
-        self.live_upcoming_display = ", ".join(upcoming) if upcoming else "None"
+        upcoming = [
+            ex.get("display_name") or self._display_exercise_name(ex.get("name", ""))
+            for ex in self.live_exercises[self._live_current_index + 1 :]
+        ]
+        self.live_upcoming_display = ", ".join(upcoming) if upcoming else self._none_label
 
     def toggle_live_details(self) -> None:
         """Toggle the live exercise detail expansion."""
@@ -4932,7 +5459,10 @@ class RootWidget(BoxLayout):
             if seconds < 5:
                 raise ValueError
         except ValueError:
-            self._set_hint("Break length must be 5 seconds or more.", color=(0.65, 0.3, 0.18, 1))
+            self._set_hint(
+                self._t("Break length must be 5 seconds or more."),
+                color=(0.65, 0.3, 0.18, 1),
+            )
             self.live_rest_setting_text = str(int(self.live_rest_seconds))
             return
         self.live_rest_seconds = seconds
@@ -4940,7 +5470,10 @@ class RootWidget(BoxLayout):
             self._live_rest_remaining = float(seconds)
             self.live_rest_timer = self._format_time(self._live_rest_remaining)
         self.live_rest_setting_text = str(seconds)
-        self._set_hint(f"Break length set to {seconds}s.", color=(0.18, 0.4, 0.2, 1))
+        self._set_hint(
+            self._t("Break length set to {seconds}s.", seconds=seconds),
+            color=(0.18, 0.4, 0.2, 1),
+        )
         self._update_live_labels()
         self._recalculate_recommendation_times()
 
@@ -4960,7 +5493,7 @@ class RootWidget(BoxLayout):
             if parsed <= 0:
                 raise ValueError
         except ValueError:
-            self._set_hint("Enter a positive weight.", color=(0.65, 0.16, 0.16, 1))
+            self._set_hint(self._t("Enter a positive weight."), color=(0.65, 0.16, 0.16, 1))
             return
         exercise["weight_value"] = parsed
         self.live_weight_value_text = self._format_weight_value(parsed)
@@ -4985,8 +5518,11 @@ class RootWidget(BoxLayout):
         self.live_started = True
         self.live_paused = False
         self._live_session_started_at = datetime.now()
-        self._set_hint("Session started. Begin your first set!", color=(0.18, 0.4, 0.2, 1))
-        self._flash_signal("Session started", color=(0.16, 0.32, 0.6, 1))
+        self._set_hint(
+            self._t("Session started. Begin your first set!"),
+            color=(0.18, 0.4, 0.2, 1),
+        )
+        self._flash_signal(self._t("Session started"), color=(0.16, 0.32, 0.6, 1))
         self._update_live_labels()
         self._start_live_clock()
 
@@ -5048,8 +5584,8 @@ class RootWidget(BoxLayout):
         exercise = self._current_live_exercise()
         total_exercises = len(self.live_exercises)
         if not exercise:
-            self.live_progress_display = "No session running"
-            self.live_exercise_title = "No exercise running"
+            self.live_progress_display = self._t("No session running")
+            self.live_exercise_title = self._t("No exercise running")
             self.live_icon_display = ""
             self.live_icon_source = ""
             self.live_muscle_display = ""
@@ -5057,8 +5593,8 @@ class RootWidget(BoxLayout):
             self.live_recommendation_display = ""
             self.live_instruction = ""
             self.live_current_set_display = ""
-            self.live_state_display = "Not started"
-            self.live_upcoming_display = "None"
+            self.live_state_display = self._t("Not started")
+            self.live_upcoming_display = self._none_label
             self.live_exercise_description = ""
             self.live_exercise_instructions = ""
             self.live_exercise_target_display = "—"
@@ -5075,13 +5611,19 @@ class RootWidget(BoxLayout):
             return
         total_sets = exercise.get("sets") or 1
         self._live_total_sets = total_sets
-        self.live_progress_display = f"Exercise {self._live_current_index + 1}/{total_exercises} – {exercise.get('name', '')}"
-        self.live_exercise_title = exercise.get("name", "Exercise")
+        display_name = exercise.get("display_name") or self._display_exercise_name(exercise.get("name", ""))
+        self.live_progress_display = self._t(
+            "Exercise {current}/{total} – {name}",
+            current=self._live_current_index + 1,
+            total=total_exercises,
+            name=display_name,
+        )
+        self.live_exercise_title = display_name or self._t("Exercise")
         icon_source = exercise.get("icon_source") or self._resolve_icon_source(
             exercise.get("icon", "") or exercise.get("name", "")
         )
         self.live_icon_source = icon_source
-        self.live_icon_display = "No icon available" if not icon_source else ""
+        self.live_icon_display = self._t("No icon available") if not icon_source else ""
         self.live_muscle_display = exercise.get("muscle_group", "")
         self.live_equipment_display = exercise.get("equipment", "")
         self.live_recommendation_display = exercise.get("recommendation", "")
@@ -5104,24 +5646,39 @@ class RootWidget(BoxLayout):
         if self._live_phase == "between_exercises":
             next_name = ""
             if self._live_current_index + 1 < len(self.live_exercises):
-                next_name = self.live_exercises[self._live_current_index + 1].get("name", "Next exercise")
-            self.live_instruction = f"Rest, then start {next_name or 'the next exercise'}"
-            self.live_current_set_display = f"Completed {total_sets} set(s)."
+                next_exercise = self.live_exercises[self._live_current_index + 1]
+                next_name = next_exercise.get("display_name") or self._display_exercise_name(
+                    next_exercise.get("name", "")
+                )
+            self.live_instruction = self._t(
+                "Rest, then start {name}",
+                name=next_name or self._t("the next exercise"),
+            )
+            self.live_current_set_display = self._t("Completed {count} set(s).", count=total_sets)
         else:
             self.live_instruction = self._build_instruction(exercise)
-            self.live_current_set_display = f"Set {self._live_current_set} of {total_sets}"
+            self.live_current_set_display = self._t(
+                "Set {current} of {total}",
+                current=self._live_current_set,
+                total=total_sets,
+            )
         if self._live_phase == "rest":
-            phase_label = "Resting between sets"
+            phase_label = self._t("Resting between sets")
         elif self._live_phase == "between_exercises":
-            phase_label = "Resting before next exercise"
+            phase_label = self._t("Resting before next exercise")
         elif self._live_phase == "set":
-            phase_label = "In set"
+            phase_label = self._t("In set")
         else:
-            phase_label = "Not started"
+            phase_label = self._t("Not started")
         if self._live_phase == "between_exercises":
             self.live_state_display = phase_label
         else:
-            self.live_state_display = f"{phase_label} (Set {self._live_current_set}/{total_sets})"
+            self.live_state_display = self._t(
+                "{phase} (Set {current}/{total})",
+                phase=phase_label,
+                current=self._live_current_set,
+                total=total_sets,
+            )
         self.live_exercise_timer = self._format_time(self._live_exercise_elapsed)
         self.live_set_timer = self._format_time(self._live_set_elapsed)
         if self._live_phase in ("rest", "between_exercises"):
@@ -5130,8 +5687,8 @@ class RootWidget(BoxLayout):
             self.live_rest_timer = "—"
         self._update_live_upcoming()
         if self.live_active and not self.live_started:
-            self.live_state_display = "Ready to start"
-            self.live_instruction = "Press Start to begin."
+            self.live_state_display = self._t("Ready to start")
+            self.live_instruction = self._t("Press Start to begin.")
             self.live_tempo_hint = ""
         else:
             self._update_tempo_hint()
@@ -5142,7 +5699,11 @@ class RootWidget(BoxLayout):
         # Provide context-aware guidance based on reps/time.
         reps = exercise.get("reps")
         time_seconds = exercise.get("time_seconds")
-        set_prefix = f"Set {self._live_current_set}/{exercise.get('sets') or 1}: "
+        set_prefix = self._t(
+            "Set {current}/{total}: ",
+            current=self._live_current_set,
+            total=exercise.get("sets") or 1,
+        )
         supports_weight = bool(exercise.get("supports_weight"))
         weight_label = self._format_weight_label(
             exercise.get("weight_value"),
@@ -5151,12 +5712,32 @@ class RootWidget(BoxLayout):
         )
         weight_suffix = f" @ {weight_label}" if supports_weight and weight_label != "—" else ""
         if reps and time_seconds:
-            return set_prefix + f"Target {reps} reps in ~{time_seconds}s{weight_suffix}"
+            return self._t(
+                "{prefix}Target {reps} reps in ~{seconds}s{weight}",
+                prefix=set_prefix,
+                reps=reps,
+                seconds=time_seconds,
+                weight=weight_suffix,
+            )
         if reps:
-            return set_prefix + f"Perform {reps} controlled reps{weight_suffix}"
+            return self._t(
+                "{prefix}Perform {reps} controlled reps{weight}",
+                prefix=set_prefix,
+                reps=reps,
+                weight=weight_suffix,
+            )
         if time_seconds:
-            return set_prefix + f"Hold for {time_seconds} seconds{weight_suffix}"
-        return set_prefix + f"Move with control and good form{weight_suffix}."
+            return self._t(
+                "{prefix}Hold for {seconds} seconds{weight}",
+                prefix=set_prefix,
+                seconds=time_seconds,
+                weight=weight_suffix,
+            )
+        return self._t(
+            "{prefix}Move with control and good form{weight}.",
+            prefix=set_prefix,
+            weight=weight_suffix,
+        )
 
     def _start_live_clock(self) -> None:
         """Start the periodic live timer tick."""
@@ -5198,7 +5779,7 @@ class RootWidget(BoxLayout):
         self.live_details_expanded = False
         self.live_rest_setting_text = str(int(self.live_rest_seconds))
         self._update_live_labels()
-        self._set_hint("Press Start when you're ready.", color=(0.18, 0.4, 0.2, 1))
+        self._set_hint(self._t("Press Start when you're ready."), color=(0.18, 0.4, 0.2, 1))
 
     def _update_tempo_hint(self) -> None:
         """Update tempo guidance based on phase and progress."""
@@ -5209,22 +5790,29 @@ class RootWidget(BoxLayout):
             return
         reps = exercise.get("reps")
         if self._live_phase == "between_exercises":
-            self.live_tempo_hint = "Rest up — next exercise will start after the break."
+            self.live_tempo_hint = self._t("Rest up — next exercise will start after the break.")
             return
         if self._live_phase == "rest":
-            self.live_tempo_hint = "Rest and breathe. Next set starts soon."
+            self.live_tempo_hint = self._t("Rest and breathe. Next set starts soon.")
             return
         if reps:
             duration = self._live_set_target_seconds or max(1, reps * 4)
             per_rep = duration / max(reps, 1)
             expected_rep = min(reps, max(1, int(self._live_set_elapsed // max(per_rep, 1) + 1)))
-            self.live_tempo_hint = f"You should be at repetition {expected_rep} now."
+            self.live_tempo_hint = self._t(
+                "You should be at repetition {rep} now.",
+                rep=expected_rep,
+            )
         else:
             target = int(exercise.get("time_seconds") or self._live_set_target_seconds or 0)
             if target:
-                self.live_tempo_hint = f"Hold steady: {int(self._live_set_elapsed)}s of {target}s"
+                self.live_tempo_hint = self._t(
+                    "Hold steady: {elapsed}s of {target}s",
+                    elapsed=int(self._live_set_elapsed),
+                    target=target,
+                )
             else:
-                self.live_tempo_hint = "Stay controlled and keep breathing."
+                self.live_tempo_hint = self._t("Stay controlled and keep breathing.")
 
     def _compute_completion_percentage(self, completed: int, total: int) -> float:
         """Return 0-100 completion percentage based on completed vs total planned items."""
@@ -5280,10 +5868,17 @@ class RootWidget(BoxLayout):
         self._live_set_elapsed = 0.0
         self._live_rest_remaining = 0.0
         self._live_set_target_seconds = self._compute_set_target_seconds(exercise)
-        self.live_current_set_display = f"Set {self._live_current_set} of {total_sets}"
-        self.live_state_display = "In set"
+        self.live_current_set_display = self._t(
+            "Set {current} of {total}",
+            current=self._live_current_set,
+            total=total_sets,
+        )
+        self.live_state_display = self._t("In set")
         self.live_rest_timer = "—"
-        self._set_hint(f"Set {self._live_current_set} started", color=(0.16, 0.32, 0.6, 1))
+        self._set_hint(
+            self._t("Set {current} started", current=self._live_current_set),
+            color=(0.16, 0.32, 0.6, 1),
+        )
         self._update_tempo_hint()
         self._update_live_labels()
 
@@ -5300,9 +5895,12 @@ class RootWidget(BoxLayout):
             return
         self._live_phase = "rest"
         self._live_rest_remaining = float(self.live_rest_seconds)
-        self.live_state_display = "Resting"
+        self.live_state_display = self._t("Resting")
         self.live_rest_timer = self._format_time(self._live_rest_remaining)
-        self._set_hint("Rest now – next set will start automatically.", color=(0.18, 0.4, 0.2, 1))
+        self._set_hint(
+            self._t("Rest now – next set will start automatically."),
+            color=(0.18, 0.4, 0.2, 1),
+        )
         self._update_tempo_hint()
         self._update_live_labels()
 
@@ -5318,15 +5916,18 @@ class RootWidget(BoxLayout):
         status = "skipped" if skipped else "completed"
         self._record_attempt(status)
         if at_last_exercise:
-            self._flash_signal("Last exercise finished.", color=(0.18, 0.5, 0.3, 1))
+            self._flash_signal(self._t("Last exercise finished."), color=(0.18, 0.5, 0.3, 1))
             self.end_live_session(early=skipped)
             return
         self._live_phase = "between_exercises"
         self._live_rest_remaining = float(self.live_rest_seconds)
-        self.live_state_display = "Resting before next exercise"
+        self.live_state_display = self._t("Resting before next exercise")
         self.live_rest_timer = self._format_time(self._live_rest_remaining)
-        self._set_hint("Exercise finished. Resting before the next one.", color=(0.18, 0.4, 0.2, 1))
-        self._flash_signal("Exercise complete — rest break", color=(0.85, 0.55, 0.2, 1))
+        self._set_hint(
+            self._t("Exercise finished. Resting before the next one."),
+            color=(0.18, 0.4, 0.2, 1),
+        )
+        self._flash_signal(self._t("Exercise complete — rest break"), color=(0.85, 0.55, 0.2, 1))
         self._update_tempo_hint()
         self._update_live_labels()
 
@@ -5347,9 +5948,9 @@ class RootWidget(BoxLayout):
         self._live_phase = "set"
         self._live_set_target_seconds = self._compute_set_target_seconds(self._current_live_exercise())
         self._update_live_labels()
-        verb = "Skipped" if skipped else "Next exercise"
-        self._set_hint(f"{verb}: {self.live_exercise_title}", color=(0.25, 0.32, 0.65, 1))
-        self._flash_signal(f"Starting {self.live_exercise_title}", color=(0.16, 0.32, 0.6, 1))
+        verb = self._t("Skipped") if skipped else self._t("Next exercise")
+        self._set_hint(self._t("{verb}: {name}", verb=verb, name=self.live_exercise_title), color=(0.25, 0.32, 0.65, 1))
+        self._flash_signal(self._t("Starting {name}", name=self.live_exercise_title), color=(0.16, 0.32, 0.6, 1))
 
     def skip_current_exercise(self) -> None:
         """Skip the current exercise and enter rest."""
@@ -5379,16 +5980,16 @@ class RootWidget(BoxLayout):
             return
         self.live_paused = not self.live_paused
         if self.live_paused:
-            self.live_state_display = "Paused"
-            self._set_hint("Paused – timers stopped.", color=(0.65, 0.3, 0.18, 1))
+            self.live_state_display = self._t("Paused")
+            self._set_hint(self._t("Paused – timers stopped."), color=(0.65, 0.3, 0.18, 1))
         else:
             if self._live_phase == "rest":
-                self.live_state_display = "Resting"
+                self.live_state_display = self._t("Resting")
             elif self._live_phase == "between_exercises":
-                self.live_state_display = "Resting before next exercise"
+                self.live_state_display = self._t("Resting before next exercise")
             else:
-                self.live_state_display = "In set"
-            self._set_hint("Resumed.", color=(0.18, 0.4, 0.2, 1))
+                self.live_state_display = self._t("In set")
+            self._set_hint(self._t("Resumed."), color=(0.18, 0.4, 0.2, 1))
 
     def end_live_session(self, *, early: bool = False) -> None:
         """End the live session, summarize, and log results."""
@@ -5412,7 +6013,7 @@ class RootWidget(BoxLayout):
         self.live_rest_timer = "—"
         self.live_set_timer = self._format_time(self._live_set_elapsed)
         self.live_exercise_timer = self._format_time(self._live_exercise_elapsed)
-        self.live_upcoming_display = "Session ended"
+        self.live_upcoming_display = self._t("Session ended")
         try:
             Animation.cancel_all(self, "live_exercise_progress")
         except Exception:
@@ -5423,8 +6024,13 @@ class RootWidget(BoxLayout):
         attempts = self._collect_attempts(mark_unattempted_skipped=early)
         completed_count = sum(1 for att in attempts if att.get("status") == "completed")
         skipped_count = sum(1 for att in attempts if att.get("status") == "skipped")
-        status = "Workout finished" if not early else "Workout ended early"
-        summary = f"{status}. Completed {completed_count}, skipped {skipped_count}."
+        status = self._t("Workout finished") if not early else self._t("Workout ended early")
+        summary = self._t(
+            "{status}. Completed {completed}, skipped {skipped}.",
+            status=status,
+            completed=completed_count,
+            skipped=skipped_count,
+        )
         self.live_state_display = status
         self.live_progress_display = summary
         self._set_hint(summary, color=(0.18, 0.4, 0.2, 1), clear_after=0)
@@ -5488,19 +6094,30 @@ class RootWidget(BoxLayout):
         # Convert attempt data into display-friendly strings.
         self.summary_duration_display = self._format_time(duration_seconds or 0)
         self.summary_sets_display = str(self._live_total_sets_completed)
-        completed = [att.get("name", "Exercise") for att in attempts if att.get("status") == "completed"]
-        skipped = [att.get("name", "Exercise") for att in attempts if att.get("status") == "skipped"]
-        self.summary_completed_display = ", ".join(completed) if completed else "None"
-        self.summary_skipped_display = ", ".join(skipped) if skipped else "None"
+        completed = [
+            self._display_exercise_name(att.get("name", "Exercise"))
+            for att in attempts
+            if att.get("status") == "completed"
+        ]
+        skipped = [
+            self._display_exercise_name(att.get("name", "Exercise"))
+            for att in attempts
+            if att.get("status") == "skipped"
+        ]
+        self.summary_completed_display = ", ".join(completed) if completed else self._none_label
+        self.summary_skipped_display = ", ".join(skipped) if skipped else self._none_label
         attempts_lines = []
         for att in attempts:
-            status_label = "Completed" if att.get("status") == "completed" else "Skipped"
+            status_label = self._t("Completed") if att.get("status") == "completed" else self._t("Skipped")
             weight_label = self._format_weight_label(att.get("weight_value"), att.get("weight_unit"))
+            display_name = self._display_exercise_name(att.get("name", self._t("Exercise")))
             if weight_label != "—":
-                attempts_lines.append(f"{att.get('name', 'Exercise')}: {status_label} ({weight_label})")
+                attempts_lines.append(f"{display_name}: {status_label} ({weight_label})")
             else:
-                attempts_lines.append(f"{att.get('name', 'Exercise')}: {status_label}")
-        self.summary_attempts_display = "\n".join(attempts_lines) if attempts_lines else "No exercises attempted."
+                attempts_lines.append(f"{display_name}: {status_label}")
+        self.summary_attempts_display = "\n".join(attempts_lines) if attempts_lines else self._t(
+            "No exercises attempted."
+        )
         self.summary_goal_display = self._live_goal_label or "—"
         self.summary_performed_at_display = performed_at
 
@@ -5531,15 +6148,22 @@ class RootWidget(BoxLayout):
                 ],
             )
         except (ValueError, sqlite3.DatabaseError) as exc:
-            self._set_history_status(f"Could not log workout: {exc}", error=True)
+            self._set_history_status(self._t("Could not log workout: {error}", error=exc), error=True)
             return
-        self._set_history_status("Workout logged from live session.")
+        self._set_history_status(self._t("Workout logged from live session."))
         self._load_history()
 
 
 class ExerciseApp(App):
     """Kivy application entry point."""
     # Initializes database and builds the root widget.
+    language = StringProperty(localization.DEFAULT_LANGUAGE)
+
+    def tr(self, text: str, lang: Optional[str] = None, **kwargs: Any) -> str:
+        """Translate UI text based on the active language."""
+        active = lang or self.language or localization.DEFAULT_LANGUAGE
+        return localization.translate(text, active, **kwargs)
+
     def build(self):
         """Construct the Kivy root widget and load KV rules."""
         # Ensure database schema exists before UI uses it.

@@ -10,6 +10,7 @@ os.environ.setdefault("KIVY_WINDOW", "mock")
 os.environ.setdefault("KIVY_NO_FILELOG", "1")
 
 import exercise_database
+import localization
 from main import RootWidget
 
 
@@ -58,7 +59,9 @@ class RecommendationLogicTests(unittest.TestCase):
         # Build a lightweight stub that satisfies _update_tempo_hint requirements.
         class TempoStub:
             """Simple stub container for tempo hint tests."""
-            pass
+            def _t(self, text: str, **kwargs) -> str:
+                """Return English translations for tempo hint tests."""
+                return localization.translate(text, "en", **kwargs)
 
         stub = TempoStub()
         stub.live_exercises = [{"name": "Push-Up", "reps": 10}]
