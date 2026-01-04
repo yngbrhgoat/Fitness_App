@@ -2641,6 +2641,7 @@ class RootWidget(BoxLayout):
         if app and app.root is None:
             app.root = self
         super().__init__(**kwargs)
+        self._initializing = True
         self.records: list[dict[str, Any]] = []
         self._users: list[dict[str, Any]] = []
         self.current_user_id: Optional[int] = None
@@ -2685,6 +2686,7 @@ class RootWidget(BoxLayout):
         self._live_phase = "idle"
         self._update_rec_plan_height()
         Clock.schedule_once(self._bootstrap_data, 0)
+        self._initializing = False
 
     def _current_language(self) -> str:
         """Return the active language code."""
@@ -3019,6 +3021,8 @@ class RootWidget(BoxLayout):
         if app and getattr(app, "language", None) != selected_code:
             app.language = selected_code
         self.language_spinner_text = localization.LANGUAGE_LABELS.get(selected_code, label)
+        if getattr(self, "_initializing", False):
+            return
         self.apply_language()
 
     def apply_language(self) -> None:
