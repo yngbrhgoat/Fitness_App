@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="0314f889-1c24-4d0f-8172-0c21a925c2b1" name="Changes" comment="Übersetzung ins deutsche">
+    <list default="true" id="0314f889-1c24-4d0f-8172-0c21a925c2b1" name="Changes" comment="Verbesserung der Übungsbeschreibungen, Sprachwahl beim App-Start hinzugefügt, Browse-Screen erweitert, Gewichtseinheit auf kg fixiert, Live-Workout-Zeit automatisch aktualisiert und App-Absturz beim Loggen abgeschlossener Workouts behoben">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/exercise_database.py" beforeDir="false" afterPath="$PROJECT_DIR$/exercise_database.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/exercises.db" beforeDir="false" afterPath="$PROJECT_DIR$/exercises.db" afterDir="false" />
@@ -376,7 +376,15 @@
       <option name="project" value="LOCAL" />
       <updated>1767536608737</updated>
     </task>
-    <option name="localTasksCounter" value="40" />
+    <task id="LOCAL-00040" summary="Verbesserung der Übungsbeschreibungen, Sprachwahl beim App-Start hinzugefügt, Browse-Screen erweitert, Gewichtseinheit auf kg fixiert, Live-Workout-Zeit automatisch aktualisiert und App-Absturz beim Loggen abgeschlossener Workouts behoben">
+      <option name="closed" value="true" />
+      <created>1767546108023</created>
+      <option name="number" value="00040" />
+      <option name="presentableId" value="LOCAL-00040" />
+      <option name="project" value="LOCAL" />
+      <updated>1767546108023</updated>
+    </task>
+    <option name="localTasksCounter" value="41" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -391,7 +399,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Hinzufügen eines Bildschirms zum Durchsuchen aller Übungen mit Filterung bereitgestellt nach jeweils: Zieleignung, Muskelgruppe, Benötigte Ausrüstung" />
     <MESSAGE value="Hinzufügen einer Eingabe-Maske für den Nutzer, um Übungen hinzufügen zu können. &#10;Achtung: eventuell wird bodyweight auch automatisch, ohne dass der Nutzer es eingibt, im Formular eingefügt!" />
     <MESSAGE value="Nutzer-Konten (Punkt 2 in Readme) hinzugefügt." />
     <MESSAGE value="Fixen von &quot;empty-space&quot; im Browsen. Verbesserung der UI für die Nutzeranmeldung." />
@@ -416,7 +423,8 @@
     <MESSAGE value="hinzufügen von License" />
     <MESSAGE value="Gewichte hinzugefügt" />
     <MESSAGE value="Übersetzung ins deutsche" />
-    <option name="LAST_COMMIT_MESSAGE" value="Übersetzung ins deutsche" />
+    <MESSAGE value="Verbesserung der Übungsbeschreibungen, Sprachwahl beim App-Start hinzugefügt, Browse-Screen erweitert, Gewichtseinheit auf kg fixiert, Live-Workout-Zeit automatisch aktualisiert und App-Absturz beim Loggen abgeschlossener Workouts behoben" />
+    <option name="LAST_COMMIT_MESSAGE" value="Verbesserung der Übungsbeschreibungen, Sprachwahl beim App-Start hinzugefügt, Browse-Screen erweitert, Gewichtseinheit auf kg fixiert, Live-Workout-Zeit automatisch aktualisiert und App-Absturz beim Loggen abgeschlossener Workouts behoben" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

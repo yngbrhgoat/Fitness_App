@@ -31,6 +31,7 @@ TRANSLATIONS = {
     "Users": "Benutzer",
     "History": "Historie",
     "Recommend": "Empfehlung",
+    "Recommendation": "Empfehlung",
     "Live": "Live",
     "Welcome to the Exercise Manager": "Willkommen beim Trainingsmanager",
     "Choose what you want to do": "Wähle, was du tun möchtest",
@@ -378,176 +379,206 @@ EXERCISE_TRANSLATIONS = {
         "name": "Liegestütz",
         "short_description": "Klassischer Liegestütz für Brust, Schultern und Trizeps.",
         "execution_instructions": (
-            "Starte im hohen Plank, Hände unter den Schultern, Körper gerade. Senke die Brust fast bis "
-            "zum Boden, Ellbogen etwa 45 Grad, dann kräftig hochdrücken, Rumpf fest."
+            "Starte im hohen Plank, Hände etwas breiter als die Schultern, Handgelenke unter den "
+            "Schultern, Körper in einer Linie.\n"
+            "Rumpf und Gesäß anspannen, Brust bis kurz über den Boden absenken, Ellbogen etwa 45 Grad.\n"
+            "Hochdrücken, ausatmen, Nacken neutral und Hüfte stabil halten."
         ),
     },
     "Barbell Deadlift": {
         "name": "Langhantel-Kreuzheben",
         "short_description": "Ganzkörper-Hüftscharnier für hintere Kette und Griff.",
         "execution_instructions": (
-            "Stange über dem Mittelfuß, Hüfte nach hinten, Griff außerhalb der Beine. Rücken neutral, "
-            "Boden wegdrücken bis aufrecht, dann die Stange dicht am Körper kontrolliert absenken."
+            "Stange über dem Mittelfuß, Füße hüftbreit.\n"
+            "Hüfte nach hinten, Stange außerhalb der Beine greifen, Rücken neutral, Bauch fest.\n"
+            "Boden wegdrücken, Stange dicht an Schienbein und Oberschenkel führen, dann kontrolliert "
+            "absenken."
         ),
     },
     "Plank": {
         "name": "Unterarmstütz",
         "short_description": "Statischer Core-Halt für Rumpfstabilität.",
         "execution_instructions": (
-            "Unterarme unter den Schultern, Körper in einer Linie. Bauch und Gesäß anspannen, Hüfte "
-            "stabil halten und ruhig atmen."
+            "Unterarme unter die Schultern, Ellbogen etwa 90 Grad, Beine gestreckt.\n"
+            "Bauch und Gesäß anspannen, Kopf, Schultern, Hüfte und Fersen in einer Linie.\n"
+            "Ruhig atmen und beenden, wenn der untere Rücken durchhängt oder ins Hohlkreuz geht."
         ),
     },
     "Jump Rope": {
         "name": "Seilspringen",
         "short_description": "Cardio-Übung für Koordination und Waden.",
         "execution_instructions": (
-            "Griffe auf Hüfthöhe, Ellbogen nah am Körper. Leicht auf den Ballen springen und das Seil "
-            "mit kleinen Handgelenkskreisen drehen."
+            "Griffe auf Hüfthöhe, Ellbogen nah am Körper, Seil hinter den Fersen.\n"
+            "Seil mit kleinen Handgelenkskreisen drehen und niedrig auf den Ballen springen.\n"
+            "Leise landen, Oberkörper aufrecht und Rhythmus konstant halten."
         ),
     },
     "Bench Press": {
         "name": "Bankdrücken",
         "short_description": "Bankdrücken für Brust-, Schulter- und Trizepskraft.",
         "execution_instructions": (
-            "Auf die Bank legen, Füße fest am Boden, Schulterblätter zusammen. Stange zur Mitte der "
-            "Brust absenken, dann kontrolliert hochdrücken, ohne zu prellen."
+            "Auf die Bank legen, Augen unter der Stange, Füße fest, Schulterblätter zusammenziehen.\n"
+            "Stange ausheben, zur mittleren Brust absenken, Ellbogen etwa 45 bis 70 Grad, Handgelenke "
+            "gerade.\n"
+            "Gerade nach oben drücken, ausatmen, Gesäß bleibt auf der Bank."
         ),
     },
     "Dumbbell Chest Fly": {
         "name": "Kurzhantel-Flys",
         "short_description": "Brust-Fly für Dehnung und Kontrolle.",
         "execution_instructions": (
-            "Auf der Bank, Hanteln über der Brust, Ellbogen leicht gebeugt. Arme weit öffnen bis zur "
-            "Dehnung, dann die Hanteln wieder über der Brust zusammenführen."
+            "Auf der Bank liegen, Hanteln über der Brust, Handflächen zueinander, Ellbogen leicht "
+            "gebeugt.\n"
+            "Arme in einem weiten Bogen öffnen bis zur Brustdehnung, Ellbogenwinkel halten.\n"
+            "Brust anspannen und die Hanteln ohne Zusammenstoßen zurückführen."
         ),
     },
     "Dumbbell Bicep Curl": {
         "name": "Kurzhantel-Bizepscurls",
         "short_description": "Kurzhantel-Curl für Bizepskraft.",
         "execution_instructions": (
-            "Aufrecht stehen, Ellbogen am Körper, Handflächen nach vorn. Hanteln ohne Schwung "
-            "hochcurlen, kurz anspannen, dann langsam absenken."
+            "Aufrecht stehen, Hanteln seitlich, Handflächen nach vorn.\n"
+            "Hochcurlen ohne Schwung und ohne Ellbogen zu bewegen, oben kurz anspannen.\n"
+            "Langsam bis zur vollen Streckung absenken."
         ),
     },
     "Overhead Tricep Extension": {
         "name": "Überkopf-Trizepsstrecken",
         "short_description": "Überkopfstrecken für den langen Trizepskopf.",
         "execution_instructions": (
-            "Hantel über dem Kopf halten, Ellbogen nach vorn. Gewicht hinter den Kopf absenken, dann "
-            "die Arme strecken."
+            "Hantel über dem Kopf mit beiden Händen halten, Ellbogen nah an den Ohren.\n"
+            "Gewicht hinter den Kopf absenken, nur die Ellbogen beugen, Oberarme bleiben ruhig.\n"
+            "Ellbogen strecken und nicht ins Hohlkreuz fallen."
         ),
     },
     "Tricep Dip": {
         "name": "Trizeps-Dips",
         "short_description": "Bank-Dip mit Fokus auf Trizeps und Brust.",
         "execution_instructions": (
-            "Hände auf die Bank, Beine nach vorn. Körper absenken bis ca. 90 Grad im Ellbogen, Schultern "
-            "unten halten, dann hochdrücken."
+            "Hände auf die Bank, Finger nach vorn, Beine gestreckt, Hüfte knapp vor der Kante.\n"
+            "Absenken bis etwa 90 Grad im Ellbogen, Schultern unten halten.\n"
+            "Über die Handflächen hochdrücken und den Oberkörper nah an der Bank halten."
         ),
     },
     "Dumbbell Shoulder Press": {
         "name": "Kurzhantel-Schulterdrücken",
         "short_description": "Überkopfdrücken für Schulterkraft und Stabilität.",
         "execution_instructions": (
-            "Hanteln auf Schulterhöhe, Rumpf fest. Über Kopf drücken bis die Arme gestreckt sind, dann "
-            "kontrolliert absenken."
+            "Sitzend oder stehend, Hanteln auf Schulterhöhe, Handflächen nach vorn.\n"
+            "Rumpf fest, Hanteln über Kopf drücken bis die Arme gestreckt sind.\n"
+            "Kontrolliert absenken, ohne den Rücken zu überstrecken."
         ),
     },
     "Goblet Squat": {
         "name": "Goblet Squat",
         "short_description": "Frontbelastete Kniebeuge für Beine und Core.",
         "execution_instructions": (
-            "Hantel vor der Brust halten, Füße schulterbreit. Hüfte nach hinten/unten, Brust aufrecht, "
-            "Knie über den Zehen, dann über die Fersen aufstehen."
+            "Hantel vor der Brust halten, Ellbogen nach unten.\n"
+            "Füße etwas breiter als hüftbreit, Zehen leicht nach außen, Hüfte nach hinten und unten "
+            "setzen, Brust aufrecht.\n"
+            "Über die Fersen aufstehen und das Gewicht nah am Körper halten."
         ),
     },
     "Walking Lunge": {
         "name": "Ausfallschritte im Gehen",
         "short_description": "Ausfallschritte im Gehen für Beine, Gesäß und Gleichgewicht.",
         "execution_instructions": (
-            "Einen großen Schritt nach vorn, beide Knie etwa 90 Grad. Über die vordere Ferse aufrichten "
-            "und in den nächsten Schritt gehen."
+            "Aufrecht stehen, großer Schritt nach vorn, beide Knie etwa 90 Grad.\n"
+            "Gerade nach unten absenken, vorderes Knie über dem Sprunggelenk, hinteres Knie knapp über "
+            "dem Boden.\n"
+            "Über die vordere Ferse aufrichten und in den nächsten Schritt gehen."
         ),
     },
     "Pull-Up": {
         "name": "Klimmzug",
         "short_description": "Klimmzug für Rücken und Bizeps.",
         "execution_instructions": (
-            "Stange etwas breiter als Schulterbreit greifen und aus dem Hang starten. Brust zur Stange "
-            "ziehen, Ellbogen nach unten, dann kontrolliert absenken."
+            "Stange etwas breiter als Schulterbreit greifen, aus dem Hang starten.\n"
+            "Lat aktivieren und Brust zur Stange ziehen, Ellbogen nach unten und hinten.\n"
+            "Kontrolliert absenken bis zum vollen Hang, ohne zu schwingen."
         ),
     },
     "Lat Pulldown": {
         "name": "Latziehen",
         "short_description": "Latziehen für Latissimus und oberen Rücken.",
         "execution_instructions": (
-            "Aufrecht sitzen, Griff weit. Stange zur oberen Brust ziehen, Schulterblätter zusammen, "
-            "dann langsam nach oben lassen."
+            "Aufrecht sitzen, Oberschenkel fixiert, Griff breit.\n"
+            "Stange zur oberen Brust ziehen, Ellbogen nach unten, Schulterblätter zusammen.\n"
+            "Langsam nach oben lassen, ohne nach hinten zu lehnen."
         ),
     },
     "Seated Cable Row": {
         "name": "Sitzendes Kabelrudern",
         "short_description": "Sitzendes Rudern für den mittleren Rücken.",
         "execution_instructions": (
-            "Aufrecht sitzen, Knie leicht gebeugt. Griff zur unteren Brust ziehen, Ellbogen nah, "
-            "Rücken kurz anspannen, dann kontrolliert zurück."
+            "Aufrecht sitzen, Knie leicht gebeugt, Arme gestreckt am Griff.\n"
+            "Griff zur unteren Brust oder zu den unteren Rippen ziehen, Ellbogen nah am Körper.\n"
+            "Kurze Pause, dann kontrolliert zurück, Oberkörper bleibt stabil."
         ),
     },
     "Kettlebell Swing": {
         "name": "Kettlebell-Swing",
         "short_description": "Explosiver Hüftschwung für Power und Kondition.",
         "execution_instructions": (
-            "Hüfte nach hinten schieben und die Kettlebell nach hinten führen. Hüfte explosiv strecken, "
-            "Kettlebell bis Brusthöhe, Arme locker, Rücken neutral."
+            "Füße hüftbreit, Kettlebell vor dir, Hüfte nach hinten, Kettlebell zwischen die Beine "
+            "ziehen.\n"
+            "Hüfte explosiv strecken, die Kettlebell schwingt bis Brusthöhe, Arme bleiben locker.\n"
+            "Zurückfallen lassen, wieder beugen, Rücken neutral halten."
         ),
     },
     "Russian Twist": {
         "name": "Russian Twist",
         "short_description": "Rotationsübung für die schrägen Bauchmuskeln.",
         "execution_instructions": (
-            "Sitzend leicht zurücklehnen, Core anspannen. Oberkörper von Seite zu Seite drehen und "
-            "neben der Hüfte tippen."
+            "Sitzend, Knie gebeugt, Oberkörper leicht zurück, Rücken flach.\n"
+            "Rumpf fest und den Oberkörper von Seite zu Seite drehen, Schultern und Brust mitnehmen.\n"
+            "Füße am Boden lassen oder leicht anheben und gleichmäßig drehen."
         ),
     },
     "Glute Bridge": {
         "name": "Glute Bridge",
         "short_description": "Glute Bridge für Gesäß und Beinrückseite.",
         "execution_instructions": (
-            "Rückenlage, Knie gebeugt, Füße flach. Über die Fersen Hüfte anheben bis der Körper gerade "
-            "ist, Gesäß anspannen, dann absenken."
+            "Rückenlage, Knie gebeugt, Füße hüftbreit, Fersen nah am Gesäß.\n"
+            "Bauch anspannen und über die Fersen die Hüfte anheben bis Schultern, Hüfte und Knie in "
+            "einer Linie.\n"
+            "Gesäß anspannen, kurz halten, dann langsam absenken."
         ),
     },
     "Calf Raise": {
         "name": "Wadenheben",
         "short_description": "Wadenheben für Unterschenkelkraft.",
         "execution_instructions": (
-            "Aufrecht stehen, Füße hüftbreit. Auf die Ballen hochdrücken, kurz halten, dann langsam "
-            "absenken."
+            "Aufrecht stehen, Füße hüftbreit, ggf. festhalten.\n"
+            "Auf die Ballen hochdrücken und oben kurz halten.\n"
+            "Langsam unter die Neutralposition absenken für eine Dehnung."
         ),
     },
     "Band Pull-Apart": {
         "name": "Band Pull-Apart",
         "short_description": "Band Pull-Apart für hintere Schulter und oberen Rücken.",
         "execution_instructions": (
-            "Band auf Schulterhöhe mit gestreckten Armen halten. Hände auseinanderziehen, "
-            "Schulterblätter zusammen, dann kontrolliert zurück."
+            "Band auf Schulterhöhe halten, Arme gestreckt, Hände schulterbreit.\n"
+            "Band auseinanderziehen, Schulterblätter zusammen, Rippen unten.\n"
+            "Kontrolliert zurückführen."
         ),
     },
     "Leg Press": {
         "name": "Beinpresse",
         "short_description": "Beinpresse für Quadrizeps und Gesäß.",
         "execution_instructions": (
-            "Füße schulterbreit auf die Plattform. Schlitten absenken bis die Knie etwa 90 Grad, "
-            "dann hochdrücken ohne die Knie zu blockieren."
+            "Rücken und Kopf an das Polster, Füße schulterbreit auf die Plattform.\n"
+            "Entriegeln, Plattform absenken bis die Knie etwa 90 Grad, Fersen bleiben unten.\n"
+            "Über Mittelfuß und Fersen hochdrücken, Knie nicht durchdrücken."
         ),
     },
     "Bicycle Crunch": {
         "name": "Fahrrad-Crunch",
         "short_description": "Wechselnder Crunch für Core-Ausdauer.",
         "execution_instructions": (
-            "Rückenlage, Hände leicht hinter dem Kopf, Knie anheben. Ellbogen zum gegenüberliegenden "
-            "Knie führen, anderes Bein strecken, unteren Rücken am Boden halten."
+            "Rückenlage, Hände locker hinter dem Kopf, unteren Rücken in den Boden drücken.\n"
+            "Ein Bein strecken und den gegenüberliegenden Ellbogen zum Knie drehen.\n"
+            "Wechsel fließend, Nacken nicht ziehen."
         ),
     },
 }

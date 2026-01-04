@@ -17,6 +17,7 @@ from kivy.animation import Animation
 from kivy.clock import Clock
 from kivy.lang import Builder
 from kivy.properties import BooleanProperty, ListProperty, NumericProperty, StringProperty
+from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.button import Button
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
@@ -72,6 +73,60 @@ KV = """
     height: self.texture_size[1]
     halign: "left"
     valign: "middle"
+
+<DetailCard@BoxLayout>:
+    orientation: "vertical"
+    size_hint_y: None
+    height: self.minimum_height
+    padding: dp(10)
+    spacing: dp(6)
+    canvas.before:
+        Color:
+            rgba: 0.97, 0.98, 1, 1
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [8,]
+    canvas.after:
+        Color:
+            rgba: 0.84, 0.88, 0.94, 1
+        Line:
+            rounded_rectangle: (self.x, self.y, self.width, self.height, 8)
+            width: 1
+
+<DetailRow>:
+    orientation: "horizontal"
+    size_hint_y: None
+    height: self.minimum_height
+    padding: dp(8), dp(6)
+    spacing: dp(8)
+    canvas.before:
+        Color:
+            rgba: 1, 1, 1, 1
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [6,]
+    canvas.after:
+        Color:
+            rgba: 0.86, 0.89, 0.95, 1
+        Line:
+            rounded_rectangle: (self.x, self.y, self.width, self.height, 6)
+            width: 1
+    Label:
+        text: root.label_text
+        bold: True
+        color: 0.15, 0.18, 0.28, 1
+        size_hint_x: 0.4
+        size_hint_y: None
+        height: self.texture_size[1]
+        halign: "left"
+        valign: "middle"
+        text_size: self.size
+    WrapLabel:
+        text: root.value_text
+        color: 0.16, 0.2, 0.3, 1
+        size_hint_x: 0.6
 
 <StatusBanner@BoxLayout>:
     text: ""
@@ -173,6 +228,7 @@ KV = """
     spacing: dp(6)
     size_hint_y: None
     height: self.minimum_height
+    on_release: app.root.open_browse_details(root.name)
     canvas.before:
         Color:
             rgba: 0.96, 0.97, 1, 1
@@ -210,31 +266,39 @@ KV = """
                 text_size: self.width, None
                 size_hint_y: None
                 height: self.texture_size[1]
-            WrapLabel:
-                text: app.tr("Muscle: {muscle} | Equipment: {equipment}", app.language, muscle=root.muscle_group, equipment=root.equipment)
-                color: 0.2, 0.2, 0.3, 1
-                size_hint_y: None
-                height: self.texture_size[1]
-            WrapLabel:
-                text: app.tr("Suitability: {value} | Est. time: {minutes} min", app.language, value=root.suitability_display, minutes=root.estimated_minutes)
-                color: 0.2, 0.2, 0.3, 1
-                size_hint_y: None
-                height: self.texture_size[1]
-            WrapLabel:
-                text: app.tr("Recommendation score: {score}", app.language, score=root.score_display)
-                color: 0.16, 0.16, 0.22, 1
-                size_hint_y: None
-                height: self.texture_size[1]
-            WrapLabel:
-                text: app.tr("Execution: {value}", app.language, value=root.execution_instructions or app.tr("No directions provided.", app.language))
-                color: 0.18, 0.18, 0.26, 1
-                font_size: "13sp"
+    GridLayout:
+        cols: 3
+        spacing: dp(10)
+        size_hint_y: None
+        height: self.minimum_height
+        WrapLabel:
+            text: root.goal_label or "—"
+            color: 0.2, 0.2, 0.3, 1
+        WrapLabel:
+            text: root.muscle_group or "—"
+            color: 0.2, 0.2, 0.3, 1
+        WrapLabel:
+            text: root.equipment or "—"
+            color: 0.2, 0.2, 0.3, 1
+    WrapLabel:
+        text: app.tr("Suitability: {value} | Est. time: {minutes} min", app.language, value=root.suitability_value or root.suitability_display, minutes=root.estimated_minutes)
+        color: 0.2, 0.2, 0.3, 1
+    WrapLabel:
+        text: app.tr("Recommendation score: {score}", app.language, score=root.score_display)
+        color: 0.16, 0.16, 0.22, 1
     Label:
         text: app.tr("Recommendation: {value}", app.language, value=root.recommendation)
         color: 0.2, 0.2, 0.28, 1
         size_hint_y: None
         height: self.texture_size[1]
         text_size: self.width, None
+    BoxLayout:
+        size_hint_y: None
+        height: dp(36)
+        spacing: dp(8)
+        Button:
+            text: app.tr("Details", app.language)
+            on_release: app.root.open_browse_details(root.name)
 
 <WorkoutCard>:
     orientation: "vertical"
@@ -733,13 +797,13 @@ KV = """
                 text: app.tr("Skip for now", app.language)
                 on_release: app.root.skip_goal_prompt()
 
-<RecommendationDetailsModal>:
+<ExerciseDetailsModal>:
     size_hint: 0.96, 0.92
     auto_dismiss: False
     BoxLayout:
         orientation: "vertical"
         padding: dp(12)
-        spacing: dp(8)
+        spacing: dp(10)
         canvas.before:
             Color:
                 rgba: 1, 1, 1, 1
@@ -761,96 +825,95 @@ KV = """
             color: 0.1, 0.12, 0.2, 1
         ScrollView:
             do_scroll_x: False
+            bar_width: dp(6)
             BoxLayout:
                 orientation: "vertical"
-                spacing: dp(8)
+                spacing: dp(10)
                 size_hint_y: None
                 height: self.minimum_height
-                WrapLabel:
-                    text: root.description
-                    color: 0.16, 0.18, 0.24, 1
-                WrapLabel:
-                    text: app.tr("Execution directions", app.language)
-                    color: 0.12, 0.14, 0.22, 1
-                    bold: True
-                WrapLabel:
-                    text: root.execution_instructions or app.tr("No directions provided.", app.language)
-                    color: 0.16, 0.18, 0.24, 1
-                GridLayout:
-                    cols: 2
-                    spacing: dp(8)
-                    row_default_height: dp(24)
-                    size_hint_y: None
-                    height: self.minimum_height
-                    GridInfoLabel:
-                        text: app.tr("Goal", app.language)
-                        color: 0.18, 0.18, 0.22, 1
+                DetailCard:
+                    Label:
+                        text: app.tr("Description", app.language)
+                        bold: True
+                        color: 0.12, 0.14, 0.22, 1
+                        size_hint_y: None
+                        height: dp(18)
                     WrapLabel:
-                        text: root.goal_label or "—"
-                        color: 0.16, 0.2, 0.3, 1
-                    GridInfoLabel:
-                        text: app.tr("Muscle", app.language)
-                        color: 0.18, 0.18, 0.22, 1
+                        text: root.description
+                        color: 0.16, 0.18, 0.24, 1
+                DetailCard:
+                    Label:
+                        text: app.tr("Execution directions", app.language)
+                        bold: True
+                        color: 0.12, 0.14, 0.22, 1
+                        size_hint_y: None
+                        height: dp(18)
                     WrapLabel:
-                        text: root.muscle_group or "—"
-                        color: 0.16, 0.2, 0.3, 1
-                    GridInfoLabel:
-                        text: app.tr("Equipment", app.language)
-                        color: 0.18, 0.18, 0.22, 1
+                        text: root.execution_instructions or app.tr("No directions provided.", app.language)
+                        color: 0.16, 0.18, 0.24, 1
+                DetailCard:
+                    Label:
+                        text: app.tr("Details", app.language)
+                        bold: True
+                        color: 0.12, 0.14, 0.22, 1
+                        size_hint_y: None
+                        height: dp(18)
+                    BoxLayout:
+                        orientation: "vertical"
+                        spacing: dp(6)
+                        size_hint_y: None
+                        height: self.minimum_height
+                        DetailRow:
+                            label_text: app.tr("Goal", app.language)
+                            value_text: root.goal_label or "—"
+                        DetailRow:
+                            label_text: app.tr("Muscle", app.language)
+                            value_text: root.muscle_group or "—"
+                        DetailRow:
+                            label_text: app.tr("Equipment", app.language)
+                            value_text: root.equipment or "—"
+                        DetailRow:
+                            label_text: app.tr("Suitability", app.language)
+                            value_text: root.suitability or "—"
+                        DetailRow:
+                            label_text: app.tr("Est. time", app.language)
+                            value_text: app.tr("{minutes} min", app.language, minutes=root.estimated_minutes) if root.estimated_minutes else "—"
+                        DetailRow:
+                            label_text: app.tr("Score", app.language)
+                            value_text: root.score_display or "—"
+                        DetailRow:
+                            label_text: app.tr("Sets", app.language)
+                            value_text: root.sets_display
+                        DetailRow:
+                            label_text: app.tr("Reps", app.language)
+                            value_text: root.reps_display
+                        DetailRow:
+                            label_text: app.tr("Time", app.language)
+                            value_text: root.time_display
+                DetailCard:
+                    Label:
+                        text: app.tr("Recommendation", app.language)
+                        bold: True
+                        color: 0.12, 0.14, 0.22, 1
+                        size_hint_y: None
+                        height: dp(18)
                     WrapLabel:
-                        text: root.equipment or "—"
-                        color: 0.16, 0.2, 0.3, 1
-                    GridInfoLabel:
-                        text: app.tr("Suitability", app.language)
-                        color: 0.18, 0.18, 0.22, 1
-                    WrapLabel:
-                        text: root.suitability or "—"
-                        color: 0.16, 0.2, 0.3, 1
-                    GridInfoLabel:
-                        text: app.tr("Est. time", app.language)
-                        color: 0.18, 0.18, 0.22, 1
-                    WrapLabel:
-                        text: app.tr("{minutes} min", app.language, minutes=root.estimated_minutes) if root.estimated_minutes else "—"
-                        color: 0.16, 0.2, 0.3, 1
-                    GridInfoLabel:
-                        text: app.tr("Score", app.language)
-                        color: 0.18, 0.18, 0.22, 1
-                    WrapLabel:
-                        text: root.score_display or "—"
-                        color: 0.16, 0.2, 0.3, 1
-                    GridInfoLabel:
-                        text: app.tr("Sets", app.language)
-                        color: 0.18, 0.18, 0.22, 1
-                    WrapLabel:
-                        text: root.sets_display
-                        color: 0.16, 0.2, 0.3, 1
-                    GridInfoLabel:
-                        text: app.tr("Reps", app.language)
-                        color: 0.18, 0.18, 0.22, 1
-                    WrapLabel:
-                        text: root.reps_display
-                        color: 0.16, 0.2, 0.3, 1
-                    GridInfoLabel:
-                        text: app.tr("Time", app.language)
-                        color: 0.18, 0.18, 0.22, 1
-                    WrapLabel:
-                        text: root.time_display
-                        color: 0.16, 0.2, 0.3, 1
-                WrapLabel:
-                    text: app.tr("Recommendation: {value}", app.language, value=root.recommendation)
-                    color: 0.16, 0.2, 0.3, 1
+                        text: root.recommendation or "—"
+                        color: 0.16, 0.18, 0.24, 1
         BoxLayout:
             size_hint_y: None
-            height: dp(36)
+            height: dp(40)
             spacing: dp(10)
             padding: dp(6), 0
             Widget:
             Button:
                 text: app.tr("Add to plan", app.language)
                 size_hint: None, None
-                width: dp(140)
+                width: dp(140) if root.show_add_button else 0
                 height: dp(32)
-                on_release: app.root.add_recommendation_to_plan(root.exercise_key); root.dismiss()
+                opacity: 1 if root.show_add_button else 0
+                disabled: not root.show_add_button
+                on_release: app.root.add_recommendation_to_plan(root.exercise_key) if root.show_add_button else None; root.dismiss()
             Button:
                 text: app.tr("Close", app.language)
                 size_hint: None, None
@@ -1348,48 +1411,62 @@ KV = """
             Rectangle:
                 pos: self.pos
                 size: self.size
-        BoxLayout:
+        GridLayout:
+            cols: 3
+            spacing: dp(10)
             size_hint_y: None
-            height: dp(70)
-            spacing: dp(12)
-            GridLayout:
-                cols: 3
-                spacing: dp(8)
-                row_default_height: dp(26)
+            height: self.minimum_height
+            padding: dp(12), 0, dp(12), 0
+            BoxLayout:
+                orientation: "vertical"
                 size_hint_y: None
                 height: self.minimum_height
-                col_force_default: True
-                col_default_width: self.width / 3
+                spacing: dp(4)
                 FilterLabel:
                     text: app.tr("Target suitability", app.language)
-                FilterLabel:
-                    text: app.tr("Muscle group", app.language)
-                FilterLabel:
-                    text: app.tr("Required equipment", app.language)
                 Spinner:
                     id: goal_spinner
                     text: app.root.goal_spinner_text
                     values: app.root.goal_options
                     on_text: app.root.on_goal_change(self.text)
-                    size_hint_x: 1
+                    size_hint_y: None
+                    height: dp(36)
                     background_normal: ""
                     background_down: ""
                     background_color: app.root.filter_goal_color
                     color: app.root.filter_goal_text_color
+            BoxLayout:
+                orientation: "vertical"
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: dp(4)
+                FilterLabel:
+                    text: app.tr("Muscle group", app.language)
                 Spinner:
                     id: muscle_spinner
                     text: app.root.muscle_spinner_text
                     values: app.root.muscle_options
                     on_text: app.root.on_muscle_change(self.text)
+                    size_hint_y: None
+                    height: dp(36)
                     background_normal: ""
                     background_down: ""
                     background_color: app.root.filter_muscle_color
                     color: app.root.filter_muscle_text_color
+            BoxLayout:
+                orientation: "vertical"
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: dp(4)
+                FilterLabel:
+                    text: app.tr("Required equipment", app.language)
                 Spinner:
                     id: equipment_spinner
                     text: app.root.equipment_spinner_text
                     values: app.root.equipment_options
                     on_text: app.root.on_equipment_change(self.text)
+                    size_hint_y: None
+                    height: dp(36)
                     background_normal: ""
                     background_down: ""
                     background_color: app.root.filter_equipment_color
@@ -1857,11 +1934,6 @@ KV = """
                     size_hint_x: None
                     width: dp(150)
                     on_release: app.root.clear_history_filter()
-                Button:
-                    text: app.tr("Apply filter", app.language)
-                    size_hint_x: None
-                    width: dp(150)
-                    on_release: app.root.apply_history_filter()
             BoxLayout:
                 orientation: "vertical"
                 size_hint_y: None
@@ -2223,7 +2295,7 @@ KV = """
 ALL_FILTER = "__all__"
 
 
-class ExerciseCard(BoxLayout):
+class ExerciseCard(ButtonBehavior, BoxLayout):
     """Card widget that displays exercise details in browse lists."""
     # Kivy properties bound by the KV layout for exercise cards.
     name = StringProperty()
@@ -2235,9 +2307,19 @@ class ExerciseCard(BoxLayout):
     muscle_group = StringProperty()
     equipment = StringProperty()
     suitability_display = StringProperty()
+    suitability_value = StringProperty()
     estimated_minutes = StringProperty()
     score_display = StringProperty()
     recommendation = StringProperty()
+    sets_display = StringProperty("—")
+    reps_display = StringProperty("—")
+    time_display = StringProperty("—")
+
+
+class DetailRow(BoxLayout):
+    """Row widget for labeled detail values."""
+    label_text = StringProperty("")
+    value_text = StringProperty("")
 
 
 class HomeScreen(Screen):
@@ -2508,8 +2590,8 @@ class GoalPromptModal(ModalView):
     pass
 
 
-class RecommendationDetailsModal(ModalView):
-    """Modal showing detailed information for one recommendation."""
+class ExerciseDetailsModal(ModalView):
+    """Modal showing detailed information for one exercise."""
     # Kivy properties bound by the detail template.
     exercise_name = StringProperty("")
     exercise_key = StringProperty("")
@@ -2525,6 +2607,7 @@ class RecommendationDetailsModal(ModalView):
     sets_display = StringProperty("—")
     reps_display = StringProperty("—")
     time_display = StringProperty("—")
+    show_add_button = BooleanProperty(False)
 
 
 class RootWidget(BoxLayout):
@@ -2677,7 +2760,8 @@ class RootWidget(BoxLayout):
         self._equipment_key_to_display: dict[str, str] = {}
         self._workout_log_modal: Optional[WorkoutLogModal] = None
         self._goal_prompt_modal: Optional[GoalPromptModal] = None
-        self._recommendation_detail_modal: Optional[RecommendationDetailsModal] = None
+        self._recommendation_detail_modal: Optional[ExerciseDetailsModal] = None
+        self._browse_detail_modal: Optional[ExerciseDetailsModal] = None
         self._history_weight_values: dict[str, dict[str, str]] = {}
         self._live_clock = None
         self._live_current_index = 0
@@ -3706,9 +3790,19 @@ class RootWidget(BoxLayout):
                         grouped[record["name"]] = record
             for record in sorted(grouped.values(), key=lambda r: r.get("display_name") or r["name"]):
                 suitability_display = f'{record["goal_label"]} ({record["suitability_display"]})'
+                suitability_value = record.get("suitability_display", "")
                 est_minutes = self._estimate_minutes(record)
                 recency_days = recency_map.get(record["name"])
                 score = self._score_recommendation(record, recency_days)
+                sets = record.get("sets")
+                reps = record.get("reps")
+                time_seconds = record.get("time_seconds")
+                sets_display = str(sets) if sets is not None else "—"
+                reps_display = str(reps) if reps is not None else "—"
+                if time_seconds is None:
+                    time_display = "—"
+                else:
+                    time_display = self._t("{seconds} sec", seconds=time_seconds)
                 filtered.append(
                     {
                         "name": record["name"],
@@ -3720,9 +3814,13 @@ class RootWidget(BoxLayout):
                         "muscle_group": record["muscle_group"],
                         "equipment": record["equipment"],
                         "suitability_display": suitability_display,
+                        "suitability_value": suitability_value,
                         "estimated_minutes": str(est_minutes),
                         "score_display": str(score),
                         "recommendation": record["recommendation"],
+                        "sets_display": sets_display,
+                        "reps_display": reps_display,
+                        "time_display": time_display,
                     }
                 )
         else:
@@ -3734,9 +3832,19 @@ class RootWidget(BoxLayout):
                 if not self._record_matches_tag_filters(record):
                     continue
                 suitability_display = record["suitability_display"]
+                suitability_value = record.get("suitability_display", "")
                 est_minutes = self._estimate_minutes(record)
                 recency_days = recency_map.get(record["name"])
                 score = self._score_recommendation(record, recency_days)
+                sets = record.get("sets")
+                reps = record.get("reps")
+                time_seconds = record.get("time_seconds")
+                sets_display = str(sets) if sets is not None else "—"
+                reps_display = str(reps) if reps is not None else "—"
+                if time_seconds is None:
+                    time_display = "—"
+                else:
+                    time_display = self._t("{seconds} sec", seconds=time_seconds)
                 filtered.append(
                     {
                         "name": record["name"],
@@ -3748,9 +3856,13 @@ class RootWidget(BoxLayout):
                         "muscle_group": record["muscle_group"],
                         "equipment": record["equipment"],
                         "suitability_display": suitability_display,
+                        "suitability_value": suitability_value,
                         "estimated_minutes": str(est_minutes),
                         "score_display": str(score),
                         "recommendation": record["recommendation"],
+                        "sets_display": sets_display,
+                        "reps_display": reps_display,
+                        "time_display": time_display,
                     }
                 )
         exercise_list = self._browse_screen().ids.exercise_list
@@ -3998,6 +4110,18 @@ class RootWidget(BoxLayout):
         if target_input:
             target_input.text = selected.isoformat()
             self.confirm_value_input(target_input)
+            if self._is_history_date_input(target_input):
+                self.apply_history_filter()
+
+    def _is_history_date_input(self, target_input: Any) -> bool:
+        """Return True if the input belongs to the history filter."""
+        if not target_input:
+            return False
+        try:
+            ids = self._history_screen().ids
+        except Exception:
+            return False
+        return target_input is ids.start_date_input or target_input is ids.end_date_input
 
     def _set_history_status(self, message: str, *, error: bool = False) -> None:
         """Update status banner in the history screen."""
@@ -4674,6 +4798,50 @@ class RootWidget(BoxLayout):
         # Ensure next open creates a fresh modal instance.
         self._recommendation_detail_modal = None
 
+    def _clear_browse_detail_modal(self, *_: Any) -> None:
+        """Clear the cached browse detail modal reference."""
+        # Ensure next open creates a fresh modal instance.
+        self._browse_detail_modal = None
+
+    def _find_browse_entry(self, name: str) -> Optional[dict[str, Any]]:
+        """Find a browse list entry by exercise name."""
+        # Search the active browse list for a match.
+        browse_data = self._browse_screen().ids.exercise_list.data
+        return next((entry for entry in browse_data if entry.get("name") == name), None)
+
+    def open_browse_details(self, name: str) -> None:
+        """Open the browse detail modal for an exercise."""
+        # Populate the modal from the browse list data.
+        entry = self._find_browse_entry(name)
+        if not entry:
+            return
+        if self._browse_detail_modal is not None:
+            try:
+                self._browse_detail_modal.dismiss()
+            except Exception:
+                pass
+        modal = ExerciseDetailsModal()
+        modal.show_add_button = False
+        modal.exercise_name = entry.get("display_name", entry.get("name", ""))
+        modal.exercise_key = entry.get("name", "")
+        modal.description = entry.get("description", "")
+        modal.execution_instructions = entry.get("execution_instructions", "")
+        modal.muscle_group = entry.get("muscle_group", "")
+        modal.equipment = entry.get("equipment", "")
+        modal.goal_label = entry.get("goal_label", "")
+        modal.suitability = entry.get("suitability_value") or entry.get("suitability_display", "")
+        estimated = entry.get("estimated_minutes")
+        modal.estimated_minutes = str(estimated) if estimated not in (None, "") else ""
+        score_display = entry.get("score_display")
+        modal.score_display = str(score_display) if score_display not in (None, "") else ""
+        modal.recommendation = entry.get("recommendation", "")
+        modal.sets_display = entry.get("sets_display", "—")
+        modal.reps_display = entry.get("reps_display", "—")
+        modal.time_display = entry.get("time_display", "—")
+        modal.bind(on_dismiss=self._clear_browse_detail_modal)
+        self._browse_detail_modal = modal
+        modal.open()
+
     def open_recommendation_details(self, name: str) -> None:
         """Open the recommendation detail modal for an exercise."""
         # Populate the modal from the recommendation data.
@@ -4685,7 +4853,8 @@ class RootWidget(BoxLayout):
                 self._recommendation_detail_modal.dismiss()
             except Exception:
                 pass
-        modal = RecommendationDetailsModal()
+        modal = ExerciseDetailsModal()
+        modal.show_add_button = True
         modal.exercise_name = rec.get("display_name", rec.get("name", ""))
         modal.exercise_key = rec.get("name", "")
         modal.description = rec.get("description", "")
