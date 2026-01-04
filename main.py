@@ -22,6 +22,8 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 from kivy.uix.modalview import ModalView
 from kivy.uix.screenmanager import Screen
+from kivy.uix.spinner import Spinner
+from kivy.uix.textinput import TextInput
 from kivy.uix.widget import Widget
 from kivy.metrics import dp
 
@@ -353,11 +355,11 @@ KV = """
             on_release: app.root.open_recommendation_details(root.name)
 
 <PlanItem>:
-    orientation: "horizontal"
+    orientation: "vertical"
     padding: dp(8)
-    spacing: dp(8)
+    spacing: dp(6)
     size_hint_y: None
-    height: dp(60)
+    height: dp(92) if root.weight_visible else dp(60)
     canvas.before:
         Color:
             rgba: 0.9, 0.95, 1, 1
@@ -365,33 +367,63 @@ KV = """
             pos: self.pos
             size: self.size
             radius: [6,]
-    Image:
-        source: root.icon_source
-        size_hint: None, None
-        size: (dp(42), dp(42)) if root.icon_source else (0, 0)
-        fit_mode: "contain"
-        opacity: 1 if root.icon_source else 0
-    Label:
-        text: root.display
-        color: 0.18, 0.18, 0.24, 1
-        text_size: self.width, self.height
-        halign: "left"
-        valign: "middle"
-    Button:
-        text: "Up"
-        size_hint_x: None
-        width: dp(70)
-        on_release: app.root.move_plan_item(root.name, -1)
-    Button:
-        text: "Down"
-        size_hint_x: None
-        width: dp(70)
-        on_release: app.root.move_plan_item(root.name, 1)
-    Button:
-        text: "Remove"
-        size_hint_x: None
-        width: dp(90)
-        on_release: app.root.remove_plan_item(root.name)
+    BoxLayout:
+        orientation: "horizontal"
+        spacing: dp(8)
+        size_hint_y: None
+        height: dp(42)
+        Image:
+            source: root.icon_source
+            size_hint: None, None
+            size: (dp(42), dp(42)) if root.icon_source else (0, 0)
+            fit_mode: "contain"
+            opacity: 1 if root.icon_source else 0
+        Label:
+            text: root.display
+            color: 0.18, 0.18, 0.24, 1
+            text_size: self.width, self.height
+            halign: "left"
+            valign: "middle"
+        Button:
+            text: "Up"
+            size_hint_x: None
+            width: dp(70)
+            on_release: app.root.move_plan_item(root.name, -1)
+        Button:
+            text: "Down"
+            size_hint_x: None
+            width: dp(70)
+            on_release: app.root.move_plan_item(root.name, 1)
+        Button:
+            text: "Remove"
+            size_hint_x: None
+            width: dp(90)
+            on_release: app.root.remove_plan_item(root.name)
+    BoxLayout:
+        orientation: "horizontal"
+        spacing: dp(6)
+        size_hint_y: None
+        height: dp(30) if root.weight_visible else dp(0)
+        opacity: 1 if root.weight_visible else 0
+        Label:
+            text: "Weight"
+            color: 0.16, 0.18, 0.24, 1
+            size_hint_x: None
+            width: dp(60)
+        TextInput:
+            id: plan_weight_input
+            text: root.weight_value_text
+            multiline: False
+            input_filter: "float"
+            on_text_validate: app.root.update_plan_item_weight(root.name, self.text, plan_weight_unit.text)
+            on_focus: app.root.update_plan_item_weight(root.name, self.text, plan_weight_unit.text) if not self.focus else None
+            disabled: not root.weight_visible
+        Spinner:
+            id: plan_weight_unit
+            text: root.weight_unit_text or "kg"
+            values: app.root.weight_unit_options
+            on_text: app.root.update_plan_item_weight(root.name, plan_weight_input.text, self.text)
+            disabled: not root.weight_visible
 
 <DatePickerPopup>:
     size_hint: None, None
@@ -601,6 +633,20 @@ KV = """
                         size_hint_y: None
                         height: dp(80)
                         hint_text: "Push-Up, Plank, Jump Rope"
+                        on_text: app.root.refresh_workout_weight_inputs(self.text)
+                    WrapLabel:
+                        text: "Weights (optional)"
+                        color: 0.18, 0.18, 0.22, 1
+                        size_hint_y: None
+                        height: dp(18) if app.root.history_weight_visible else dp(0)
+                        opacity: 1 if app.root.history_weight_visible else 0
+                    BoxLayout:
+                        id: workout_weight_container
+                        orientation: "vertical"
+                        spacing: dp(6)
+                        size_hint_y: None
+                        height: self.minimum_height if app.root.history_weight_visible else dp(0)
+                        opacity: 1 if app.root.history_weight_visible else 0
                     WrapLabel:
                         text: "Filter exercises"
                         color: 0.18, 0.18, 0.22, 1
@@ -905,6 +951,30 @@ KV = """
                     color: 0.14, 0.22, 0.34, 1
                     size_hint_y: None
                     height: self.texture_size[1]
+                BoxLayout:
+                    size_hint_y: None
+                    height: dp(34) if app.root.live_weight_visible else dp(0)
+                    opacity: 1 if app.root.live_weight_visible else 0
+                    spacing: dp(6)
+                    Label:
+                        text: "Weight"
+                        color: 0.16, 0.18, 0.24, 1
+                        size_hint_x: None
+                        width: dp(70)
+                    TextInput:
+                        id: live_weight_input
+                        text: app.root.live_weight_value_text
+                        multiline: False
+                        input_filter: "float"
+                        on_text_validate: app.root.set_live_weight_value(self.text)
+                        on_focus: app.root.set_live_weight_value(self.text) if not self.focus else None
+                        disabled: not app.root.live_weight_visible
+                    Spinner:
+                        id: live_weight_unit
+                        text: app.root.live_weight_unit_text
+                        values: app.root.weight_unit_options
+                        on_text: app.root.set_live_weight_unit(self.text)
+                        disabled: not app.root.live_weight_visible
                 BoxLayout:
                     size_hint_y: None
                     height: dp(36)
@@ -1414,7 +1484,7 @@ KV = """
                     id: equipment_add_spinner
                     text: app.root.add_equipment_spinner_text
                     values: app.root.equipment_choice_options
-                    on_text: app.root.add_equipment_spinner_text = self.text
+                    on_text: app.root.on_add_equipment_change(self.text)
                 WrapLabel:
                     text: "Allowed equipment"
                     color: 0.18, 0.18, 0.22, 1
@@ -1432,6 +1502,36 @@ KV = """
                     color: 0.2, 0.2, 0.28, 1
                     size_hint_y: None
                     height: dp(18)
+                WrapLabel:
+                    text: "Supports external weight"
+                    color: 0.18, 0.18, 0.22, 1
+                Spinner:
+                    id: supports_weight_spinner
+                    text: app.root.add_supports_weight_spinner_text
+                    values: ("No", "Yes")
+                    on_text: app.root.set_add_supports_weight(self.text)
+                WrapLabel:
+                    text: "Default weight (optional)"
+                    color: 0.18, 0.18, 0.22, 1
+                    size_hint_y: None
+                    height: dp(18) if app.root.add_supports_weight else dp(0)
+                    opacity: 1 if app.root.add_supports_weight else 0
+                BoxLayout:
+                    spacing: dp(6)
+                    size_hint_y: None
+                    height: dp(34) if app.root.add_supports_weight else dp(0)
+                    opacity: 1 if app.root.add_supports_weight else 0
+                    TextInput:
+                        id: default_weight_input
+                        multiline: False
+                        input_filter: "float"
+                        hint_text: "e.g. 12.5"
+                        disabled: not app.root.add_supports_weight
+                    Spinner:
+                        id: default_weight_unit_spinner
+                        text: app.root.add_weight_unit_spinner_text
+                        values: app.root.weight_unit_options
+                        disabled: not app.root.add_supports_weight
                 WrapLabel:
                     text: "Icon (optional)"
                     color: 0.18, 0.18, 0.22, 1
@@ -1777,6 +1877,15 @@ KV = """
                     size_hint_y: None
                     height: dp(20)
                 Label:
+                    text: "Total load: [b]{}[/b]".format(app.root.stats_total_weight)
+                    markup: True
+                    font_size: "15sp"
+                    color: 0.16, 0.18, 0.26, 1
+                    text_size: self.width, None
+                    halign: "left"
+                    size_hint_y: None
+                    height: dp(20)
+                Label:
                     text: "Top exercise: [b]{}[/b]".format(app.root.stats_top_exercise)
                     markup: True
                     font_size: "15sp"
@@ -1888,7 +1997,7 @@ KV = """
             size_hint_y: None
             height: app.root.rec_plan_height
             RecycleBoxLayout:
-                default_size: None, dp(70)
+                default_size: None, dp(92)
                 default_size_hint: 1, None
                 size_hint_y: None
                 height: self.minimum_height
@@ -2173,6 +2282,9 @@ class PlanItem(BoxLayout):
     icon_source = StringProperty("")
     display = StringProperty()
     index = StringProperty()
+    weight_value_text = StringProperty("")
+    weight_unit_text = StringProperty("kg")
+    weight_visible = BooleanProperty(False)
     pass
 
 
@@ -2379,6 +2491,13 @@ class RootWidget(BoxLayout):
     history_exercise_filtered_options = ListProperty()
     workout_goal_options = ListProperty()
     icon_choice_options = ListProperty()
+    weight_unit_options = ListProperty(["kg"])
+    _goal_weight_multipliers = {
+        "muscle_building": 1.0,
+        "weight_loss": 0.85,
+        "strength_increase": 1.15,
+        "endurance_increase": 0.7,
+    }
 
     goal_spinner_text = StringProperty("All goals")
     muscle_spinner_text = StringProperty("All muscle groups")
@@ -2392,6 +2511,9 @@ class RootWidget(BoxLayout):
     add_goal_spinner_text = StringProperty("")
     add_muscle_spinner_text = StringProperty("")
     add_equipment_spinner_text = StringProperty("")
+    add_supports_weight = BooleanProperty(False)
+    add_supports_weight_spinner_text = StringProperty("No")
+    add_weight_unit_spinner_text = StringProperty("kg")
     rating_spinner_text = StringProperty("5")
     icon_choice_spinner_text = StringProperty("No icon")
     history_exercise_spinner_text = StringProperty("Select exercise")
@@ -2421,6 +2543,7 @@ class RootWidget(BoxLayout):
     history_status_color = ListProperty((0.14, 0.4, 0.2, 1))
     stats_total_workouts = StringProperty("0")
     stats_total_minutes = StringProperty("0")
+    stats_total_weight = StringProperty("—")
     stats_top_exercise = StringProperty("—")
     rec_status_text = StringProperty("")
     rec_status_color = ListProperty((0.14, 0.4, 0.2, 1))
@@ -2450,6 +2573,9 @@ class RootWidget(BoxLayout):
     live_exercise_target_display = StringProperty("—")
     live_set_target_display = StringProperty("—")
     live_rest_setting_text = StringProperty("30")
+    live_weight_value_text = StringProperty("")
+    live_weight_unit_text = StringProperty("kg")
+    live_weight_visible = BooleanProperty(False)
     live_exercise_timer = StringProperty("00:00")
     live_set_timer = StringProperty("00:00")
     live_rest_timer = StringProperty("—")
@@ -2490,6 +2616,7 @@ class RootWidget(BoxLayout):
         self._workout_log_modal: Optional[WorkoutLogModal] = None
         self._goal_prompt_modal: Optional[GoalPromptModal] = None
         self._recommendation_detail_modal: Optional[RecommendationDetailsModal] = None
+        self._history_weight_values: dict[str, dict[str, str]] = {}
         self._live_clock = None
         self._live_current_index = 0
         self._live_current_set = 1
@@ -2500,7 +2627,7 @@ class RootWidget(BoxLayout):
         self._live_session_started_at: Optional[datetime] = None
         self._live_completed: list[str] = []
         self._live_skipped: list[str] = []
-        self._live_attempt_log: list[dict[str, str]] = []
+        self._live_attempt_log: list[dict[str, Any]] = []
         self._live_goal_label: str = ""
         self._live_total_sets_completed = 0
         self._live_current_logged = False
@@ -2535,6 +2662,66 @@ class RootWidget(BoxLayout):
         """Join normalized tags for UI presentation."""
         # Use the shared formatting helper for consistent output.
         return exercise_database.format_tag_list(items)
+
+    def _normalize_weight_unit(self, value: str) -> Optional[str]:
+        """Normalize weight units to kg."""
+        return exercise_database.normalize_weight_unit(value)
+
+    def _format_weight_value(self, value: Optional[float]) -> str:
+        """Format numeric weight values without trailing zeros."""
+        if value is None:
+            return ""
+        try:
+            return f"{float(value):g}"
+        except (TypeError, ValueError):
+            return ""
+
+    def _format_weight_label(
+        self,
+        value: Optional[float],
+        unit: Optional[str],
+        *,
+        supports_weight: bool = True,
+    ) -> str:
+        """Build a friendly weight label for UI display."""
+        if not supports_weight:
+            return "Bodyweight"
+        if value is None or not unit:
+            return "—"
+        formatted = self._format_weight_value(value)
+        return f"{formatted} {unit}" if formatted else "—"
+
+    def _adjust_weight_for_goal(self, value: Optional[float], goal: str) -> Optional[float]:
+        """Adjust a base weight suggestion based on the selected goal."""
+        if value is None:
+            return None
+        try:
+            numeric = float(value)
+        except (TypeError, ValueError):
+            return None
+        multiplier = self._goal_weight_multipliers.get(goal, 1.0)
+        adjusted = numeric * multiplier
+        if adjusted <= 0:
+            return None
+        return float(round(adjusted))
+
+    def _record_for_name(self, name: str) -> Optional[dict[str, Any]]:
+        """Return a record dict matching the given exercise name."""
+        key = name.strip().lower()
+        matches = [r for r in self.records if r.get("name", "").lower() == key]
+        if not matches:
+            return None
+        goal_code = None
+        if self.workout_goal_spinner_text and self.workout_goal_spinner_text != "No goal":
+            goal_code = self._goal_label_map.get(self.workout_goal_spinner_text)
+        if goal_code is None and self.user_profile_goal and self.user_profile_goal != "No goal":
+            goal_code = self._goal_label_map.get(self.user_profile_goal)
+        if goal_code:
+            match = next((r for r in matches if r.get("goal") == goal_code), None)
+            if match:
+                return match
+        goal_priority = {goal: idx for idx, goal in enumerate(exercise_database.GOALS)}
+        return sorted(matches, key=lambda r: goal_priority.get(r.get("goal"), 99))[0]
 
     def _normalize_icon_key(self, value: str) -> str:
         """Build a lookup-friendly key from an icon name."""
@@ -2679,6 +2866,9 @@ class RootWidget(BoxLayout):
             execution_instructions,
             equipment,
             muscle_group,
+            supports_weight,
+            default_weight_value,
+            default_weight_unit,
             goal,
             rating,
             sets,
@@ -2698,11 +2888,27 @@ class RootWidget(BoxLayout):
                 recommendation_parts.append(f"{sets} sets")
             if time_seconds is not None:
                 recommendation_parts.append(f"{time_seconds}s hold")
-            recommendation = " • ".join(recommendation_parts) if recommendation_parts else "Adjust volume to preference"
             icon_value = icon or ""
             icon_source = self._resolve_icon_source(icon_value)
             if not icon_source and name:
                 icon_source = self._resolve_icon_source(name)
+            supports_weight_flag = bool(supports_weight)
+            if supports_weight is None:
+                supports_weight_flag = exercise_database.infer_supports_weight(equipment_display)
+            normalized_weight_unit = exercise_database.normalize_weight_unit(default_weight_unit)
+            if supports_weight_flag and not normalized_weight_unit:
+                normalized_weight_unit = "kg"
+            adjusted_weight_value = None
+            if supports_weight_flag and default_weight_value is not None:
+                adjusted_weight_value = self._adjust_weight_for_goal(default_weight_value, goal)
+            if not supports_weight_flag:
+                normalized_weight_unit = None
+                adjusted_weight_value = None
+            if supports_weight_flag and adjusted_weight_value is not None:
+                weight_label = self._format_weight_value(adjusted_weight_value)
+                if weight_label and normalized_weight_unit:
+                    recommendation_parts.append(f"Weight {weight_label} {normalized_weight_unit}")
+            recommendation = " • ".join(recommendation_parts) if recommendation_parts else "Adjust volume to preference"
             records.append(
                 {
                     "name": name,
@@ -2714,6 +2920,9 @@ class RootWidget(BoxLayout):
                     "equipment_items": set(equipment_items),
                     "muscle_group": muscle_display,
                     "muscle_groups": set(muscle_items),
+                    "supports_weight": supports_weight_flag,
+                    "default_weight_value": adjusted_weight_value,
+                    "default_weight_unit": normalized_weight_unit,
                     "goal": goal,
                     "goal_label": self._pretty_goal(goal),
                     "suitability_display": f"{rating}/10",
@@ -2746,7 +2955,7 @@ class RootWidget(BoxLayout):
 
         self.equipment_choice_options = equipment_choices if equipment_choices else ["Bodyweight"]
         self.equipment_choice_display = ", ".join(self.equipment_choice_options) if self.equipment_choice_options else ""
-        self.add_equipment_spinner_text = self._resolve_equipment_choice(self.add_equipment_spinner_text)
+        self.on_add_equipment_change(self._resolve_equipment_choice(self.add_equipment_spinner_text))
 
         self.goal_options = ["All goals"] + self.goal_choice_options
         self.user_goal_options = ["No goal"] + self.goal_choice_options
@@ -2862,7 +3071,7 @@ class RootWidget(BoxLayout):
         # Cap the height so the list remains scrollable.
         min_height = dp(70)
         max_height = dp(240)
-        item_height = dp(70)
+        item_height = dp(92)
         spacing = dp(6)
         count = len(self.rec_plan)
         if count <= 0:
@@ -2916,6 +3125,26 @@ class RootWidget(BoxLayout):
         if self.equipment_choice_options:
             return self.equipment_choice_options[0]
         return "Bodyweight"
+
+    def set_add_supports_weight(self, value: str) -> None:
+        """Update the add-exercise weight support selection."""
+        # Keep the spinner text and boolean flag aligned.
+        normalized = (value or "").strip().lower()
+        supports = normalized in {"yes", "true", "1"}
+        self.add_supports_weight = supports
+        self.add_supports_weight_spinner_text = "Yes" if supports else "No"
+        if supports and not self.add_weight_unit_spinner_text:
+            self.add_weight_unit_spinner_text = "kg"
+
+    def on_add_equipment_change(self, value: str) -> None:
+        """Update equipment selection and infer weight support."""
+        # Auto-suggest weight support based on equipment choice.
+        self.add_equipment_spinner_text = value
+        supports = exercise_database.infer_supports_weight(value)
+        self.add_supports_weight = supports
+        self.add_supports_weight_spinner_text = "Yes" if supports else "No"
+        if supports and not self.add_weight_unit_spinner_text:
+            self.add_weight_unit_spinner_text = "kg"
 
     def _browse_screen(self) -> BrowseScreen:
         """Return the browse screen instance."""
@@ -3361,6 +3590,91 @@ class RootWidget(BoxLayout):
         if form_ids and "history_exercise_filter_input" in form_ids:
             form_ids.history_exercise_filter_input.text = ""
 
+    def _set_history_weight_value(self, name: str, value_text: str, unit_text: str) -> None:
+        """Persist weight inputs entered in the workout log modal."""
+        # Store raw values so validation happens on save.
+        unit = self._normalize_weight_unit(unit_text) or "kg"
+        self._history_weight_values[name] = {"value": value_text.strip(), "unit": unit}
+
+    def _clear_workout_weight_inputs(self, ids: Optional[Any] = None) -> None:
+        """Remove dynamic weight inputs from the workout log modal."""
+        # Reset stored weights and hide the container.
+        form_ids = ids or self._workout_form_ids()
+        if form_ids and "workout_weight_container" in form_ids:
+            form_ids.workout_weight_container.clear_widgets()
+        self.history_weight_visible = False
+        self._history_weight_values = {}
+
+    def refresh_workout_weight_inputs(self, exercises_text: str) -> None:
+        """Rebuild weight inputs based on the exercises in the log form."""
+        # Show inputs only for exercises that support external load.
+        ids = self._workout_form_ids()
+        if not ids or "workout_weight_container" not in ids:
+            return
+        exercises = self._split_exercises(exercises_text)
+        current_names = {name for name in exercises}
+        if self._history_weight_values:
+            self._history_weight_values = {
+                key: value for key, value in self._history_weight_values.items() if key in current_names
+            }
+        container = ids.workout_weight_container
+        container.clear_widgets()
+        self.history_weight_visible = False
+
+        for name in exercises:
+            record = self._record_for_name(name)
+            if not record or not record.get("supports_weight"):
+                continue
+            self.history_weight_visible = True
+            stored = self._history_weight_values.get(name, {})
+            default_value = self._format_weight_value(record.get("default_weight_value"))
+            default_unit = record.get("default_weight_unit") or "kg"
+            value_text = stored.get("value", default_value)
+            unit_text = stored.get("unit", default_unit)
+            self._set_history_weight_value(name, value_text, unit_text)
+
+            row = BoxLayout(orientation="horizontal", spacing=dp(6), size_hint_y=None, height=dp(30))
+            row.add_widget(
+                Label(
+                    text=name,
+                    color=(0.18, 0.18, 0.24, 1),
+                    size_hint_x=0.45,
+                    halign="left",
+                    valign="middle",
+                )
+            )
+            weight_input = TextInput(
+                text=value_text,
+                multiline=False,
+                input_filter="float",
+                size_hint_x=0.35,
+            )
+            unit_spinner = Spinner(
+                text=unit_text,
+                values=self.weight_unit_options,
+                size_hint_x=0.2,
+            )
+            weight_input.bind(
+                on_text_validate=lambda instance, exercise=name, unit_widget=unit_spinner: self._set_history_weight_value(
+                    exercise, instance.text, unit_widget.text
+                )
+            )
+            weight_input.bind(
+                on_focus=lambda instance, focused, exercise=name, unit_widget=unit_spinner: (
+                    self._set_history_weight_value(exercise, instance.text, unit_widget.text)
+                    if not focused
+                    else None
+                )
+            )
+            unit_spinner.bind(
+                on_text=lambda instance, text, exercise=name, input_widget=weight_input: self._set_history_weight_value(
+                    exercise, input_widget.text, text
+                )
+            )
+            row.add_widget(weight_input)
+            row.add_widget(unit_spinner)
+            container.add_widget(row)
+
     def _reset_workout_log_form(self, *, clear_status: bool = True) -> None:
         """Clear workout log inputs and restore defaults."""
         # Keep date prefilled and status optionally cleared.
@@ -3370,6 +3684,7 @@ class RootWidget(BoxLayout):
         ids.duration_input.text = ""
         ids.exercises_input.text = ""
         ids.total_sets_input.text = ""
+        self._clear_workout_weight_inputs(ids)
         self._reset_history_exercise_picker(ids)
         self.workout_goal_spinner_text = self._default_workout_goal_label()
         if clear_status:
@@ -3380,6 +3695,8 @@ class RootWidget(BoxLayout):
         """Clear the cached workout log modal reference."""
         # Ensure next open creates a fresh modal instance.
         self._workout_log_modal = None
+        self.history_weight_visible = False
+        self._history_weight_values = {}
 
     def _clear_goal_prompt_modal(self, *_: Any) -> None:
         """Clear the cached goal prompt modal reference."""
@@ -3468,6 +3785,7 @@ class RootWidget(BoxLayout):
         else:
             ids.exercises_input.text = selected
         self.confirm_value_input(ids.exercises_input)
+        self.refresh_workout_weight_inputs(ids.exercises_input.text)
         self._set_history_status(f"Added {selected}.")
         self.history_exercise_spinner_text = "Select exercise"
 
@@ -3500,14 +3818,18 @@ class RootWidget(BoxLayout):
         for entry in history_entries:
             exercises_display = ", ".join(entry.get("exercises", [])) if entry.get("exercises") else "No exercises recorded"
             attempts = entry.get("exercise_attempts") or []
-            attempts_display = (
-                "Attempts: "
-                + ", ".join(
-                    f"{att.get('name', 'Exercise')} ({att.get('status', 'completed').title()})" for att in attempts
-                )
-                if attempts
-                else "Attempts: none recorded"
-            )
+            if attempts:
+                attempt_labels = []
+                for att in attempts:
+                    status = att.get("status", "completed").title()
+                    weight_label = self._format_weight_label(att.get("weight_value"), att.get("weight_unit"))
+                    if weight_label != "—":
+                        attempt_labels.append(f"{att.get('name', 'Exercise')} ({status}, {weight_label})")
+                    else:
+                        attempt_labels.append(f"{att.get('name', 'Exercise')} ({status})")
+                attempts_display = "Attempts: " + ", ".join(attempt_labels)
+            else:
+                attempts_display = "Attempts: none recorded"
             goal_display = entry.get("goal") or "—"
             sets_display = str(entry.get("total_sets_completed") or 0)
             duration_minutes = entry.get("duration_minutes") or 0
@@ -3609,6 +3931,29 @@ class RootWidget(BoxLayout):
                 self._set_history_status("Total sets must be 0 or greater.", error=True)
                 return
 
+        exercise_weights = []
+        for name in exercises:
+            record = self._record_for_name(name)
+            if record and record.get("supports_weight"):
+                stored = self._history_weight_values.get(name)
+                if stored:
+                    value_text = stored.get("value", "")
+                    unit_text = stored.get("unit", record.get("default_weight_unit") or "kg")
+                else:
+                    value_text = self._format_weight_value(record.get("default_weight_value"))
+                    unit_text = record.get("default_weight_unit") or "kg"
+                try:
+                    weight_value = self._parse_optional_float(value_text)
+                except ValueError as exc:
+                    self._set_history_status(f"Weight for {name}: {exc}", error=True)
+                    return
+                weight_unit = self._normalize_weight_unit(unit_text) or "kg"
+                if weight_value is None:
+                    weight_unit = None
+                exercise_weights.append((name, weight_value, weight_unit))
+            else:
+                exercise_weights.append((name, None, None))
+
         try:
             exercise_database.log_workout(
                 user_id=self.current_user_id,
@@ -3617,6 +3962,7 @@ class RootWidget(BoxLayout):
                 exercises=exercises,
                 goal=goal,
                 total_sets_completed=total_sets_completed,
+                exercise_weights=exercise_weights,
             )
         except (ValueError, sqlite3.DatabaseError) as exc:
             self._set_history_status(str(exc), error=True)
@@ -3633,6 +3979,7 @@ class RootWidget(BoxLayout):
         if clear or not self.current_user_id:
             self.stats_total_workouts = "0"
             self.stats_total_minutes = "0"
+            self.stats_total_weight = "—"
             self.stats_top_exercise = "—"
             return
         try:
@@ -3647,6 +3994,14 @@ class RootWidget(BoxLayout):
 
         self.stats_total_workouts = str(stats.get("total_workouts", 0))
         self.stats_total_minutes = str(stats.get("total_minutes", 0))
+        total_kg = float(stats.get("total_weight_kg") or 0)
+        total_lb = float(stats.get("total_weight_lb") or 0)
+        if total_lb:
+            total_kg += total_lb * 0.453592
+        if total_kg:
+            self.stats_total_weight = f"{self._format_weight_value(total_kg)} kg"
+        else:
+            self.stats_total_weight = "—"
         top = stats.get("top_exercise")
         if top:
             count = stats.get("top_exercise_count", 0)
@@ -3828,6 +4183,9 @@ class RootWidget(BoxLayout):
             score = self._score_recommendation(
                 {"rating": float(record.get("rating", 0))}, recency_days
             )
+            supports_weight = bool(record.get("supports_weight"))
+            default_weight_value = record.get("default_weight_value")
+            default_weight_unit = record.get("default_weight_unit") or ("kg" if supports_weight else None)
             recommendations.append(
                 {
                     "name": record["name"],
@@ -3837,6 +4195,9 @@ class RootWidget(BoxLayout):
                     "execution_instructions": record.get("execution_instructions", ""),
                     "muscle_group": record["muscle_group"],
                     "equipment": record["equipment"],
+                    "supports_weight": supports_weight,
+                    "default_weight_value": default_weight_value,
+                    "default_weight_unit": default_weight_unit,
                     "goal_label": record["goal_label"],
                     "suitability": record["suitability_display"],
                     "recommendation": record["recommendation"],
@@ -3933,6 +4294,9 @@ class RootWidget(BoxLayout):
             self._set_rec_status(f"{name} is already in the plan.", error=True)
             return
         icon_source = rec.get("icon_source") or self._resolve_icon_source(rec.get("icon", "") or rec.get("name", ""))
+        supports_weight = bool(rec.get("supports_weight"))
+        weight_value = rec.get("default_weight_value")
+        weight_unit = rec.get("default_weight_unit") or ("kg" if supports_weight else None)
         plan_item = {
             "name": rec["name"],
             "icon": rec.get("icon", ""),
@@ -3940,6 +4304,9 @@ class RootWidget(BoxLayout):
             "execution_instructions": rec.get("execution_instructions", ""),
             "muscle_group": rec.get("muscle_group", ""),
             "equipment": rec.get("equipment", ""),
+            "supports_weight": supports_weight,
+            "weight_value": weight_value,
+            "weight_unit": weight_unit,
             "goal_label": rec.get("goal_label", ""),
             "sets": rec.get("sets"),
             "reps": rec.get("reps"),
@@ -3967,11 +4334,33 @@ class RootWidget(BoxLayout):
                 or self._resolve_icon_source(item.get("icon", "") or item.get("name", "")),
                 "display": f'{item["name"]} ({item["estimated_minutes"]} min)',
                 "index": str(idx),
+                "weight_value_text": self._format_weight_value(item.get("weight_value")),
+                "weight_unit_text": item.get("weight_unit") or "kg",
+                "weight_visible": bool(item.get("supports_weight")),
             }
             for idx, item in enumerate(self.rec_plan)
         ]
         self._validate_plan_time()
         rv.refresh_from_data()
+
+    def update_plan_item_weight(self, name: str, value_text: str, unit_text: str) -> None:
+        """Update the stored weight for a planned exercise."""
+        # Persist user edits without disturbing plan order.
+        item = next((entry for entry in self.rec_plan if entry.get("name") == name), None)
+        if not item or not item.get("supports_weight"):
+            return
+        unit = self._normalize_weight_unit(unit_text) or "kg"
+        value = None
+        if value_text.strip():
+            try:
+                value = float(value_text)
+                if value <= 0:
+                    raise ValueError
+            except ValueError:
+                self._set_rec_status("Weight must be a positive number.", error=True)
+                return
+        item["weight_value"] = value
+        item["weight_unit"] = unit
 
     def _recalculate_recommendation_times(self) -> None:
         """Recompute time estimates for recommendations and plan items."""
@@ -4034,6 +4423,11 @@ class RootWidget(BoxLayout):
                         "equipment": match["equipment"],
                         "icon": match.get("icon", ""),
                         "icon_source": match.get("icon_source", ""),
+                        "supports_weight": bool(match.get("supports_weight")),
+                        "default_weight_value": match.get("default_weight_value"),
+                        "default_weight_unit": match.get("default_weight_unit") or (
+                            "kg" if match.get("supports_weight") else None
+                        ),
                         "goal_label": match["goal_label"],
                         "suitability": match["suitability_display"],
                         "recommendation": match["recommendation"],
@@ -4129,6 +4523,13 @@ class RootWidget(BoxLayout):
                     "execution_instructions": record.get("execution_instructions", ""),
                     "muscle_group": record.get("muscle_group", ""),
                     "equipment": record.get("equipment", ""),
+                    "supports_weight": bool(record.get("supports_weight")),
+                    "weight_value": item.get("weight_value")
+                    if item.get("supports_weight")
+                    else record.get("default_weight_value"),
+                    "weight_unit": item.get("weight_unit")
+                    if item.get("supports_weight")
+                    else record.get("default_weight_unit") or ("kg" if record.get("supports_weight") else None),
                     "sets": record.get("sets") or item.get("sets") or 3,
                     "reps": record.get("reps") or item.get("reps"),
                     "time_seconds": record.get("time_seconds") or item.get("time_seconds"),
@@ -4163,6 +4564,20 @@ class RootWidget(BoxLayout):
         except ValueError:
             raise ValueError("Enter positive numbers only.")
 
+    def _parse_optional_float(self, value: str) -> Optional[float]:
+        """Parse a positive float or return None."""
+        # Use ValueError to signal invalid input to the caller.
+        value = value.strip()
+        if not value:
+            return None
+        try:
+            parsed = float(value)
+            if parsed <= 0:
+                raise ValueError
+            return parsed
+        except ValueError:
+            raise ValueError("Enter positive numbers only.")
+
     def _set_status(self, message: str, *, error: bool = False) -> None:
         """Update status banner on the add exercise screen."""
         # Use red for errors and green for success messages.
@@ -4186,11 +4601,14 @@ class RootWidget(BoxLayout):
         ids.sets_input.text = ""
         ids.reps_input.text = ""
         ids.time_input.text = ""
+        if "default_weight_input" in ids:
+            ids.default_weight_input.text = ""
         if self.goal_choice_options:
             self.add_goal_spinner_text = self.goal_choice_options[0]
         if self.muscle_choice_options:
             self.add_muscle_spinner_text = self.muscle_choice_options[0]
-        self.add_equipment_spinner_text = self._resolve_equipment_choice("")
+        self.add_weight_unit_spinner_text = "kg"
+        self.on_add_equipment_change(self._resolve_equipment_choice(""))
         self.rating_spinner_text = "5"
         self.icon_choice_spinner_text = "No icon"
         self.add_icon_source = ""
@@ -4246,6 +4664,18 @@ class RootWidget(BoxLayout):
             self._set_status(str(exc), error=True)
             return
 
+        supports_weight = self.add_supports_weight
+        default_weight_value = None
+        default_weight_unit = None
+        if supports_weight and "default_weight_input" in ids:
+            try:
+                default_weight_value = self._parse_optional_float(ids.default_weight_input.text)
+            except ValueError as exc:
+                self._set_status(f"Default weight: {exc}", error=True)
+                return
+            if "default_weight_unit_spinner" in ids:
+                default_weight_unit = self._normalize_weight_unit(ids.default_weight_unit_spinner.text) or "kg"
+
         try:
             exercise_database.add_exercise(
                 name=name,
@@ -4258,6 +4688,9 @@ class RootWidget(BoxLayout):
                 recommended_sets=sets,
                 recommended_reps_per_set=reps,
                 recommended_time_seconds=time_seconds,
+                supports_weight=supports_weight,
+                default_weight_value=default_weight_value,
+                default_weight_unit=default_weight_unit,
                 icon=icon,
             )
         except sqlite3.IntegrityError:
@@ -4292,6 +4725,7 @@ class RootWidget(BoxLayout):
             return
         if self.goal_choice_options:
             self.add_goal_spinner_text = self._preferred_goal_label()
+        self.on_add_equipment_change(self._resolve_equipment_choice(self.add_equipment_spinner_text))
         self.ids.screen_manager.current = "add"
 
     def go_register(self) -> None:
@@ -4461,7 +4895,14 @@ class RootWidget(BoxLayout):
             return
         normalized_status = "skipped" if status == "skipped" else "completed"
         name = exercise.get("name", "Exercise")
-        self._live_attempt_log.append({"name": name, "status": normalized_status})
+        self._live_attempt_log.append(
+            {
+                "name": name,
+                "status": normalized_status,
+                "weight_value": exercise.get("weight_value"),
+                "weight_unit": exercise.get("weight_unit"),
+            }
+        )
         if normalized_status == "skipped":
             self._live_skipped.append(name)
         else:
@@ -4502,6 +4943,39 @@ class RootWidget(BoxLayout):
         self._set_hint(f"Break length set to {seconds}s.", color=(0.18, 0.4, 0.2, 1))
         self._update_live_labels()
         self._recalculate_recommendation_times()
+
+    def set_live_weight_value(self, value: str) -> None:
+        """Update the current live exercise weight value."""
+        # Store parsed values on the active exercise dictionary.
+        exercise = self._current_live_exercise()
+        if not exercise or not exercise.get("supports_weight"):
+            return
+        raw = (value or "").strip()
+        if not raw:
+            exercise["weight_value"] = None
+            self.live_weight_value_text = ""
+            return
+        try:
+            parsed = float(raw)
+            if parsed <= 0:
+                raise ValueError
+        except ValueError:
+            self._set_hint("Enter a positive weight.", color=(0.65, 0.16, 0.16, 1))
+            return
+        exercise["weight_value"] = parsed
+        self.live_weight_value_text = self._format_weight_value(parsed)
+        self._update_live_labels()
+
+    def set_live_weight_unit(self, unit: str) -> None:
+        """Update the current live exercise weight unit."""
+        # Normalize units and store on the active exercise.
+        exercise = self._current_live_exercise()
+        if not exercise or not exercise.get("supports_weight"):
+            return
+        normalized = self._normalize_weight_unit(unit) or "kg"
+        exercise["weight_unit"] = normalized
+        self.live_weight_unit_text = normalized
+        self._update_live_labels()
 
     def start_live_workout(self) -> None:
         """Start the live workout timers and state."""
@@ -4589,6 +5063,9 @@ class RootWidget(BoxLayout):
             self.live_exercise_instructions = ""
             self.live_exercise_target_display = "—"
             self.live_set_target_display = "—"
+            self.live_weight_value_text = ""
+            self.live_weight_unit_text = "kg"
+            self.live_weight_visible = False
             self.live_exercise_timer = "00:00"
             self.live_set_timer = "00:00"
             self.live_rest_timer = "—"
@@ -4610,6 +5087,16 @@ class RootWidget(BoxLayout):
         self.live_recommendation_display = exercise.get("recommendation", "")
         self.live_exercise_description = exercise.get("description", "")
         self.live_exercise_instructions = exercise.get("execution_instructions", "")
+        supports_weight = bool(exercise.get("supports_weight"))
+        self.live_weight_visible = supports_weight
+        if supports_weight:
+            weight_unit = self._normalize_weight_unit(exercise.get("weight_unit", "")) or "kg"
+            exercise["weight_unit"] = weight_unit
+            self.live_weight_unit_text = weight_unit
+            self.live_weight_value_text = self._format_weight_value(exercise.get("weight_value"))
+        else:
+            self.live_weight_value_text = ""
+            self.live_weight_unit_text = "kg"
         expected_seconds = self._exercise_expected_duration_seconds(exercise)
         self.live_exercise_target_display = f"~{self._format_time(expected_seconds)}" if expected_seconds else "—"
         set_target = self._live_set_target_seconds or self._compute_set_target_seconds(exercise)
@@ -4656,13 +5143,20 @@ class RootWidget(BoxLayout):
         reps = exercise.get("reps")
         time_seconds = exercise.get("time_seconds")
         set_prefix = f"Set {self._live_current_set}/{exercise.get('sets') or 1}: "
+        supports_weight = bool(exercise.get("supports_weight"))
+        weight_label = self._format_weight_label(
+            exercise.get("weight_value"),
+            exercise.get("weight_unit"),
+            supports_weight=supports_weight,
+        )
+        weight_suffix = f" @ {weight_label}" if supports_weight and weight_label != "—" else ""
         if reps and time_seconds:
-            return set_prefix + f"Target {reps} reps in ~{time_seconds}s"
+            return set_prefix + f"Target {reps} reps in ~{time_seconds}s{weight_suffix}"
         if reps:
-            return set_prefix + f"Perform {reps} controlled reps"
+            return set_prefix + f"Perform {reps} controlled reps{weight_suffix}"
         if time_seconds:
-            return set_prefix + f"Hold for {time_seconds} seconds"
-        return set_prefix + "Move with control and good form."
+            return set_prefix + f"Hold for {time_seconds} seconds{weight_suffix}"
+        return set_prefix + f"Move with control and good form{weight_suffix}."
 
     def _start_live_clock(self) -> None:
         """Start the periodic live timer tick."""
@@ -4942,7 +5436,7 @@ class RootWidget(BoxLayout):
         except Exception:
             pass
 
-    def _collect_attempts(self, *, mark_unattempted_skipped: bool) -> list[dict[str, str]]:
+    def _collect_attempts(self, *, mark_unattempted_skipped: bool) -> list[dict[str, Any]]:
         """
         Return a full attempt list, optionally filling unattempted items as skipped when ending early.
         """
@@ -4962,20 +5456,34 @@ class RootWidget(BoxLayout):
                 already_attempted = attempt_counts.get(name, 0)
                 # If this occurrence has no matching attempt, mark it as skipped.
                 if seen_counts[name] > already_attempted:
-                    new_skips.append({"name": name, "status": "skipped"})
+                    new_skips.append(
+                        {
+                            "name": name,
+                            "status": "skipped",
+                            "weight_value": ex.get("weight_value"),
+                            "weight_unit": ex.get("weight_unit"),
+                        }
+                    )
                     self._live_skipped.append(name)
                     attempt_counts[name] = attempt_counts.get(name, 0) + 1
 
         if not attempts and not new_skips:
             for ex in self.live_exercises:
                 name = ex.get("name", "Exercise")
-                new_skips.append({"name": name, "status": "skipped"})
+                new_skips.append(
+                    {
+                        "name": name,
+                        "status": "skipped",
+                        "weight_value": ex.get("weight_value"),
+                        "weight_unit": ex.get("weight_unit"),
+                    }
+                )
                 self._live_skipped.append(name)
 
         attempts.extend(new_skips)
         return attempts
 
-    def _prepare_summary(self, duration_seconds: int, performed_at: str, attempts: list[dict[str, str]]) -> None:
+    def _prepare_summary(self, duration_seconds: int, performed_at: str, attempts: list[dict[str, Any]]) -> None:
         """Populate summary screen fields after a live session."""
         # Convert attempt data into display-friendly strings.
         self.summary_duration_display = self._format_time(duration_seconds or 0)
@@ -4984,15 +5492,19 @@ class RootWidget(BoxLayout):
         skipped = [att.get("name", "Exercise") for att in attempts if att.get("status") == "skipped"]
         self.summary_completed_display = ", ".join(completed) if completed else "None"
         self.summary_skipped_display = ", ".join(skipped) if skipped else "None"
-        attempts_lines = [
-            f"{att.get('name', 'Exercise')}: {'Completed' if att.get('status') == 'completed' else 'Skipped'}"
-            for att in attempts
-        ]
+        attempts_lines = []
+        for att in attempts:
+            status_label = "Completed" if att.get("status") == "completed" else "Skipped"
+            weight_label = self._format_weight_label(att.get("weight_value"), att.get("weight_unit"))
+            if weight_label != "—":
+                attempts_lines.append(f"{att.get('name', 'Exercise')}: {status_label} ({weight_label})")
+            else:
+                attempts_lines.append(f"{att.get('name', 'Exercise')}: {status_label}")
         self.summary_attempts_display = "\n".join(attempts_lines) if attempts_lines else "No exercises attempted."
         self.summary_goal_display = self._live_goal_label or "—"
         self.summary_performed_at_display = performed_at
 
-    def _log_live_workout(self, duration_seconds: int, performed_at: str, attempts: list[dict[str, str]]) -> None:
+    def _log_live_workout(self, duration_seconds: int, performed_at: str, attempts: list[dict[str, Any]]) -> None:
         """Persist live session results to the database."""
         # Reuse the workout logging API with live session details.
         if not self.current_user_id:
@@ -5009,6 +5521,14 @@ class RootWidget(BoxLayout):
                 duration_seconds=duration_seconds or duration_minutes * 60,
                 total_sets_completed=self._live_total_sets_completed,
                 exercise_statuses=[(att.get("name", "Exercise"), att.get("status", "completed")) for att in attempts],
+                exercise_weights=[
+                    (
+                        att.get("name", "Exercise"),
+                        att.get("weight_value"),
+                        att.get("weight_unit") if att.get("weight_value") is not None else None,
+                    )
+                    for att in attempts
+                ],
             )
         except (ValueError, sqlite3.DatabaseError) as exc:
             self._set_history_status(f"Could not log workout: {exc}", error=True)

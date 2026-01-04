@@ -53,6 +53,7 @@ _MUSCLE_ALIASES = {
     "calves": ["Calves", "Legs"],
     "full body": ["Full Body"],
 }
+_WEIGHT_EQUIPMENT = {"Barbell", "Dumbbell", "Machine", "Kettlebell", "Bands", "Medicine Ball"}
 
 
 def _normalize_tag_key(value: str) -> str:
@@ -98,6 +99,27 @@ def _flatten_tag_input(value: Iterable[str] | str | None) -> list[str]:
             continue
         tokens.extend(_split_tag_string(str(item)))
     return tokens
+
+
+def _normalize_weight_unit(value: Optional[str]) -> Optional[str]:
+    """Normalize weight unit strings to kg."""
+    if not value:
+        return None
+    cleaned = value.strip().lower()
+    if cleaned in {"kg", "kgs", "kilogram", "kilograms"}:
+        return "kg"
+    return None
+
+
+def normalize_weight_unit(value: Optional[str]) -> Optional[str]:
+    """Public wrapper for weight unit normalization."""
+    return _normalize_weight_unit(value)
+
+
+def infer_supports_weight(required_equipment: Iterable[str] | str | None) -> bool:
+    """Determine whether an exercise supports external load based on equipment."""
+    equipment_items = normalize_equipment_list(required_equipment or "")
+    return bool(set(equipment_items) & _WEIGHT_EQUIPMENT)
 
 
 def _dedupe_preserve_order(items: Iterable[str]) -> list[str]:
@@ -193,6 +215,8 @@ def create_schema(conn: sqlite3.Connection) -> None:
             workout_id INTEGER NOT NULL,
             exercise_name TEXT NOT NULL,
             status TEXT NOT NULL DEFAULT 'completed' CHECK (status IN ('completed','skipped')),
+            weight_value REAL,
+            weight_unit TEXT,
             FOREIGN KEY (workout_id) REFERENCES workouts (id) ON DELETE CASCADE
         );
         """
@@ -206,7 +230,10 @@ def create_schema(conn: sqlite3.Connection) -> None:
             short_description TEXT NOT NULL,
             execution_instructions TEXT,
             required_equipment TEXT NOT NULL,
-            target_muscle_group TEXT NOT NULL
+            target_muscle_group TEXT NOT NULL,
+            supports_weight INTEGER NOT NULL DEFAULT 0,
+            default_weight_value REAL,
+            default_weight_unit TEXT
         );
         """
     )
@@ -250,8 +277,61 @@ def migrate_schema(conn: sqlite3.Connection) -> None:
         "status",
         "status TEXT NOT NULL DEFAULT 'completed'",
     )
+    _add_column_if_missing(conn, "workout_exercises", "weight_value", "weight_value REAL")
+    _add_column_if_missing(conn, "workout_exercises", "weight_unit", "weight_unit TEXT")
     _add_column_if_missing(conn, "exercises", "execution_instructions", "execution_instructions TEXT")
+    _add_column_if_missing(conn, "exercises", "supports_weight", "supports_weight INTEGER NOT NULL DEFAULT 0")
+    _add_column_if_missing(conn, "exercises", "default_weight_value", "default_weight_value REAL")
+    _add_column_if_missing(conn, "exercises", "default_weight_unit", "default_weight_unit TEXT")
+    _backfill_supports_weight(conn)
+    _convert_weights_to_kg(conn)
     conn.commit()
+
+
+def _backfill_supports_weight(conn: sqlite3.Connection) -> None:
+    """Update supports_weight when equipment or logged weights indicate external load."""
+    rows = conn.execute(
+        "SELECT id, required_equipment, supports_weight, name FROM exercises;"
+    ).fetchall()
+    weighted_names = {
+        row[0].strip().lower()
+        for row in conn.execute(
+            "SELECT DISTINCT exercise_name FROM workout_exercises WHERE weight_value IS NOT NULL;"
+        ).fetchall()
+        if row and row[0]
+    }
+    updates = []
+    for exercise_id, required_equipment, supports_weight, name in rows:
+        if supports_weight:
+            continue
+        name_key = (name or "").strip().lower()
+        if name_key and name_key in weighted_names:
+            updates.append((exercise_id,))
+            continue
+        if infer_supports_weight(required_equipment or ""):
+            updates.append((exercise_id,))
+    if updates:
+        conn.executemany("UPDATE exercises SET supports_weight = 1 WHERE id = ?;", updates)
+
+
+def _convert_weights_to_kg(conn: sqlite3.Connection) -> None:
+    """Convert any stored lb weights into kg."""
+    conn.execute(
+        """
+        UPDATE workout_exercises
+        SET weight_value = weight_value * 0.453592,
+            weight_unit = 'kg'
+        WHERE lower(weight_unit) IN ('lb', 'lbs', 'pound', 'pounds');
+        """
+    )
+    conn.execute(
+        """
+        UPDATE exercises
+        SET default_weight_value = default_weight_value * 0.453592,
+            default_weight_unit = 'kg'
+        WHERE lower(default_weight_unit) IN ('lb', 'lbs', 'pound', 'pounds');
+        """
+    )
 
 
 def seed_sample_data(conn: sqlite3.Connection) -> None:
@@ -311,6 +391,8 @@ def seed_sample_data(conn: sqlite3.Connection) -> None:
             ),
             "required_equipment": "Barbell, plates",
             "target_muscle_group": "Posterior chain",
+            "default_weight_value": 60,
+            "default_weight_unit": "kg",
             "recommendations": {
                 "muscle_building": {
                     "suitability_rating": 9,
@@ -422,6 +504,8 @@ def seed_sample_data(conn: sqlite3.Connection) -> None:
             ),
             "required_equipment": "Barbell",
             "target_muscle_group": "Chest",
+            "default_weight_value": 40,
+            "default_weight_unit": "kg",
             "recommendations": {
                 "muscle_building": {
                     "suitability_rating": 9,
@@ -459,6 +543,8 @@ def seed_sample_data(conn: sqlite3.Connection) -> None:
             ),
             "required_equipment": "Dumbbells",
             "target_muscle_group": "Chest",
+            "default_weight_value": 8,
+            "default_weight_unit": "kg",
             "recommendations": {
                 "muscle_building": {
                     "suitability_rating": 8,
@@ -496,6 +582,8 @@ def seed_sample_data(conn: sqlite3.Connection) -> None:
             ),
             "required_equipment": "Dumbbells",
             "target_muscle_group": "Biceps",
+            "default_weight_value": 8,
+            "default_weight_unit": "kg",
             "recommendations": {
                 "muscle_building": {
                     "suitability_rating": 8,
@@ -533,6 +621,8 @@ def seed_sample_data(conn: sqlite3.Connection) -> None:
             ),
             "required_equipment": "Dumbbells",
             "target_muscle_group": "Triceps",
+            "default_weight_value": 10,
+            "default_weight_unit": "kg",
             "recommendations": {
                 "muscle_building": {
                     "suitability_rating": 7,
@@ -607,6 +697,8 @@ def seed_sample_data(conn: sqlite3.Connection) -> None:
             ),
             "required_equipment": "Dumbbells",
             "target_muscle_group": "Shoulders",
+            "default_weight_value": 10,
+            "default_weight_unit": "kg",
             "recommendations": {
                 "muscle_building": {
                     "suitability_rating": 8,
@@ -644,6 +736,8 @@ def seed_sample_data(conn: sqlite3.Connection) -> None:
             ),
             "required_equipment": "Kettlebell",
             "target_muscle_group": "Legs",
+            "default_weight_value": 16,
+            "default_weight_unit": "kg",
             "recommendations": {
                 "muscle_building": {
                     "suitability_rating": 8,
@@ -755,6 +849,8 @@ def seed_sample_data(conn: sqlite3.Connection) -> None:
             ),
             "required_equipment": "Cable Machine",
             "target_muscle_group": "Back",
+            "default_weight_value": 30,
+            "default_weight_unit": "kg",
             "recommendations": {
                 "muscle_building": {
                     "suitability_rating": 8,
@@ -792,6 +888,8 @@ def seed_sample_data(conn: sqlite3.Connection) -> None:
             ),
             "required_equipment": "Cable Machine",
             "target_muscle_group": "Back",
+            "default_weight_value": 30,
+            "default_weight_unit": "kg",
             "recommendations": {
                 "muscle_building": {
                     "suitability_rating": 8,
@@ -829,6 +927,8 @@ def seed_sample_data(conn: sqlite3.Connection) -> None:
             ),
             "required_equipment": "Kettlebell",
             "target_muscle_group": "Full Body",
+            "default_weight_value": 16,
+            "default_weight_unit": "kg",
             "recommendations": {
                 "muscle_building": {
                     "suitability_rating": 7,
@@ -866,6 +966,8 @@ def seed_sample_data(conn: sqlite3.Connection) -> None:
             ),
             "required_equipment": "Medicine Ball",
             "target_muscle_group": "Core",
+            "default_weight_value": 6,
+            "default_weight_unit": "kg",
             "recommendations": {
                 "muscle_building": {
                     "suitability_rating": 6,
@@ -977,6 +1079,8 @@ def seed_sample_data(conn: sqlite3.Connection) -> None:
             ),
             "required_equipment": "Resistance Bands",
             "target_muscle_group": "Shoulders",
+            "default_weight_value": 6,
+            "default_weight_unit": "kg",
             "recommendations": {
                 "muscle_building": {
                     "suitability_rating": 6,
@@ -1014,6 +1118,8 @@ def seed_sample_data(conn: sqlite3.Connection) -> None:
             ),
             "required_equipment": "Machine",
             "target_muscle_group": "Legs",
+            "default_weight_value": 80,
+            "default_weight_unit": "kg",
             "recommendations": {
                 "muscle_building": {
                     "suitability_rating": 8,
@@ -1082,9 +1188,17 @@ def seed_sample_data(conn: sqlite3.Connection) -> None:
 
     exercise_stmt = """
         INSERT INTO exercises (
-            name, icon, short_description, execution_instructions, required_equipment, target_muscle_group
+            name,
+            icon,
+            short_description,
+            execution_instructions,
+            required_equipment,
+            target_muscle_group,
+            supports_weight,
+            default_weight_value,
+            default_weight_unit
         )
-        VALUES (?, ?, ?, ?, ?, ?);
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
     """
     recommendation_stmt = """
         INSERT INTO goal_recommendations (
@@ -1101,6 +1215,18 @@ def seed_sample_data(conn: sqlite3.Connection) -> None:
     for exercise in exercises:
         name_key = exercise["name"].strip().lower()
         instructions = exercise.get("execution_instructions", "")
+        equipment_value = format_tag_list(normalize_equipment_list(exercise["required_equipment"]))
+        muscle_value = format_tag_list(normalize_muscle_group_list(exercise["target_muscle_group"]))
+        supports_weight = exercise.get("supports_weight")
+        if supports_weight is None:
+            supports_weight = infer_supports_weight(equipment_value or exercise["required_equipment"])
+        default_weight_value = exercise.get("default_weight_value")
+        default_weight_unit = _normalize_weight_unit(exercise.get("default_weight_unit"))
+        if supports_weight and default_weight_value is not None and not default_weight_unit:
+            default_weight_unit = "kg"
+        if not supports_weight:
+            default_weight_value = None
+            default_weight_unit = None
         if name_key in existing_names:
             if instructions:
                 conn.execute(
@@ -1112,9 +1238,18 @@ def seed_sample_data(conn: sqlite3.Connection) -> None:
                     """,
                     (instructions, name_key),
                 )
+            if default_weight_value is not None:
+                conn.execute(
+                    """
+                    UPDATE exercises
+                    SET supports_weight = 1,
+                        default_weight_value = COALESCE(default_weight_value, ?),
+                        default_weight_unit = COALESCE(default_weight_unit, ?)
+                    WHERE lower(name) = ?;
+                    """,
+                    (default_weight_value, default_weight_unit, name_key),
+                )
             continue
-        equipment_value = format_tag_list(normalize_equipment_list(exercise["required_equipment"]))
-        muscle_value = format_tag_list(normalize_muscle_group_list(exercise["target_muscle_group"]))
         cursor = conn.execute(
             exercise_stmt,
             (
@@ -1124,6 +1259,9 @@ def seed_sample_data(conn: sqlite3.Connection) -> None:
                 instructions,
                 equipment_value or exercise["required_equipment"],
                 muscle_value or exercise["target_muscle_group"],
+                1 if supports_weight else 0,
+                default_weight_value,
+                default_weight_unit,
             ),
         )
         exercise_id = cursor.lastrowid
@@ -1259,6 +1397,7 @@ def fetch_all(conn: sqlite3.Connection) -> list[tuple]:
         """
         SELECT e.name, e.icon, e.short_description, e.execution_instructions,
                e.required_equipment, e.target_muscle_group,
+               e.supports_weight, e.default_weight_value, e.default_weight_unit,
                r.goal, r.suitability_rating, r.recommended_sets,
                r.recommended_reps_per_set, r.recommended_time_seconds
         FROM exercises e
@@ -1281,6 +1420,9 @@ def add_exercise(
     recommended_sets: Optional[int] = None,
     recommended_reps_per_set: Optional[int] = None,
     recommended_time_seconds: Optional[int] = None,
+    supports_weight: Optional[bool] = None,
+    default_weight_value: Optional[float] = None,
+    default_weight_unit: Optional[str] = None,
     icon: str = "",
     db_path: Path = DB_PATH,
 ) -> int:
@@ -1290,6 +1432,7 @@ def add_exercise(
     The database constraints enforce goal membership and rating range.
     Missing goal ratings fall back to DEFAULT_GOAL_RATING.
     Equipment and muscle group inputs are normalized into atomic tags.
+    Weight fields are optional and ignored when supports_weight is False.
     """
     # Normalize inputs and insert both exercise and goal recommendation rows.
     if goal_ratings is None:
@@ -1298,6 +1441,14 @@ def add_exercise(
     fallback_rating = suitability_rating if suitability_rating is not None else DEFAULT_GOAL_RATING
     equipment_value = format_tag_list(normalize_equipment_list(required_equipment)) or str(required_equipment)
     muscle_value = format_tag_list(normalize_muscle_group_list(target_muscle_group)) or str(target_muscle_group)
+    if supports_weight is None:
+        supports_weight = infer_supports_weight(required_equipment)
+    default_weight_unit = _normalize_weight_unit(default_weight_unit)
+    if supports_weight and default_weight_value is not None and not default_weight_unit:
+        default_weight_unit = "kg"
+    if not supports_weight:
+        default_weight_value = None
+        default_weight_unit = None
     with get_connection(db_path) as conn:
         cursor = conn.execute(
             """
@@ -1307,9 +1458,12 @@ def add_exercise(
                 short_description,
                 execution_instructions,
                 required_equipment,
-                target_muscle_group
+                target_muscle_group,
+                supports_weight,
+                default_weight_value,
+                default_weight_unit
             )
-            VALUES (?, ?, ?, ?, ?, ?);
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
             """,
             (
                 name,
@@ -1318,6 +1472,9 @@ def add_exercise(
                 execution_instructions,
                 equipment_value,
                 muscle_value,
+                1 if supports_weight else 0,
+                default_weight_value,
+                default_weight_unit,
             ),
         )
         exercise_id = cursor.lastrowid
@@ -1414,6 +1571,7 @@ def log_workout(
     duration_seconds: Optional[int] = None,
     total_sets_completed: Optional[int] = None,
     exercise_statuses: Optional[Iterable[Tuple[str, str]]] = None,
+    exercise_weights: Optional[Iterable[Tuple[str, Optional[float], Optional[str]]]] = None,
     db_path: Path = DB_PATH,
 ) -> int:
     """
@@ -1422,6 +1580,8 @@ def log_workout(
     When exercise_statuses is provided, it must contain tuples of (name, status)
     where status is either "completed" or "skipped". If not provided, all
     exercises are stored as completed.
+    exercise_weights, when provided, should contain tuples of
+    (name, weight_value, weight_unit) where unit is "kg".
     """
     # Validate inputs and write workout plus exercise rows.
     if duration_minutes <= 0:
@@ -1443,6 +1603,35 @@ def log_workout(
                 normalized_statuses.append((name, status))
         if not normalized_statuses:
             raise ValueError("Exercise statuses cannot be empty.")
+
+    normalized_weights: list[Tuple[Optional[float], Optional[str]]] = []
+    if exercise_weights is None:
+        normalized_weights = [(None, None) for _ in normalized_statuses]
+    else:
+        parsed_weights: list[Tuple[str, Optional[float], Optional[str]]] = []
+        for name, value, unit in exercise_weights:
+            weight_unit = _normalize_weight_unit(unit)
+            weight_value = None
+            if value is not None:
+                try:
+                    weight_value = float(value)
+                except (TypeError, ValueError):
+                    raise ValueError("Exercise weight values must be numeric.")
+                if weight_value <= 0:
+                    raise ValueError("Exercise weight values must be positive.")
+                if weight_unit is None:
+                    raise ValueError("Exercise weight units must be kg.")
+            parsed_weights.append((name.strip(), weight_value, weight_unit))
+        if len(parsed_weights) == len(normalized_statuses):
+            for idx, (_, weight_value, weight_unit) in enumerate(parsed_weights):
+                normalized_weights.append((weight_value, weight_unit))
+        else:
+            weight_lookup: dict[str, Tuple[Optional[float], Optional[str]]] = {}
+            for name, weight_value, weight_unit in parsed_weights:
+                if name and name not in weight_lookup:
+                    weight_lookup[name] = (weight_value, weight_unit)
+            for name, _ in normalized_statuses:
+                normalized_weights.append(weight_lookup.get(name, (None, None)))
 
     if duration_seconds is None:
         duration_seconds = duration_minutes * 60
@@ -1467,9 +1656,43 @@ def log_workout(
         )
         workout_id = cursor.lastrowid
         conn.executemany(
-            "INSERT INTO workout_exercises (workout_id, exercise_name, status) VALUES (?, ?, ?);",
-            [(workout_id, name, status) for name, status in normalized_statuses],
+            """
+            INSERT INTO workout_exercises (
+                workout_id,
+                exercise_name,
+                status,
+                weight_value,
+                weight_unit
+            )
+            VALUES (?, ?, ?, ?, ?);
+            """,
+            [
+                (workout_id, name, status, weight_value, weight_unit)
+                for (name, status), (weight_value, weight_unit) in zip(normalized_statuses, normalized_weights)
+            ],
         )
+        # Seed missing exercise defaults with the first logged weight.
+        defaults = [
+            (weight_value, weight_unit, name)
+            for (name, _), (weight_value, weight_unit) in zip(normalized_statuses, normalized_weights)
+            if weight_value is not None and weight_unit is not None
+        ]
+        if defaults:
+            supports = {(name or "").strip().lower() for _, _, name in defaults if name}
+            conn.executemany(
+                "UPDATE exercises SET supports_weight = 1 WHERE lower(name) = lower(?);",
+                [(name,) for name in supports],
+            )
+            conn.executemany(
+                """
+                UPDATE exercises
+                SET default_weight_value = ?, default_weight_unit = ?
+                WHERE lower(name) = lower(?)
+                  AND default_weight_value IS NULL
+                  AND default_weight_unit IS NULL;
+                """,
+                defaults,
+            )
         conn.commit()
         return workout_id
 
@@ -1496,7 +1719,9 @@ def fetch_workout_history(
             w.duration_seconds,
             w.total_sets_completed,
             we.exercise_name,
-            we.status
+            we.status,
+            we.weight_value,
+            we.weight_unit
         FROM workouts w
         LEFT JOIN workout_exercises we ON w.id = we.workout_id
         WHERE w.user_id = ?
@@ -1523,6 +1748,8 @@ def fetch_workout_history(
         total_sets_completed,
         exercise_name,
         status,
+        weight_value,
+        weight_unit,
     ) in rows:
         entry = grouped.setdefault(
             workout_id,
@@ -1543,6 +1770,8 @@ def fetch_workout_history(
                 {
                     "name": exercise_name,
                     "status": (status or "completed").lower(),
+                    "weight_value": weight_value,
+                    "weight_unit": weight_unit,
                 }
             )
     return list(grouped.values())
@@ -1562,6 +1791,8 @@ def fetch_workout_stats(
         "total_minutes": 0,
         "top_exercise": None,
         "top_exercise_count": 0,
+        "total_weight_kg": 0,
+        "total_weight_lb": 0,
     }
 
     filters = ["user_id = ?"]
@@ -1585,6 +1816,22 @@ def fetch_workout_stats(
         ).fetchone()
         stats["total_workouts"] = total_row[0]
         stats["total_minutes"] = total_row[1]
+
+        weight_rows = conn.execute(
+            f"""
+            SELECT
+                SUM(CASE WHEN we.weight_unit = 'kg' THEN we.weight_value ELSE 0 END) AS total_kg,
+                SUM(CASE WHEN we.weight_unit = 'lb' THEN we.weight_value ELSE 0 END) AS total_lb
+            FROM workouts w
+            JOIN workout_exercises we ON w.id = we.workout_id
+            WHERE {filter_clause}
+              AND we.status = 'completed';
+            """,
+            params,
+        ).fetchone()
+        if weight_rows:
+            stats["total_weight_kg"] = weight_rows[0] or 0
+            stats["total_weight_lb"] = weight_rows[1] or 0
 
         top_row = conn.execute(
             f"""
