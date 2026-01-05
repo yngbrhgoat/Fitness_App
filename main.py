@@ -1015,6 +1015,32 @@ KV = """
                     height: self.texture_size[1]
                 BoxLayout:
                     size_hint_y: None
+                    height: dp(54) if app.root.live_reps_visible else dp(0)
+                    opacity: 1 if app.root.live_reps_visible else 0
+                    padding: dp(12), dp(6)
+                    canvas.before:
+                        Color:
+                            rgba: 0.78, 0.88, 1, 1
+                        RoundedRectangle:
+                            pos: self.pos
+                            size: self.size
+                            radius: [8,]
+                    Label:
+                        text: app.tr("Target reps", app.language)
+                        color: 0.16, 0.2, 0.32, 1
+                        font_size: "13sp"
+                        size_hint_x: None
+                        width: dp(90)
+                    Label:
+                        text: app.root.live_reps_display
+                        color: 0.08, 0.12, 0.22, 1
+                        font_size: "28sp"
+                        bold: True
+                        halign: "center"
+                        valign: "middle"
+                        text_size: self.size
+                BoxLayout:
+                    size_hint_y: None
                     height: dp(34) if app.root.live_weight_visible else dp(0)
                     opacity: 1 if app.root.live_weight_visible else 0
                     spacing: dp(6)
@@ -2710,6 +2736,8 @@ class RootWidget(BoxLayout):
     live_details_expanded = BooleanProperty(False)
     live_exercise_target_display = StringProperty("")
     live_set_target_display = StringProperty("")
+    live_reps_display = StringProperty("")
+    live_reps_visible = BooleanProperty(False)
     live_rest_setting_text = StringProperty("30")
     live_weight_value_text = StringProperty("")
     live_weight_unit_text = StringProperty("kg")
@@ -5734,6 +5762,8 @@ class RootWidget(BoxLayout):
             self.live_exercise_instructions = ""
             self.live_exercise_target_display = "—"
             self.live_set_target_display = "—"
+            self.live_reps_display = ""
+            self.live_reps_visible = False
             self.live_weight_value_text = ""
             self.live_weight_unit_text = "kg"
             self.live_weight_visible = False
@@ -5778,6 +5808,13 @@ class RootWidget(BoxLayout):
         self.live_exercise_target_display = f"~{self._format_time(expected_seconds)}" if expected_seconds else "—"
         set_target = self._live_set_target_seconds or self._compute_set_target_seconds(exercise)
         self.live_set_target_display = self._format_time(set_target) if set_target else "—"
+        reps = exercise.get("reps")
+        if reps:
+            self.live_reps_display = str(reps)
+            self.live_reps_visible = True
+        else:
+            self.live_reps_display = ""
+            self.live_reps_visible = False
         if self._live_phase == "between_exercises":
             next_name = ""
             if self._live_current_index + 1 < len(self.live_exercises):
