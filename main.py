@@ -5,7 +5,7 @@ import sqlite3
 from datetime import date, datetime
 from functools import partial
 from pathlib import Path
-from typing import Any, Optional, Sequence
+from typing import Any, Callable, Optional, Sequence
 
 from kivy.config import Config
 
@@ -16,7 +16,7 @@ from kivy.app import App
 from kivy.animation import Animation
 from kivy.clock import Clock
 from kivy.lang import Builder
-from kivy.properties import BooleanProperty, ListProperty, NumericProperty, StringProperty
+from kivy.properties import BooleanProperty, ListProperty, NumericProperty, ObjectProperty, StringProperty
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.button import Button
 from kivy.uix.boxlayout import BoxLayout
@@ -614,6 +614,43 @@ KV = """
                 text: app.tr("Cancel", app.language)
                 on_release: root.dismiss()
 
+<ConfirmActionModal>:
+    size_hint: None, None
+    size: dp(360), dp(220)
+    auto_dismiss: False
+    BoxLayout:
+        orientation: "vertical"
+        padding: dp(12)
+        spacing: dp(10)
+        canvas.before:
+            Color:
+                rgba: 1, 1, 1, 1
+            RoundedRectangle:
+                pos: self.pos
+                size: self.size
+                radius: [10,]
+        Label:
+            text: app.tr("Please confirm", app.language)
+            font_size: "18sp"
+            bold: True
+            color: 0.12, 0.14, 0.22, 1
+            size_hint_y: None
+            height: dp(24)
+        WrapLabel:
+            text: root.message
+            color: 0.16, 0.18, 0.24, 1
+        BoxLayout:
+            size_hint_y: None
+            height: dp(40)
+            spacing: dp(8)
+            Button:
+                text: root.cancel_label
+                background_color: 0.6, 0.64, 0.7, 1
+                on_release: root.dismiss()
+            Button:
+                text: root.confirm_label
+                on_release: root.confirm()
+
 <WorkoutLogModal>:
     size_hint: 0.96, 0.9
     auto_dismiss: False
@@ -1026,11 +1063,11 @@ KV = """
                             size: self.size
                             radius: [8,]
                     Label:
-                        text: app.tr("Target reps", app.language)
+                        text: app.tr("Target reps (Set {value})", app.language, value=app.root.live_set_counter_display)
                         color: 0.16, 0.2, 0.32, 1
                         font_size: "13sp"
                         size_hint_x: None
-                        width: dp(90)
+                        width: dp(150)
                     Label:
                         text: app.root.live_reps_display
                         color: 0.08, 0.12, 0.22, 1
@@ -1281,10 +1318,10 @@ KV = """
                     on_release: app.root.manual_next_exercise()
                 Button:
                     text: app.tr("End workout", app.language)
-                    on_release: app.root.end_live_session(early=True)
+                    on_release: app.root.prompt_end_live_session()
                 Button:
                     text: app.tr("Back to plan", app.language)
-                    on_release: app.root.go_recommend()
+                    on_release: app.root.prompt_go_recommend()
             Widget:
                 size_hint_y: None
                 height: dp(8)
@@ -2604,6 +2641,20 @@ class DatePickerPopup(ModalView):
                     )
 
 
+class ConfirmActionModal(ModalView):
+    """Modal prompt for confirming live mode actions."""
+    message = StringProperty("")
+    confirm_label = StringProperty("Confirm")
+    cancel_label = StringProperty("Cancel")
+    on_confirm = ObjectProperty(None, allownone=True)
+
+    def confirm(self) -> None:
+        """Run the confirmation callback and close the modal."""
+        if self.on_confirm:
+            self.on_confirm()
+        self.dismiss()
+
+
 class WorkoutLogModal(ModalView):
     """Modal form for logging completed workouts."""
     # KV handles the layout; this class is a hook for bindings.
@@ -2738,6 +2789,7 @@ class RootWidget(BoxLayout):
     live_set_target_display = StringProperty("")
     live_reps_display = StringProperty("")
     live_reps_visible = BooleanProperty(False)
+    live_set_counter_display = StringProperty("")
     live_rest_setting_text = StringProperty("30")
     live_weight_value_text = StringProperty("")
     live_weight_unit_text = StringProperty("kg")
@@ -2790,6 +2842,7 @@ class RootWidget(BoxLayout):
         self._goal_prompt_modal: Optional[GoalPromptModal] = None
         self._recommendation_detail_modal: Optional[ExerciseDetailsModal] = None
         self._browse_detail_modal: Optional[ExerciseDetailsModal] = None
+        self._confirm_action_modal: Optional[ConfirmActionModal] = None
         self._history_weight_values: dict[str, dict[str, str]] = {}
         self._live_clock = None
         self._live_current_index = 0
@@ -5467,6 +5520,38 @@ class RootWidget(BoxLayout):
             pass
         self._refresh_recommendation_view()
 
+    def _open_confirm_action(self, message: str, confirm_label: str, on_confirm: Callable[[], None]) -> None:
+        """Show a confirmation modal before performing a live action."""
+        if self._confirm_action_modal is not None:
+            try:
+                self._confirm_action_modal.dismiss()
+            except Exception:
+                pass
+        modal = ConfirmActionModal(
+            message=message,
+            confirm_label=confirm_label,
+            cancel_label=self._t("Cancel"),
+            on_confirm=on_confirm,
+        )
+        self._confirm_action_modal = modal
+        modal.open()
+
+    def prompt_end_live_session(self) -> None:
+        """Ask for confirmation before ending the live workout."""
+        self._open_confirm_action(
+            self._t("End the workout now?"),
+            self._t("End workout"),
+            lambda: self.end_live_session(early=True),
+        )
+
+    def prompt_go_recommend(self) -> None:
+        """Ask for confirmation before returning to the plan."""
+        self._open_confirm_action(
+            self._t("Return to the plan screen?"),
+            self._t("Back to plan"),
+            self.go_recommend,
+        )
+
     def go_live(self) -> None:
         """Navigate to the live workout screen if active."""
         # Guard against starting live without a plan.
@@ -5764,6 +5849,7 @@ class RootWidget(BoxLayout):
             self.live_set_target_display = "—"
             self.live_reps_display = ""
             self.live_reps_visible = False
+            self.live_set_counter_display = ""
             self.live_weight_value_text = ""
             self.live_weight_unit_text = "kg"
             self.live_weight_visible = False
@@ -5815,6 +5901,8 @@ class RootWidget(BoxLayout):
         else:
             self.live_reps_display = ""
             self.live_reps_visible = False
+        current_set = min(self._live_current_set, total_sets)
+        self.live_set_counter_display = f"{current_set}/{total_sets}"
         if self._live_phase == "between_exercises":
             next_name = ""
             if self._live_current_index + 1 < len(self.live_exercises):
