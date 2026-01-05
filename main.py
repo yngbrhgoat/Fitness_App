@@ -16,7 +16,7 @@ from kivy.app import App
 from kivy.animation import Animation
 from kivy.clock import Clock
 from kivy.lang import Builder
-from kivy.properties import BooleanProperty, ListProperty, NumericProperty, ObjectProperty, StringProperty
+from kivy.properties import BooleanProperty, ListProperty, NumericProperty, StringProperty
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.button import Button
 from kivy.uix.boxlayout import BoxLayout
@@ -621,7 +621,7 @@ KV = """
     BoxLayout:
         orientation: "vertical"
         padding: dp(12)
-        spacing: dp(10)
+        spacing: dp(6)
         canvas.before:
             Color:
                 rgba: 1, 1, 1, 1
@@ -636,9 +636,17 @@ KV = """
             color: 0.12, 0.14, 0.22, 1
             size_hint_y: None
             height: dp(24)
+        Widget:
+            size_hint_y: None
+            height: dp(10)
         WrapLabel:
             text: root.message
             color: 0.16, 0.18, 0.24, 1
+            size_hint_y: None
+            height: dp(72)
+            valign: "top"
+            text_size: self.width, self.height
+            padding: 0, 0
         BoxLayout:
             size_hint_y: None
             height: dp(40)
@@ -646,10 +654,10 @@ KV = """
             Button:
                 text: root.cancel_label
                 background_color: 0.6, 0.64, 0.7, 1
-                on_release: root.dismiss()
+                on_release: app.root.confirm_action_modal_cancel(); root.dismiss()
             Button:
                 text: root.confirm_label
-                on_release: root.confirm()
+                on_release: app.root.confirm_action_modal_ok(); root.dismiss()
 
 <WorkoutLogModal>:
     size_hint: 0.96, 0.9
@@ -1062,20 +1070,57 @@ KV = """
                             pos: self.pos
                             size: self.size
                             radius: [8,]
-                    Label:
-                        text: app.tr("Target reps (Set {value})", app.language, value=app.root.live_set_counter_display)
-                        color: 0.16, 0.2, 0.32, 1
-                        font_size: "13sp"
-                        size_hint_x: None
-                        width: dp(150)
-                    Label:
-                        text: app.root.live_reps_display
-                        color: 0.08, 0.12, 0.22, 1
-                        font_size: "28sp"
-                        bold: True
-                        halign: "center"
-                        valign: "middle"
-                        text_size: self.size
+                    BoxLayout:
+                        Widget:
+                        BoxLayout:
+                            size_hint_x: None
+                            width: dp(240)
+                            spacing: dp(48)
+                            BoxLayout:
+                                orientation: "vertical"
+                                spacing: dp(2)
+                                size_hint_x: None
+                                width: dp(96)
+                                Label:
+                                    text: app.tr("Reps", app.language)
+                                    color: 0.2, 0.24, 0.34, 1
+                                    font_size: "12sp"
+                                    size_hint_y: None
+                                    height: dp(16)
+                                    halign: "center"
+                                    valign: "middle"
+                                    text_size: self.size
+                                Label:
+                                    text: app.root.live_reps_display
+                                    color: 0.08, 0.12, 0.22, 1
+                                    font_size: "28sp"
+                                    bold: True
+                                    halign: "center"
+                                    valign: "middle"
+                                    text_size: self.size
+                            BoxLayout:
+                                orientation: "vertical"
+                                spacing: dp(2)
+                                size_hint_x: None
+                                width: dp(96)
+                                Label:
+                                    text: app.tr("Sets", app.language)
+                                    color: 0.2, 0.24, 0.34, 1
+                                    font_size: "12sp"
+                                    size_hint_y: None
+                                    height: dp(16)
+                                    halign: "center"
+                                    valign: "middle"
+                                    text_size: self.size
+                                Label:
+                                    text: app.root.live_set_counter_display
+                                    color: 0.12, 0.16, 0.26, 1
+                                    font_size: "22sp"
+                                    bold: True
+                                    halign: "center"
+                                    valign: "middle"
+                                    text_size: self.size
+                        Widget:
                 BoxLayout:
                     size_hint_y: None
                     height: dp(34) if app.root.live_weight_visible else dp(0)
@@ -2646,13 +2691,6 @@ class ConfirmActionModal(ModalView):
     message = StringProperty("")
     confirm_label = StringProperty("Confirm")
     cancel_label = StringProperty("Cancel")
-    on_confirm = ObjectProperty(None, allownone=True)
-
-    def confirm(self) -> None:
-        """Run the confirmation callback and close the modal."""
-        if self.on_confirm:
-            self.on_confirm()
-        self.dismiss()
 
 
 class WorkoutLogModal(ModalView):
@@ -2843,6 +2881,7 @@ class RootWidget(BoxLayout):
         self._recommendation_detail_modal: Optional[ExerciseDetailsModal] = None
         self._browse_detail_modal: Optional[ExerciseDetailsModal] = None
         self._confirm_action_modal: Optional[ConfirmActionModal] = None
+        self._confirm_action_callback: Optional[Callable[[], None]] = None
         self._history_weight_values: dict[str, dict[str, str]] = {}
         self._live_clock = None
         self._live_current_index = 0
@@ -5527,12 +5566,13 @@ class RootWidget(BoxLayout):
                 self._confirm_action_modal.dismiss()
             except Exception:
                 pass
+        self._confirm_action_callback = on_confirm
         modal = ConfirmActionModal(
             message=message,
             confirm_label=confirm_label,
             cancel_label=self._t("Cancel"),
-            on_confirm=on_confirm,
         )
+        modal.bind(on_dismiss=lambda *_: self._clear_confirm_action_callback())
         self._confirm_action_modal = modal
         modal.open()
 
@@ -5551,6 +5591,21 @@ class RootWidget(BoxLayout):
             self._t("Back to plan"),
             self.go_recommend,
         )
+
+    def confirm_action_modal_ok(self) -> None:
+        """Run the stored confirmation action if set."""
+        callback = self._confirm_action_callback
+        self._confirm_action_callback = None
+        if callback:
+            callback()
+
+    def confirm_action_modal_cancel(self) -> None:
+        """Clear the stored confirmation action without running it."""
+        self._confirm_action_callback = None
+
+    def _clear_confirm_action_callback(self) -> None:
+        """Ensure the stored confirmation action is cleared."""
+        self._confirm_action_callback = None
 
     def go_live(self) -> None:
         """Navigate to the live workout screen if active."""
