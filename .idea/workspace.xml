@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="0314f889-1c24-4d0f-8172-0c21a925c2b1" name="Changes" comment="Satzstatus in Wiederholungs-Widget integrieren und erneute Abfrage zum Workout-Ende hinzufügen (nochmal verbessert)">
+    <list default="true" id="0314f889-1c24-4d0f-8172-0c21a925c2b1" name="Changes" comment="Visuelle Signale im Live-Mode hinzugefügt">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/localization.py" beforeDir="false" afterPath="$PROJECT_DIR$/localization.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_logic.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -414,7 +414,15 @@
       <option name="project" value="LOCAL" />
       <updated>1767627291490</updated>
     </task>
-    <option name="localTasksCounter" value="45" />
+    <task id="LOCAL-00045" summary="Visuelle Signale im Live-Mode hinzugefügt">
+      <option name="closed" value="true" />
+      <created>1767628928112</created>
+      <option name="number" value="00045" />
+      <option name="presentableId" value="LOCAL-00045" />
+      <option name="project" value="LOCAL" />
+      <updated>1767628928112</updated>
+    </task>
+    <option name="localTasksCounter" value="46" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -429,7 +437,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Hinzufügen des Trainings-Empfehlungssystems (Punkt 3)." />
     <MESSAGE value="Allgemeine Verbesserungen" />
     <MESSAGE value="Nach removen aus der Liste für das Training wird diese Übung wieder in den Recommendations sehbar" />
     <MESSAGE value="einführen des Live-Modus" />
@@ -454,7 +461,8 @@
     <MESSAGE value="Anzahl der Reps wurde verbessert" />
     <MESSAGE value="Satzstatus in Wiederholungs-Widget integrieren und erneute Abfrage zum Workout-Ende hinzufügen" />
     <MESSAGE value="Satzstatus in Wiederholungs-Widget integrieren und erneute Abfrage zum Workout-Ende hinzufügen (nochmal verbessert)" />
-    <option name="LAST_COMMIT_MESSAGE" value="Satzstatus in Wiederholungs-Widget integrieren und erneute Abfrage zum Workout-Ende hinzufügen (nochmal verbessert)" />
+    <MESSAGE value="Visuelle Signale im Live-Mode hinzugefügt" />
+    <option name="LAST_COMMIT_MESSAGE" value="Visuelle Signale im Live-Mode hinzugefügt" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
