@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="0314f889-1c24-4d0f-8172-0c21a925c2b1" name="Changes" comment="Anzahl der Reps wurde verbessert">
-      <change beforePath="$PROJECT_DIR$/exercises.db" beforeDir="false" afterPath="$PROJECT_DIR$/exercises.db" afterDir="false" />
+    <list default="true" id="0314f889-1c24-4d0f-8172-0c21a925c2b1" name="Changes" comment="Satzstatus in Wiederholungs-Widget integrieren und erneute Abfrage zum Workout-Ende hinzufügen (nochmal verbessert)">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/localization.py" beforeDir="false" afterPath="$PROJECT_DIR$/localization.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -397,7 +398,23 @@
       <option name="project" value="LOCAL" />
       <updated>1767625576171</updated>
     </task>
-    <option name="localTasksCounter" value="43" />
+    <task id="LOCAL-00043" summary="Satzstatus in Wiederholungs-Widget integrieren und erneute Abfrage zum Workout-Ende hinzufügen">
+      <option name="closed" value="true" />
+      <created>1767625996888</created>
+      <option name="number" value="00043" />
+      <option name="presentableId" value="LOCAL-00043" />
+      <option name="project" value="LOCAL" />
+      <updated>1767625996888</updated>
+    </task>
+    <task id="LOCAL-00044" summary="Satzstatus in Wiederholungs-Widget integrieren und erneute Abfrage zum Workout-Ende hinzufügen (nochmal verbessert)">
+      <option name="closed" value="true" />
+      <created>1767627291490</created>
+      <option name="number" value="00044" />
+      <option name="presentableId" value="LOCAL-00044" />
+      <option name="project" value="LOCAL" />
+      <updated>1767627291490</updated>
+    </task>
+    <option name="localTasksCounter" value="45" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -412,8 +429,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Fixen von &quot;empty-space&quot; im Browsen. Verbesserung der UI für die Nutzeranmeldung." />
-    <MESSAGE value="Implementieren einer Statistikfunktion: Sie zeigt folgendes an:&#10;Gesamtzahl der absolvierten Trainingseinheiten, Gesamttrainingszeit, und die am häufigsten durchgeführte Übung" />
     <MESSAGE value="Hinzufügen des Trainings-Empfehlungssystems (Punkt 3)." />
     <MESSAGE value="Allgemeine Verbesserungen" />
     <MESSAGE value="Nach removen aus der Liste für das Training wird diese Übung wieder in den Recommendations sehbar" />
@@ -437,7 +452,9 @@
     <MESSAGE value="Verbesserung der Übungsbeschreibungen, Sprachwahl beim App-Start hinzugefügt, Browse-Screen erweitert, Gewichtseinheit auf kg fixiert, Live-Workout-Zeit automatisch aktualisiert und App-Absturz beim Loggen abgeschlossener Workouts behoben" />
     <MESSAGE value="UI im Browse-Fenster überarbeitet: Ziel, Muskelgruppe und Geräte wieder vertikal angeordnet, detaillierte Übungsanleitungen in eine klickbare Detailansicht ausgelagert, Detailansicht im Browse-Flow integriert und Lesbarkeit sowie visuelle Qualität der Detailansicht verbessert" />
     <MESSAGE value="Anzahl der Reps wurde verbessert" />
-    <option name="LAST_COMMIT_MESSAGE" value="Anzahl der Reps wurde verbessert" />
+    <MESSAGE value="Satzstatus in Wiederholungs-Widget integrieren und erneute Abfrage zum Workout-Ende hinzufügen" />
+    <MESSAGE value="Satzstatus in Wiederholungs-Widget integrieren und erneute Abfrage zum Workout-Ende hinzufügen (nochmal verbessert)" />
+    <option name="LAST_COMMIT_MESSAGE" value="Satzstatus in Wiederholungs-Widget integrieren und erneute Abfrage zum Workout-Ende hinzufügen (nochmal verbessert)" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

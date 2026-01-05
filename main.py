@@ -5825,7 +5825,10 @@ class RootWidget(BoxLayout):
             self._t("Session started. Begin your first set!"),
             color=(0.18, 0.4, 0.2, 1),
         )
-        self._flash_signal(self._t("Session started"), color=(0.16, 0.32, 0.6, 1))
+        self._flash_signal(
+            self._t("Set {current} started", current=self._live_current_set),
+            color=(0.18, 0.5, 0.25, 1),
+        )
         self._update_live_labels()
         self._start_live_clock()
 
@@ -6194,6 +6197,10 @@ class RootWidget(BoxLayout):
             self._t("Set {current} started", current=self._live_current_set),
             color=(0.16, 0.32, 0.6, 1),
         )
+        self._flash_signal(
+            self._t("Rest over — set {current} started", current=self._live_current_set),
+            color=(0.18, 0.5, 0.25, 1),
+        )
         self._update_tempo_hint()
         self._update_live_labels()
 
@@ -6215,6 +6222,10 @@ class RootWidget(BoxLayout):
         self._set_hint(
             self._t("Rest now – next set will start automatically."),
             color=(0.18, 0.4, 0.2, 1),
+        )
+        self._flash_signal(
+            self._t("Set {current} complete — rest break", current=self._live_current_set),
+            color=(0.85, 0.55, 0.2, 1),
         )
         self._update_tempo_hint()
         self._update_live_labels()

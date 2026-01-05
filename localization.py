@@ -293,6 +293,8 @@ TRANSLATIONS = {
     "Set {current} started": "Satz {current} gestartet",
     "Resting": "Pause",
     "Rest now – next set will start automatically.": "Jetzt Pause – der nächste Satz startet automatisch.",
+    "Set {current} complete — rest break": "Satz {current} abgeschlossen — Pause",
+    "Rest over — set {current} started": "Pause vorbei — Satz {current} gestartet",
     "Press Start when you're ready.": "Drücke Start, wenn du bereit bist.",
     "Rest up — next exercise will start after the break.": "Erhol dich – die nächste Übung startet nach der Pause.",
     "Rest and breathe. Next set starts soon.": "Atme durch. Der nächste Satz startet gleich.",
