@@ -659,6 +659,49 @@ KV = """
                 text: root.confirm_label
                 on_release: app.root.confirm_action_modal_ok(); root.dismiss()
 
+<DeleteUserModal>:
+    size_hint: None, None
+    size: dp(360), dp(240)
+    auto_dismiss: False
+    BoxLayout:
+        orientation: "vertical"
+        padding: dp(12)
+        spacing: dp(8)
+        canvas.before:
+            Color:
+                rgba: 1, 1, 1, 1
+            RoundedRectangle:
+                pos: self.pos
+                size: self.size
+                radius: [10,]
+        Label:
+            text: app.tr("Delete user", app.language)
+            font_size: "18sp"
+            bold: True
+            color: 0.12, 0.14, 0.22, 1
+            size_hint_y: None
+            height: dp(24)
+        WrapLabel:
+            text: app.tr("Select a user to delete.", app.language)
+            color: 0.16, 0.18, 0.24, 1
+        Spinner:
+            id: delete_user_spinner
+            text: app.root.delete_user_spinner_text
+            values: app.root.user_options
+            on_text: app.root.on_delete_user_selected(self.text)
+        BoxLayout:
+            size_hint_y: None
+            height: dp(40)
+            spacing: dp(8)
+            Button:
+                text: app.tr("Cancel", app.language)
+                background_color: 0.6, 0.64, 0.7, 1
+                on_release: app.root.dismiss_delete_user_modal(); root.dismiss()
+            Button:
+                text: app.tr("Continue", app.language)
+                disabled: not app.root.delete_user_ready
+                on_release: app.root.confirm_delete_user_selection(); root.dismiss()
+
 <WorkoutLogModal>:
     size_hint: 0.96, 0.9
     auto_dismiss: False
@@ -788,6 +831,7 @@ KV = """
         WrapLabel:
             text: app.root.history_status_text
             color: app.root.history_status_color
+            font_size: app.root.history_status_font_size
         BoxLayout:
             size_hint_y: None
             height: dp(40)
@@ -2125,6 +2169,7 @@ KV = """
             WrapLabel:
                 text: app.root.history_status_text
                 color: app.root.history_status_color
+                font_size: app.root.history_status_font_size
             BoxLayout:
                 id: history_list
                 orientation: "vertical"
@@ -2702,6 +2747,12 @@ class ConfirmActionModal(ModalView):
     cancel_label = StringProperty("Cancel")
 
 
+class DeleteUserModal(ModalView):
+    """Modal prompt for selecting a user to delete."""
+    # KV handles the layout; this class is a hook for bindings.
+    pass
+
+
 class WorkoutLogModal(ModalView):
     """Modal form for logging completed workouts."""
     # KV handles the layout; this class is a hook for bindings.
@@ -2732,6 +2783,11 @@ class ExerciseDetailsModal(ModalView):
     reps_display = StringProperty("—")
     time_display = StringProperty("—")
     show_add_button = BooleanProperty(False)
+
+
+class FutureDateError(ValueError):
+    """Error raised when a workout date is set in the future."""
+    pass
 
 
 class RootWidget(BoxLayout):
@@ -2791,6 +2847,8 @@ class RootWidget(BoxLayout):
     equipment_choice_display = StringProperty("")
     add_icon_source = StringProperty("")
     user_spinner_text = StringProperty("")
+    delete_user_spinner_text = StringProperty("")
+    delete_user_ready = BooleanProperty(False)
     current_user_display = StringProperty("")
     user_status_text = StringProperty("")
     user_status_color = ListProperty((0.14, 0.4, 0.2, 1))
@@ -2803,6 +2861,7 @@ class RootWidget(BoxLayout):
     user_profile_status_color = ListProperty((0.14, 0.4, 0.2, 1))
     history_status_text = StringProperty("")
     history_status_color = ListProperty((0.14, 0.4, 0.2, 1))
+    history_status_font_size = StringProperty("15sp")
     stats_total_workouts = StringProperty("0")
     stats_total_minutes = StringProperty("0")
     stats_total_weight = StringProperty("—")
@@ -2891,6 +2950,9 @@ class RootWidget(BoxLayout):
         self._browse_detail_modal: Optional[ExerciseDetailsModal] = None
         self._confirm_action_modal: Optional[ConfirmActionModal] = None
         self._confirm_action_callback: Optional[Callable[[], None]] = None
+        self._delete_user_modal: Optional[DeleteUserModal] = None
+        self._pending_delete_user_id: Optional[int] = None
+        self._pending_delete_username = ""
         self._history_weight_values: dict[str, dict[str, str]] = {}
         self._live_clock = None
         self._live_current_index = 0
@@ -2965,6 +3027,8 @@ class RootWidget(BoxLayout):
             self.history_exercise_spinner_text = self._select_exercise_label
         if not self.user_spinner_text:
             self.user_spinner_text = self._select_user_label
+        if not self.delete_user_spinner_text:
+            self.delete_user_spinner_text = self._select_user_label
         if not self.current_user_display:
             self.current_user_display = self._no_user_label
         if not self.register_goal_spinner_text:
@@ -4126,13 +4190,57 @@ class RootWidget(BoxLayout):
         self.go_home()
 
     def prompt_delete_user(self) -> None:
-        """Confirm deletion of the selected user."""
-        # Require a selected user before showing the confirmation prompt.
-        if not self.current_user_id:
+        """Open the delete user selection modal."""
+        # Require at least one user before opening the modal.
+        if not self._users:
             self._set_user_status(self._t("Select a user to delete."), error=True)
             return
-        current = next((u for u in self._users if u["id"] == self.current_user_id), None)
-        username = (current or {}).get("username") or self.user_spinner_text or self.current_user_display
+        if self._delete_user_modal is not None:
+            try:
+                self._delete_user_modal.dismiss()
+            except Exception:
+                pass
+        self._reset_delete_user_selection()
+        modal = DeleteUserModal()
+        modal.bind(on_dismiss=self._clear_delete_user_modal)
+        self._delete_user_modal = modal
+        modal.open()
+
+    def dismiss_delete_user_modal(self) -> None:
+        """Dismiss the delete user modal and reset selection."""
+        self._reset_delete_user_selection()
+
+    def _clear_delete_user_modal(self, *_: Any) -> None:
+        """Clear the cached delete user modal reference."""
+        self._delete_user_modal = None
+
+    def _reset_delete_user_selection(self) -> None:
+        """Reset delete user selection state."""
+        self.delete_user_spinner_text = self._select_user_label
+        self.delete_user_ready = False
+        self._pending_delete_user_id = None
+        self._pending_delete_username = ""
+
+    def on_delete_user_selected(self, username: str) -> None:
+        """Capture the user selection for deletion."""
+        self.delete_user_spinner_text = username
+        selected = next((u for u in self._users if u["username"] == username), None)
+        if not selected:
+            self.delete_user_ready = False
+            self._pending_delete_user_id = None
+            self._pending_delete_username = ""
+            return
+        self._pending_delete_user_id = selected["id"]
+        self._pending_delete_username = selected["username"]
+        self.delete_user_ready = True
+
+    def confirm_delete_user_selection(self) -> None:
+        """Confirm deletion of the chosen user."""
+        user_id = self._pending_delete_user_id
+        username = self._pending_delete_username
+        if user_id is None:
+            self._set_user_status(self._t("Select a user to delete."), error=True)
+            return
         message = self._t(
             "Delete user '{username}'? This will remove all workout history.",
             username=username,
@@ -4140,26 +4248,22 @@ class RootWidget(BoxLayout):
         self._open_confirm_action(
             message,
             self._t("Delete user"),
-            self._delete_current_user,
+            lambda user_id=user_id, username=username: self._delete_user_by_id(user_id, username),
         )
+        self._reset_delete_user_selection()
 
-    def _delete_current_user(self) -> None:
+    def _delete_user_by_id(self, user_id: int, username: str) -> None:
         """Delete the selected user and their associated data."""
-        # Remove the user and refresh dependent UI state.
-        if not self.current_user_id:
-            self._set_user_status(self._t("Select a user to delete."), error=True)
-            return
-        current = next((u for u in self._users if u["id"] == self.current_user_id), None)
-        username = (current or {}).get("username") or self.user_spinner_text or self.current_user_display
         try:
-            deleted = exercise_database.delete_user(user_id=self.current_user_id)
+            deleted = exercise_database.delete_user(user_id=user_id)
         except sqlite3.DatabaseError as exc:
             self._set_user_status(self._t("Database error: {error}", error=exc), error=True)
             return
         if not deleted:
             self._set_user_status(self._t("User not found."), error=True)
             return
-        self.current_user_id = None
+        if self.current_user_id == user_id:
+            self.current_user_id = None
         self._load_users()
         self._set_user_status(self._t("User '{username}' deleted.", username=username))
 
@@ -4259,7 +4363,7 @@ class RootWidget(BoxLayout):
         except ValueError:
             raise ValueError(self._t("Use YYYY-MM-DD format."))
         if not allow_future and parsed > date.today():
-            raise ValueError(self._t("Workout date cannot be in the future."))
+            raise FutureDateError(self._t("Workout date cannot be in the future."))
         return parsed.isoformat()
 
     def open_date_picker(self, target_input: Any) -> None:
@@ -4298,11 +4402,12 @@ class RootWidget(BoxLayout):
             return False
         return target_input is ids.start_date_input or target_input is ids.end_date_input
 
-    def _set_history_status(self, message: str, *, error: bool = False) -> None:
+    def _set_history_status(self, message: str, *, error: bool = False, prominent: bool = False) -> None:
         """Update status banner in the history screen."""
         # Use red for errors and green for success messages.
         self.history_status_text = message
         self.history_status_color = (0.65, 0.16, 0.16, 1) if error else (0.14, 0.4, 0.2, 1)
+        self.history_status_font_size = "18sp" if prominent else "15sp"
 
     def _reset_history_exercise_picker(self, ids: Optional[Any] = None) -> None:
         """Reset the history exercise picker to its default state."""
@@ -4631,6 +4736,9 @@ class RootWidget(BoxLayout):
                 allow_empty=False,
                 allow_future=False,
             )
+        except FutureDateError as exc:
+            self._set_history_status(str(exc), error=True, prominent=True)
+            return
         except ValueError as exc:
             self._set_history_status(str(exc), error=True)
             return

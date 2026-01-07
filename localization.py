@@ -127,6 +127,7 @@ TRANSLATIONS = {
     "Today": "Heute",
     "Use date": "Datum verwenden",
     "Cancel": "Abbrechen",
+    "Continue": "Weiter",
     "Log a completed workout": "Abgeschlossenes Training protokollieren",
     "Workout date (YYYY-MM-DD)": "Trainingsdatum (YYYY-MM-DD)",
     "pick date": "Datum wählen",
