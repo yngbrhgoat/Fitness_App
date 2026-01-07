@@ -768,14 +768,6 @@ KV = """
                         values: app.root.workout_goal_options
                         on_text: app.root.workout_goal_spinner_text = self.text
                     WrapLabel:
-                        text: app.tr("Total sets completed (optional)", app.language)
-                        color: 0.18, 0.18, 0.22, 1
-                    TextInput:
-                        id: total_sets_input
-                        multiline: False
-                        input_filter: "int"
-                        hint_text: app.tr("e.g. 12", app.language)
-                    WrapLabel:
                         text: app.tr("Exercises (comma or newline separated)", app.language)
                         color: 0.18, 0.18, 0.22, 1
                     TextInput:
@@ -4266,6 +4258,10 @@ class RootWidget(BoxLayout):
             self.current_user_id = None
         self._load_users()
         self._set_user_status(self._t("User '{username}' deleted.", username=username))
+        try:
+            self.ids.screen_manager.current = "user"
+        except Exception:
+            pass
 
     def save_user_profile(self) -> bool:
         """Persist profile edits for the selected user."""
@@ -4507,7 +4503,6 @@ class RootWidget(BoxLayout):
             return
         ids.duration_input.text = ""
         ids.exercises_input.text = ""
-        ids.total_sets_input.text = ""
         self._clear_workout_weight_inputs(ids)
         self._reset_history_exercise_picker(ids)
         self.workout_goal_spinner_text = self._default_workout_goal_label()
@@ -4766,17 +4761,6 @@ class RootWidget(BoxLayout):
         if goal_label and goal_label != self._no_goal_label:
             goal = self._goal_label_map.get(goal_label) or goal_label
 
-        sets_raw = ids.total_sets_input.text.strip()
-        total_sets_completed = None
-        if sets_raw:
-            try:
-                total_sets_completed = int(sets_raw)
-                if total_sets_completed < 0:
-                    raise ValueError
-            except ValueError:
-                self._set_history_status(self._t("Total sets must be 0 or greater."), error=True)
-                return
-
         exercise_weights = []
         canonical_exercises = [self._resolve_exercise_name(name) for name in exercises]
         for name in canonical_exercises:
@@ -4811,7 +4795,6 @@ class RootWidget(BoxLayout):
                 duration_minutes=duration_minutes,
                 exercises=canonical_exercises,
                 goal=goal,
-                total_sets_completed=total_sets_completed,
                 exercise_weights=exercise_weights,
             )
         except (ValueError, sqlite3.DatabaseError) as exc:
