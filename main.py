@@ -1867,6 +1867,15 @@ KV = """
                         size_hint_x: None
                         width: dp(160)
                         on_release: app.root.go_history()
+                AnchorLayout:
+                    anchor_x: "center"
+                    size_hint_y: None
+                    height: dp(40)
+                    Button:
+                        text: app.tr("Delete user", app.language)
+                        size_hint_x: None
+                        width: dp(160)
+                        on_release: app.root.prompt_delete_user()
                 Label:
                     text: ""
                     size_hint_y: None
@@ -4116,6 +4125,44 @@ class RootWidget(BoxLayout):
         self._set_register_status(self._t("User '{username}' registered.", username=username))
         self.go_home()
 
+    def prompt_delete_user(self) -> None:
+        """Confirm deletion of the selected user."""
+        # Require a selected user before showing the confirmation prompt.
+        if not self.current_user_id:
+            self._set_user_status(self._t("Select a user to delete."), error=True)
+            return
+        current = next((u for u in self._users if u["id"] == self.current_user_id), None)
+        username = (current or {}).get("username") or self.user_spinner_text or self.current_user_display
+        message = self._t(
+            "Delete user '{username}'? This will remove all workout history.",
+            username=username,
+        )
+        self._open_confirm_action(
+            message,
+            self._t("Delete user"),
+            self._delete_current_user,
+        )
+
+    def _delete_current_user(self) -> None:
+        """Delete the selected user and their associated data."""
+        # Remove the user and refresh dependent UI state.
+        if not self.current_user_id:
+            self._set_user_status(self._t("Select a user to delete."), error=True)
+            return
+        current = next((u for u in self._users if u["id"] == self.current_user_id), None)
+        username = (current or {}).get("username") or self.user_spinner_text or self.current_user_display
+        try:
+            deleted = exercise_database.delete_user(user_id=self.current_user_id)
+        except sqlite3.DatabaseError as exc:
+            self._set_user_status(self._t("Database error: {error}", error=exc), error=True)
+            return
+        if not deleted:
+            self._set_user_status(self._t("User not found."), error=True)
+            return
+        self.current_user_id = None
+        self._load_users()
+        self._set_user_status(self._t("User '{username}' deleted.", username=username))
+
     def save_user_profile(self) -> bool:
         """Persist profile edits for the selected user."""
         # Validate the name and goal selection before updating.
@@ -4193,7 +4240,13 @@ class RootWidget(BoxLayout):
             return self._t("Unknown exercises: {names}", names=", ".join(unknown))
         return None
 
-    def _parse_date_value(self, value: str, *, allow_empty: bool = False) -> Optional[str]:
+    def _parse_date_value(
+        self,
+        value: str,
+        *,
+        allow_empty: bool = False,
+        allow_future: bool = True,
+    ) -> Optional[str]:
         """Parse a date string and return ISO format."""
         # Raise helpful errors when input is missing or malformed.
         value = value.strip()
@@ -4205,6 +4258,8 @@ class RootWidget(BoxLayout):
             parsed = date.fromisoformat(value)
         except ValueError:
             raise ValueError(self._t("Use YYYY-MM-DD format."))
+        if not allow_future and parsed > date.today():
+            raise ValueError(self._t("Workout date cannot be in the future."))
         return parsed.isoformat()
 
     def open_date_picker(self, target_input: Any) -> None:
@@ -4571,7 +4626,11 @@ class RootWidget(BoxLayout):
             self._set_history_status(self._t("Open the workout form to log a session."), error=True)
             return
         try:
-            workout_date = self._parse_date_value(ids.workout_date_input.text, allow_empty=False)
+            workout_date = self._parse_date_value(
+                ids.workout_date_input.text,
+                allow_empty=False,
+                allow_future=False,
+            )
         except ValueError as exc:
             self._set_history_status(str(exc), error=True)
             return

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 import sqlite3
+from datetime import date, datetime
 from pathlib import Path
 from typing import Iterable, Optional, Sequence, Tuple
 
@@ -1601,6 +1602,30 @@ def update_user_profile(
         conn.commit()
 
 
+def delete_user(*, user_id: int, db_path: Path = DB_PATH) -> bool:
+    """Delete a user and cascade removal of their workouts."""
+    # Remove the user row and let foreign keys clean up dependent data.
+    with get_connection(db_path) as conn:
+        cursor = conn.execute("DELETE FROM users WHERE id = ?;", (user_id,))
+        conn.commit()
+        return cursor.rowcount > 0
+
+
+def _parse_performed_date(value: str) -> date:
+    """Parse a workout timestamp into a date for validation."""
+    # Accept ISO date or datetime strings and surface format errors clearly.
+    cleaned = (value or "").strip()
+    if not cleaned:
+        raise ValueError("Date is required (YYYY-MM-DD).")
+    try:
+        return date.fromisoformat(cleaned)
+    except ValueError:
+        try:
+            return datetime.fromisoformat(cleaned).date()
+        except ValueError:
+            raise ValueError("Use YYYY-MM-DD format.")
+
+
 def log_workout(
     *,
     user_id: int,
@@ -1626,6 +1651,9 @@ def log_workout(
     # Validate inputs and write workout plus exercise rows.
     if duration_minutes <= 0:
         raise ValueError("Duration must be positive.")
+    performed_date = _parse_performed_date(performed_at)
+    if performed_date > date.today():
+        raise ValueError("Workout date cannot be in the future.")
     cleaned_exercises = [ex.strip() for ex in exercises if ex.strip()]
     if not cleaned_exercises:
         raise ValueError("At least one exercise is required.")

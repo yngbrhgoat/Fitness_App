@@ -199,6 +199,13 @@ TRANSLATIONS = {
     "Username already exists. Choose another.": "Benutzername existiert bereits. Bitte einen anderen wählen.",
     "Database error: {error}": "Datenbankfehler: {error}",
     "User '{username}' registered.": "Benutzer '{username}' registriert.",
+    "Delete user": "Benutzer löschen",
+    "Delete user '{username}'? This will remove all workout history.": (
+        "Benutzer '{username}' löschen? Dadurch wird die gesamte Trainingshistorie entfernt."
+    ),
+    "Select a user to delete.": "Wähle einen Benutzer zum Löschen.",
+    "User '{username}' deleted.": "Benutzer '{username}' gelöscht.",
+    "User not found.": "Benutzer nicht gefunden.",
     "Select a user to update the profile.": "Wähle einen Benutzer, um das Profil zu aktualisieren.",
     "Display name cannot be empty.": "Anzeigename darf nicht leer sein.",
     "Profile saved.": "Profil gespeichert.",
@@ -206,6 +213,7 @@ TRANSLATIONS = {
     "Unknown exercises: {names}": "Unbekannte Übungen: {names}",
     "Date is required (YYYY-MM-DD).": "Datum ist erforderlich (YYYY-MM-DD).",
     "Use YYYY-MM-DD format.": "Bitte das Format YYYY-MM-DD verwenden.",
+    "Workout date cannot be in the future.": "Trainingsdatum darf nicht in der Zukunft liegen.",
     "{selected} is already listed.": "{selected} ist bereits enthalten.",
     "Added {selected}.": "{selected} hinzugefügt.",
     "Select or register a user to see history.": "Wähle oder registriere einen Benutzer, um die Historie zu sehen.",
