@@ -1,0 +1,23 @@
+band-pull-apart: chatgpt
+bicycle-crunch: https://thenounproject.com/icon/crunches-148976/
+calf-raise: https://www.vecteezy.com/vector-art/48933825-calf-raises-fitness-exercise-leg-line-icon-illustration
+dumbbel-bicep-curl: https://www.vecteezy.com/vector-art/21572866-body-builder-icon
+dumbbel-chest-fly: https://thenounproject.com/icon/dumbbell-fly-exercise-8176749/
+overhead-tricep-extension: https://www.shutterstock.com/image-vector/tricep-extensions-arm-fitness-exercise-line-2492146263?trackingId=633f73e2-c287-4168-8748-1d134e2ef26e
+tricep-dip: https://www.colourbox.com/vector/tricep-dips-arm-fitness-exercise-line-icon-vector-illustration-vector-66215189
+dumbbell-shoulder-press: https://www.istockphoto.com/de/vektor/sitzende-hantel-dr%C3%BCcken-sie-das-liniensymbol-vektorisoliertes-element-gm2162118500-582528298
+goblet-squat: https://www.vectorstock.com/royalty-free-vector/goblet-squats-fitness-exercise-leg-line-icon-vector-54461805
+walking-lunge: https://www.google.com/url?sa=t&source=web&rct=j&url=https%3A%2F%2Fwww.istockphoto.com%2Fillustrations%2Fwalking-lunge&ved=0CBUQjRxqFwoTCKjmusDX-ZEDFQAAAAAdAAAAABAH&opi=89978449
+pull-up: https://www.shutterstock.com/image-vector/isolated-fitness-icon-pullup-bar-sign-2507415411?trackingId=38a8533b-044a-4148-8e9d-bfb41460325e
+lat-pulldown: https://www.vecteezy.com/vector-art/22581824-man-lat-pulldown-gym-with-arrow-pictogram-vector-icon
+seated-cable-row: https://iconscout.com/icon/seated-cable-row-icon_2174737
+kettlebell-swing: https://www.shutterstock.com/de/image-vector/kettlebell-swing-vector-outline-icon-design-2318412923
+russian-twist: https://thenounproject.com/icon/russian-twist-1853694/
+glute-bridge: https://www.dreamstime.com/glute-bridges-fitness-exercise-leg-line-icon-vector-illustration-glute-bridges-fitness-exercise-leg-line-icon-vector-glute-bridges-image329848374
+leg-press: https://www.vectorstock.com/de/lizenzfreie-vektor/lag-press-exercise-icon-vektor-45101436
+plank: chatgpt
+jump-rope: https://www.google.com/url?sa=t&source=web&rct=j&url=https%3A%2F%2Fpngtree.com%2Ffreepng%2Ffront-jump-rope-icon_4466975.html&ved=0CBUQjRxqFwoTCIiNv5Te-ZEDFQAAAAAdAAAAABAH&opi=89978449
+push-up: https://icons8.com/icon/7665/pushups
+barbell-deadlift: https://stock.adobe.com/de/search?k=%22deadlift+icon%22&asset_id=1714758723
+bench-press: https://icons8.com/icon/1H8SYhIDTnwm/bench-press
+
