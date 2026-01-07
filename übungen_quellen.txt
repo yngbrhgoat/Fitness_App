@@ -1,4 +1,4 @@
-band-pull-apart: chatgpt
+band-pull-apart: chatgpt (erstellt)
 bicycle-crunch: https://thenounproject.com/icon/crunches-148976/
 calf-raise: https://www.vecteezy.com/vector-art/48933825-calf-raises-fitness-exercise-leg-line-icon-illustration
 dumbbel-bicep-curl: https://www.vecteezy.com/vector-art/21572866-body-builder-icon
@@ -15,7 +15,7 @@ kettlebell-swing: https://www.shutterstock.com/de/image-vector/kettlebell-swing-
 russian-twist: https://thenounproject.com/icon/russian-twist-1853694/
 glute-bridge: https://www.dreamstime.com/glute-bridges-fitness-exercise-leg-line-icon-vector-illustration-glute-bridges-fitness-exercise-leg-line-icon-vector-glute-bridges-image329848374
 leg-press: https://www.vectorstock.com/de/lizenzfreie-vektor/lag-press-exercise-icon-vektor-45101436
-plank: chatgpt
+plank: chatgpt (erstellt)
 jump-rope: https://www.google.com/url?sa=t&source=web&rct=j&url=https%3A%2F%2Fpngtree.com%2Ffreepng%2Ffront-jump-rope-icon_4466975.html&ved=0CBUQjRxqFwoTCIiNv5Te-ZEDFQAAAAAdAAAAABAH&opi=89978449
 push-up: https://icons8.com/icon/7665/pushups
 barbell-deadlift: https://stock.adobe.com/de/search?k=%22deadlift+icon%22&asset_id=1714758723
