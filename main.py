@@ -16,7 +16,12 @@ from kivy.app import App
 from kivy.animation import Animation
 from kivy.clock import Clock
 from kivy.lang import Builder
-from kivy.properties import BooleanProperty, ListProperty, NumericProperty, StringProperty
+from kivy.properties import (
+    BooleanProperty,
+    ListProperty,
+    NumericProperty,
+    StringProperty,
+)
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.button import Button
 from kivy.uix.boxlayout import BoxLayout
@@ -2450,7 +2455,7 @@ ALL_FILTER = "__all__"
 
 
 class ExerciseCard(ButtonBehavior, BoxLayout):
-    """Card widget that displays exercise details in browse lists."""
+    """Card widget that presents exercise summaries in list views."""
     # Kivy properties bound by the KV layout for exercise cards.
     name = StringProperty()
     display_name = StringProperty()
@@ -2471,49 +2476,43 @@ class ExerciseCard(ButtonBehavior, BoxLayout):
 
 
 class DetailRow(BoxLayout):
-    """Row widget for labeled detail values."""
+    """Row widget that displays a label-value pair in detail sections."""
     label_text = StringProperty("")
     value_text = StringProperty("")
 
 
 class HomeScreen(Screen):
-    """Landing screen that routes users to major app areas."""
-    # Marker class for ScreenManager routing.
+    """Home screen that provides navigation to major app areas."""
     pass
 
 
 class BrowseScreen(Screen):
-    """Screen for filtering and browsing exercises."""
-    # Marker class for ScreenManager routing.
+    """Screen for browsing and filtering the exercise catalog."""
     pass
 
 
 class AddScreen(Screen):
-    """Screen for adding new exercises to the database."""
-    # Marker class for ScreenManager routing.
+    """Screen for entering and saving new exercise details."""
     pass
 
 
 class UserScreen(Screen):
-    """Screen for selecting or creating user profiles."""
-    # Marker class for ScreenManager routing.
+    """Screen for selecting users and editing profile details."""
     pass
 
 
 class RegisterScreen(Screen):
-    """Screen for registering a new user profile."""
-    # Marker class for ScreenManager routing.
+    """Screen for creating a new user profile."""
     pass
 
 
 class HistoryScreen(Screen):
-    """Screen for viewing and filtering workout history."""
-    # Marker class for ScreenManager routing.
+    """Screen for viewing workout history, filters, and stats."""
     pass
 
 
 class WorkoutCard(BoxLayout):
-    """Card widget that summarizes a logged workout."""
+    """Card widget that summarizes a logged workout entry."""
     # Kivy properties bound by the workout history list.
     date_display = StringProperty()
     duration_display = StringProperty()
@@ -2524,25 +2523,22 @@ class WorkoutCard(BoxLayout):
 
 
 class RecommendationScreen(Screen):
-    """Screen that shows recommendations and a workout plan."""
-    # Marker class for ScreenManager routing.
+    """Screen for generating recommendations and managing the plan."""
     pass
 
 
 class LiveScreen(Screen):
-    """Screen that runs a live workout session."""
-    # Marker class for ScreenManager routing.
+    """Screen that runs live workout timers and controls."""
     pass
 
 
 class SummaryScreen(Screen):
-    """Screen that summarizes a finished workout session."""
-    # Marker class for ScreenManager routing.
+    """Screen that summarizes a completed workout session."""
     pass
 
 
 class PlanItem(BoxLayout):
-    """List row representing a planned recommendation."""
+    """Row widget representing a planned exercise entry."""
     # Kivy properties bound by the plan list view.
     name = StringProperty()
     icon_source = StringProperty("")
@@ -2555,7 +2551,7 @@ class PlanItem(BoxLayout):
 
 
 class ProgressRing(Widget):
-    """Canvas widget that renders a circular progress ring."""
+    """Canvas widget that renders a circular progress indicator."""
     # Kivy properties used by the KV canvas instructions.
     progress = NumericProperty(0.0)
     thickness = NumericProperty(6.0)
@@ -2564,7 +2560,7 @@ class ProgressRing(Widget):
 
 
 class RecommendationCard(BoxLayout):
-    """Card widget that presents a recommended exercise."""
+    """Card widget that presents a recommended exercise entry."""
     # Kivy properties bound by recommendation list entries.
     name = StringProperty()
     display_name = StringProperty()
@@ -2581,13 +2577,22 @@ class RecommendationCard(BoxLayout):
 
 
 class DatePickerPopup(ModalView):
-    """Modal date picker used by history and workout log forms."""
+    """Modal date picker used by history filters and workout logging."""
     # Kivy properties that track selected date state.
     month_label = StringProperty("")
     selected_label = StringProperty("")
 
     def __init__(self, *, on_select, initial_date: Optional[date] = None, **kwargs):
-        """Initialize the popup with an optional initial date and callback."""
+        """Initialize the date picker with a callback and optional seed date.
+
+        Args:
+            on_select (Callable[[date], None]): Callback for the chosen date.
+            initial_date (date | None): Initial date to preselect.
+            **kwargs (Any): Additional arguments forwarded to ``ModalView``.
+
+        Returns:
+            None: Initializes the popup instance.
+        """
         # Initialize selection state and build the calendar UI.
         super().__init__(**kwargs)
         self._on_select = on_select
@@ -2611,17 +2616,38 @@ class DatePickerPopup(ModalView):
         return localization.DEFAULT_LANGUAGE
 
     def shift_month(self, delta: int) -> None:
-        """Move the calendar view by the requested number of months."""
+        """Shift the calendar by a number of months.
+
+        Args:
+            delta (int): Number of months to move (negative allowed).
+
+        Returns:
+            None: Updates the displayed month.
+        """
         # Delegate to the month shift helper.
         self._change_months(delta)
 
     def shift_year(self, delta_years: int) -> None:
-        """Move the calendar view by the requested number of years."""
+        """Shift the calendar by a number of years.
+
+        Args:
+            delta_years (int): Number of years to move (negative allowed).
+
+        Returns:
+            None: Updates the displayed year.
+        """
         # Convert years to months for the shared handler.
         self._change_months(delta_years * 12)
 
     def confirm_selection(self) -> None:
-        """Commit the selected date and close the popup."""
+        """Commit the selected date and close the popup.
+
+        Args:
+            None.
+
+        Returns:
+            None: Calls the selection callback and dismisses the modal.
+        """
         # Notify the caller before dismissing the modal.
         selected = self._selected_date or date.today()
         if self._on_select:
@@ -2629,7 +2655,14 @@ class DatePickerPopup(ModalView):
         self.dismiss()
 
     def select_today(self) -> None:
-        """Jump to today and confirm it."""
+        """Select today's date and confirm it.
+
+        Args:
+            None.
+
+        Returns:
+            None: Updates selection and calls the confirmation handler.
+        """
         # Ensure today is highlighted and selected.
         today = date.today()
         self._set_selected_date(today, update_month=True)
@@ -2733,32 +2766,29 @@ class DatePickerPopup(ModalView):
 
 
 class ConfirmActionModal(ModalView):
-    """Modal prompt for confirming live mode actions."""
+    """Modal dialog for confirming live workout actions."""
     message = StringProperty("")
     confirm_label = StringProperty("Confirm")
     cancel_label = StringProperty("Cancel")
 
 
 class DeleteUserModal(ModalView):
-    """Modal prompt for selecting a user to delete."""
-    # KV handles the layout; this class is a hook for bindings.
+    """Modal dialog for selecting and deleting a user."""
     pass
 
 
 class WorkoutLogModal(ModalView):
-    """Modal form for logging completed workouts."""
-    # KV handles the layout; this class is a hook for bindings.
+    """Modal dialog for logging a completed workout session."""
     pass
 
 
 class GoalPromptModal(ModalView):
-    """Modal prompt for setting a user goal."""
-    # KV handles the layout; this class is a hook for bindings.
+    """Modal dialog for setting a user's training goal."""
     pass
 
 
 class ExerciseDetailsModal(ModalView):
-    """Modal showing detailed information for one exercise."""
+    """Modal dialog that shows detailed information for one exercise."""
     # Kivy properties bound by the detail template.
     exercise_name = StringProperty("")
     exercise_key = StringProperty("")
@@ -2783,7 +2813,7 @@ class FutureDateError(ValueError):
 
 
 class RootWidget(BoxLayout):
-    """Main application controller and data/state hub."""
+    """Main application controller that owns UI state and actions."""
     # Centralized Kivy properties that drive the UI bindings.
     goal_options = ListProperty()
     goal_choice_options = ListProperty()
@@ -2915,7 +2945,14 @@ class RootWidget(BoxLayout):
     summary_performed_at_display = StringProperty("")
 
     def __init__(self, **kwargs):
-        """Initialize UI state, caches, and launch data loading."""
+        """Initialize UI state, caches, and initial data loading.
+
+        Args:
+            **kwargs (Any): Additional arguments forwarded to ``BoxLayout``.
+
+        Returns:
+            None: Initializes the root widget state.
+        """
         # Prepare app-level state before KV bindings fire.
         app = App.get_running_app()
         # Ensure app.root is available during KV evaluation to avoid NoneType errors.
@@ -3236,7 +3273,14 @@ class RootWidget(BoxLayout):
         return ""
 
     def on_icon_choice_change(self, value: str) -> None:
-        """Handle spinner selection for exercise icon choice."""
+        """Handle spinner selection for the exercise icon choice.
+
+        Args:
+            value (str): Selected icon label from the spinner.
+
+        Returns:
+            None: Updates the icon preview and spinner text.
+        """
         # Normalize and resolve the icon source for preview.
         if not value or value in {self._no_icon_label, self._select_icon_label, self._no_icons_label}:
             self.icon_choice_spinner_text = self._no_icon_label
@@ -3273,7 +3317,14 @@ class RootWidget(BoxLayout):
         return self._no_goal_label
 
     def on_user_profile_goal(self, *_: Any) -> None:
-        """Sync dependent goal state when the profile goal changes."""
+        """Sync dependent goal state when the profile goal changes.
+
+        Args:
+            *_ (Any): Unused Kivy property change arguments.
+
+        Returns:
+            None: Updates dependent recommendation goal state.
+        """
         # Keep recommendation goal in sync with profile updates.
         self._sync_recommendation_goal()
 
@@ -3297,7 +3348,14 @@ class RootWidget(BoxLayout):
             self.rec_goal_spinner_text = self.goal_choice_options[0]
 
     def on_language_selected(self, label: str) -> None:
-        """Switch the UI language based on spinner selection."""
+        """Switch the UI language based on spinner selection.
+
+        Args:
+            label (str): Selected language label shown in the UI.
+
+        Returns:
+            None: Updates language settings and refreshes labels.
+        """
         # Map display label back to language code.
         selected_code = None
         for code, name in localization.LANGUAGE_LABELS.items():
@@ -3315,7 +3373,14 @@ class RootWidget(BoxLayout):
         self.apply_language()
 
     def apply_language(self) -> None:
-        """Refresh translated labels and lists after a language change."""
+        """Refresh translated labels and lists after a language change.
+
+        Args:
+            None.
+
+        Returns:
+            None: Rebuilds localized labels and updates cached data.
+        """
         # Preserve selections using canonical keys before rebuilding labels.
         old_goal_map = dict(self._goal_label_map)
         old_muscle_map = dict(self._muscle_display_to_key)
@@ -3723,7 +3788,14 @@ class RootWidget(BoxLayout):
             self.rec_goal_spinner_text = self.goal_choice_options[0]
 
     def on_rec_plan(self, *_: Any) -> None:
-        """Recalculate UI layout when the plan changes."""
+        """Recalculate UI layout when the plan changes.
+
+        Args:
+            *_ (Any): Unused Kivy property change arguments.
+
+        Returns:
+            None: Updates the plan list height.
+        """
         # Keep plan list height in sync with item count.
         self._update_rec_plan_height()
 
@@ -3763,13 +3835,27 @@ class RootWidget(BoxLayout):
             )
 
     def filter_history_exercise_options(self, query: str) -> None:
-        """Apply the history exercise filter to the dropdown."""
+        """Apply the history exercise filter to the dropdown.
+
+        Args:
+            query (str): Search text used to filter exercise names.
+
+        Returns:
+            None: Updates filtered exercise options.
+        """
         # Persist the filter string and recompute the options list.
         self.history_exercise_filter = query
         self._refresh_history_exercise_filtered_options()
 
     def clear_history_exercise_filter(self) -> None:
-        """Clear the history exercise search filter."""
+        """Clear the history exercise search filter.
+
+        Args:
+            None.
+
+        Returns:
+            None: Resets the filter input and options list.
+        """
         # Reset both the text input and the filtered list.
         ids = self._workout_form_ids()
         if ids and "history_exercise_filter_input" in ids:
@@ -3791,7 +3877,14 @@ class RootWidget(BoxLayout):
         return bodyweight_label
 
     def set_add_supports_weight(self, value: str) -> None:
-        """Update the add-exercise weight support selection."""
+        """Update the add-exercise weight support selection.
+
+        Args:
+            value (str): Selected label for weight support.
+
+        Returns:
+            None: Updates weight support state and defaults.
+        """
         # Keep the spinner text and boolean flag aligned.
         normalized = (value or "").strip().lower()
         yes_label = self._t("Yes").strip().lower()
@@ -3802,7 +3895,14 @@ class RootWidget(BoxLayout):
             self.add_weight_unit_spinner_text = "kg"
 
     def on_add_equipment_change(self, value: str) -> None:
-        """Update equipment selection and infer weight support."""
+        """Update equipment selection and infer weight support.
+
+        Args:
+            value (str): Selected equipment label from the add form.
+
+        Returns:
+            None: Updates equipment choice and weight support state.
+        """
         # Auto-suggest weight support based on equipment choice.
         self.add_equipment_spinner_text = value
         equipment_key = self._equipment_display_to_key.get(value, value)
@@ -3898,7 +3998,14 @@ class RootWidget(BoxLayout):
          + Animation(background_color=base_color, duration=0.25, t="out_quad")).start(widget)
 
     def confirm_value_input(self, widget: Any) -> None:
-        """Track value changes and provide confirmation feedback."""
+        """Track value changes and provide confirmation feedback.
+
+        Args:
+            widget (Any): Kivy input widget to confirm.
+
+        Returns:
+            None: Updates the last confirmed value and triggers feedback.
+        """
         # Avoid feedback loops by storing the last confirmed value.
         if not widget or not hasattr(widget, "text"):
             return
@@ -3919,7 +4026,14 @@ class RootWidget(BoxLayout):
         Clock.schedule_once(lambda *_: self._animate_input_feedback(widget), 0)
 
     def on_goal_change(self, value: str) -> None:
-        """Handle selection changes for the goal filter."""
+        """Handle selection changes for the goal filter.
+
+        Args:
+            value (str): Selected goal label from the filter spinner.
+
+        Returns:
+            None: Updates filter state and refreshes browse results.
+        """
         # Update filter state and refresh the browse list.
         if value == self._all_goals_label:
             self.filter_goal = ALL_FILTER
@@ -3930,7 +4044,14 @@ class RootWidget(BoxLayout):
         self.apply_filters()
 
     def on_muscle_change(self, value: str) -> None:
-        """Handle selection changes for the muscle filter."""
+        """Handle selection changes for the muscle filter.
+
+        Args:
+            value (str): Selected muscle label from the filter spinner.
+
+        Returns:
+            None: Updates filter state and refreshes browse results.
+        """
         # Update filter state and refresh the browse list.
         if value == self._all_muscle_groups_label:
             self.filter_muscle_group = ALL_FILTER
@@ -3941,7 +4062,14 @@ class RootWidget(BoxLayout):
         self.apply_filters()
 
     def on_equipment_change(self, value: str) -> None:
-        """Handle selection changes for the equipment filter."""
+        """Handle selection changes for the equipment filter.
+
+        Args:
+            value (str): Selected equipment label from the filter spinner.
+
+        Returns:
+            None: Updates filter state and refreshes browse results.
+        """
         # Update filter state and refresh the browse list.
         if value == self._all_equipment_label:
             self.filter_equipment = ALL_FILTER
@@ -3952,7 +4080,14 @@ class RootWidget(BoxLayout):
         self.apply_filters()
 
     def apply_filters(self) -> None:
-        """Apply current filters and refresh the browse list."""
+        """Apply current filters and refresh the browse list.
+
+        Args:
+            None.
+
+        Returns:
+            None: Updates the browse list data.
+        """
         # Build the filtered list with goal-aware grouping.
         filtered: list[dict[str, str]] = []
         goal_priority = {goal: idx for idx, goal in enumerate(exercise_database.GOALS)}
@@ -4136,7 +4271,14 @@ class RootWidget(BoxLayout):
         return True
 
     def handle_register_user(self) -> None:
-        """Create a new user account from the register form."""
+        """Create a new user account from the register form.
+
+        Args:
+            None.
+
+        Returns:
+            None: Creates the user and updates UI state.
+        """
         # Validate inputs before inserting into the database.
         try:
             ids = self._register_screen().ids
@@ -4182,7 +4324,14 @@ class RootWidget(BoxLayout):
         self.go_home()
 
     def prompt_delete_user(self) -> None:
-        """Open the delete user selection modal."""
+        """Open the delete user selection modal.
+
+        Args:
+            None.
+
+        Returns:
+            None: Opens the delete user modal when possible.
+        """
         # Require at least one user before opening the modal.
         if not self._users:
             self._set_user_status(self._t("Select a user to delete."), error=True)
@@ -4199,7 +4348,14 @@ class RootWidget(BoxLayout):
         modal.open()
 
     def dismiss_delete_user_modal(self) -> None:
-        """Dismiss the delete user modal and reset selection."""
+        """Dismiss the delete user modal and reset selection.
+
+        Args:
+            None.
+
+        Returns:
+            None: Resets delete user selection state.
+        """
         self._reset_delete_user_selection()
 
     def _clear_delete_user_modal(self, *_: Any) -> None:
@@ -4214,7 +4370,14 @@ class RootWidget(BoxLayout):
         self._pending_delete_username = ""
 
     def on_delete_user_selected(self, username: str) -> None:
-        """Capture the user selection for deletion."""
+        """Capture the user selection for deletion.
+
+        Args:
+            username (str): Username selected from the delete spinner.
+
+        Returns:
+            None: Updates pending delete state.
+        """
         self.delete_user_spinner_text = username
         selected = next((u for u in self._users if u["username"] == username), None)
         if not selected:
@@ -4227,7 +4390,14 @@ class RootWidget(BoxLayout):
         self.delete_user_ready = True
 
     def confirm_delete_user_selection(self) -> None:
-        """Confirm deletion of the chosen user."""
+        """Confirm deletion of the chosen user.
+
+        Args:
+            None.
+
+        Returns:
+            None: Opens a confirmation modal for deletion.
+        """
         user_id = self._pending_delete_user_id
         username = self._pending_delete_username
         if user_id is None:
@@ -4264,7 +4434,14 @@ class RootWidget(BoxLayout):
             pass
 
     def save_user_profile(self) -> bool:
-        """Persist profile edits for the selected user."""
+        """Persist profile edits for the selected user.
+
+        Args:
+            None.
+
+        Returns:
+            bool: ``True`` when the profile was saved successfully.
+        """
         # Validate the name and goal selection before updating.
         if not self.current_user_id:
             self._set_user_profile_status(self._t("Select a user to update the profile."), error=True)
@@ -4295,7 +4472,14 @@ class RootWidget(BoxLayout):
         return True
 
     def on_user_selected(self, username: str) -> None:
-        """Update state when a user is selected from the spinner."""
+        """Update state when a user is selected from the spinner.
+
+        Args:
+            username (str): Username chosen in the user spinner.
+
+        Returns:
+            None: Updates the current user state and reloads history.
+        """
         # Set current user and refresh dependent data.
         selected = next((u for u in self._users if u["username"] == username), None)
         if not selected:
@@ -4363,7 +4547,14 @@ class RootWidget(BoxLayout):
         return parsed.isoformat()
 
     def open_date_picker(self, target_input: Any) -> None:
-        """Open the shared date picker for a given input widget."""
+        """Open the shared date picker for a given input widget.
+
+        Args:
+            target_input (Any): Input widget that should receive the date.
+
+        Returns:
+            None: Opens the date picker modal.
+        """
         # Seed the picker with the current input value if possible.
         if not target_input:
             return
@@ -4430,7 +4621,14 @@ class RootWidget(BoxLayout):
         self._history_weight_values = {}
 
     def refresh_workout_weight_inputs(self, exercises_text: str) -> None:
-        """Rebuild weight inputs based on the exercises in the log form."""
+        """Rebuild weight inputs based on the exercises in the log form.
+
+        Args:
+            exercises_text (str): Raw exercises text from the log form.
+
+        Returns:
+            None: Updates the weight input container.
+        """
         # Show inputs only for exercises that support external load.
         ids = self._workout_form_ids()
         if not ids or "workout_weight_container" not in ids:
@@ -4523,7 +4721,14 @@ class RootWidget(BoxLayout):
         self._goal_prompt_modal = None
 
     def open_workout_log_modal(self) -> None:
-        """Open the workout log modal, resetting form state."""
+        """Open the workout log modal and reset the form state.
+
+        Args:
+            None.
+
+        Returns:
+            None: Opens the workout log modal.
+        """
         # Require a user selection before allowing logging.
         if not self._require_user():
             return
@@ -4559,7 +4764,14 @@ class RootWidget(BoxLayout):
             pass
 
     def open_goal_prompt(self) -> None:
-        """Open the goal prompt modal with a default selection."""
+        """Open the goal prompt modal with a default selection.
+
+        Args:
+            None.
+
+        Returns:
+            None: Opens the goal prompt modal when available.
+        """
         # Suggest a preferred goal when none is set.
         if not self.current_user_id or not self.user_goal_options:
             return
@@ -4579,14 +4791,28 @@ class RootWidget(BoxLayout):
         modal.open()
 
     def skip_goal_prompt(self) -> None:
-        """Skip setting a goal and close the prompt."""
+        """Skip setting a goal and close the prompt.
+
+        Args:
+            None.
+
+        Returns:
+            None: Closes the goal prompt modal.
+        """
         # Explicitly mark the profile goal as unset.
         self.user_profile_goal = self._no_goal_label
         self._set_user_profile_status("")
         self._dismiss_goal_prompt_modal()
 
     def add_history_exercise_from_menu(self) -> None:
-        """Add the selected exercise from the dropdown to the log."""
+        """Add the selected exercise from the dropdown to the log.
+
+        Args:
+            None.
+
+        Returns:
+            None: Updates the log form and status message.
+        """
         # Prevent duplicates when adding exercises via the picker.
         ids = self._workout_form_ids()
         if not ids:
@@ -4692,7 +4918,14 @@ class RootWidget(BoxLayout):
         self._load_stats()
 
     def apply_history_filter(self) -> None:
-        """Apply date filters to the history list."""
+        """Apply date filters to the history list.
+
+        Args:
+            None.
+
+        Returns:
+            None: Reloads the history list using the filters.
+        """
         # Parse filter inputs and reload history entries.
         ids = self._history_screen().ids
         try:
@@ -4704,7 +4937,14 @@ class RootWidget(BoxLayout):
         self._load_history()
 
     def clear_history_filter(self) -> None:
-        """Clear history date filters and reload history."""
+        """Clear history date filters and reload history.
+
+        Args:
+            None.
+
+        Returns:
+            None: Resets filters and reloads history data.
+        """
         # Reset filter fields and state.
         ids = self._history_screen().ids
         ids.start_date_input.text = ""
@@ -4715,7 +4955,14 @@ class RootWidget(BoxLayout):
         self._load_history()
 
     def handle_add_workout(self) -> None:
-        """Validate workout form inputs and log a session."""
+        """Validate workout form inputs and log a session.
+
+        Args:
+            None.
+
+        Returns:
+            None: Saves the workout and refreshes history.
+        """
         # Ensure required fields are present and valid.
         if not self.current_user_id:
             self._set_history_status(self._t("Select or register a user first."), error=True)
@@ -4985,7 +5232,14 @@ class RootWidget(BoxLayout):
         return round(base + recency_bonus, 2)
 
     def handle_generate_recommendations(self) -> None:
-        """Generate recommendations based on goal and time limit."""
+        """Generate recommendations based on goal and time limit.
+
+        Args:
+            None.
+
+        Returns:
+            None: Updates the recommendation list and status message.
+        """
         # Validate inputs before running recommendation logic.
         if not self._require_user():
             return
@@ -5080,7 +5334,14 @@ class RootWidget(BoxLayout):
         return next((entry for entry in browse_data if entry.get("name") == name), None)
 
     def open_browse_details(self, name: str) -> None:
-        """Open the browse detail modal for an exercise."""
+        """Open the browse detail modal for an exercise.
+
+        Args:
+            name (str): Canonical exercise name from the browse list.
+
+        Returns:
+            None: Opens the browse details modal when found.
+        """
         # Populate the modal from the browse list data.
         entry = self._find_browse_entry(name)
         if not entry:
@@ -5113,10 +5374,17 @@ class RootWidget(BoxLayout):
         modal.open()
 
     def open_recommendation_details(self, name: str) -> None:
-        """Open the recommendation detail modal for an exercise."""
+        """Open the recommendation detail modal for an exercise.
+
+        Args:
+            name (str): Canonical exercise name from recommendations.
+
+        Returns:
+            None: Opens the recommendation details modal when found.
+        """
         # Populate the modal from the recommendation data.
-        rec = self._find_recommendation(name)
-        if not rec:
+        recommendation = self._find_recommendation(name)
+        if not recommendation:
             return
         if self._recommendation_detail_modal is not None:
             try:
@@ -5125,22 +5393,26 @@ class RootWidget(BoxLayout):
                 pass
         modal = ExerciseDetailsModal()
         modal.show_add_button = True
-        modal.exercise_name = rec.get("display_name", rec.get("name", ""))
-        modal.exercise_key = rec.get("name", "")
-        modal.description = rec.get("description", "")
-        modal.execution_instructions = rec.get("execution_instructions", "")
-        modal.muscle_group = rec.get("muscle_group", "")
-        modal.equipment = rec.get("equipment", "")
-        modal.goal_label = rec.get("goal_label", "")
-        modal.suitability = rec.get("suitability", "")
-        estimated = rec.get("estimated_minutes")
-        score_display = rec.get("score_display")
+        modal.exercise_name = recommendation.get(
+            "display_name", recommendation.get("name", "")
+        )
+        modal.exercise_key = recommendation.get("name", "")
+        modal.description = recommendation.get("description", "")
+        modal.execution_instructions = recommendation.get(
+            "execution_instructions", ""
+        )
+        modal.muscle_group = recommendation.get("muscle_group", "")
+        modal.equipment = recommendation.get("equipment", "")
+        modal.goal_label = recommendation.get("goal_label", "")
+        modal.suitability = recommendation.get("suitability", "")
+        estimated = recommendation.get("estimated_minutes")
+        score_display = recommendation.get("score_display")
         modal.estimated_minutes = str(estimated) if estimated is not None else ""
         modal.score_display = str(score_display) if score_display is not None else ""
-        modal.recommendation = rec.get("recommendation", "")
-        sets = rec.get("sets")
-        reps = rec.get("reps")
-        time_seconds = rec.get("time_seconds")
+        modal.recommendation = recommendation.get("recommendation", "")
+        sets = recommendation.get("sets")
+        reps = recommendation.get("reps")
+        time_seconds = recommendation.get("time_seconds")
         modal.sets_display = str(sets) if sets is not None else "—"
         modal.reps_display = str(reps) if reps is not None else "—"
         if time_seconds is None:
@@ -5152,61 +5424,102 @@ class RootWidget(BoxLayout):
         modal.open()
 
     def toggle_recommendation_details(self, name: str) -> None:
-        """Toggle the detail expansion state for a recommendation."""
+        """Toggle the detail expansion state for a recommendation.
+
+        Args:
+            name (str): Canonical exercise name to toggle.
+
+        Returns:
+            None: Updates the recommendation list state.
+        """
         # Preserve per-item toggle state in the list data.
-        rec = self._find_recommendation(name)
-        if not rec:
+        recommendation = self._find_recommendation(name)
+        if not recommendation:
             return
         # flip detail visibility for this item
-        current = bool(rec.get("show_details"))
-        for r in self.rec_recommendations:
-            if r["name"] == name:
-                r["show_details"] = not current
+        current = bool(recommendation.get("show_details"))
+        for rec_item in self.rec_recommendations:
+            if rec_item["name"] == name:
+                rec_item["show_details"] = not current
             else:
-                r["show_details"] = bool(r.get("show_details", False))
+                rec_item["show_details"] = bool(
+                    rec_item.get("show_details", False)
+                )
         self._recommend_screen().ids.rec_list.data = self.rec_recommendations
         self._set_rec_status(self._t("Details toggled."))
 
     def add_recommendation_to_plan(self, name: str) -> None:
-        """Add a recommendation to the workout plan."""
+        """Add a recommendation to the workout plan.
+
+        Args:
+            name (str): Canonical exercise name to add.
+
+        Returns:
+            None: Updates the plan list and recommendation list.
+        """
         # Avoid duplicates and carry over recommendation metadata.
-        rec = self._find_recommendation(name)
-        if not rec:
+        recommendation = self._find_recommendation(name)
+        if not recommendation:
             return
+        display_name = recommendation.get(
+            "display_name", recommendation["name"]
+        )
+        execution_instructions = recommendation.get(
+            "execution_instructions", ""
+        )
         if any(item["name"] == name for item in self.rec_plan):
-            self._set_rec_status(self._t("{name} is already in the plan.", name=rec.get("display_name", name)), error=True)
+            self._set_rec_status(
+                self._t(
+                    "{name} is already in the plan.",
+                    name=display_name,
+                ),
+                error=True,
+            )
             return
-        icon_source = rec.get("icon_source") or self._resolve_icon_source(rec.get("icon", "") or rec.get("name", ""))
-        supports_weight = bool(rec.get("supports_weight"))
-        weight_value = rec.get("default_weight_value")
-        weight_unit = rec.get("default_weight_unit") or ("kg" if supports_weight else None)
+        icon_source = (
+            recommendation.get("icon_source")
+            or self._resolve_icon_source(
+                recommendation.get("icon", "")
+                or recommendation.get("name", "")
+            )
+        )
+        supports_weight = bool(recommendation.get("supports_weight"))
+        weight_value = recommendation.get("default_weight_value")
+        weight_unit = recommendation.get("default_weight_unit") or (
+            "kg" if supports_weight else None
+        )
         plan_item = {
-            "name": rec["name"],
-            "display_name": rec.get("display_name", rec["name"]),
-            "icon": rec.get("icon", ""),
+            "name": recommendation["name"],
+            "display_name": display_name,
+            "icon": recommendation.get("icon", ""),
             "icon_source": icon_source,
-            "execution_instructions": rec.get("execution_instructions", ""),
-            "muscle_group": rec.get("muscle_group", ""),
-            "equipment": rec.get("equipment", ""),
+            "execution_instructions": execution_instructions,
+            "muscle_group": recommendation.get("muscle_group", ""),
+            "equipment": recommendation.get("equipment", ""),
             "supports_weight": supports_weight,
             "weight_value": weight_value,
             "weight_unit": weight_unit,
-            "goal_label": rec.get("goal_label", ""),
-            "sets": rec.get("sets"),
-            "reps": rec.get("reps"),
-            "time_seconds": rec.get("time_seconds"),
-            "recommendation": rec.get("recommendation", ""),
-            "estimated_minutes": rec["estimated_minutes"],
-            "estimated_seconds": rec.get("estimated_seconds"),
+            "goal_label": recommendation.get("goal_label", ""),
+            "sets": recommendation.get("sets"),
+            "reps": recommendation.get("reps"),
+            "time_seconds": recommendation.get("time_seconds"),
+            "recommendation": recommendation.get("recommendation", ""),
+            "estimated_minutes": recommendation["estimated_minutes"],
+            "estimated_seconds": recommendation.get("estimated_seconds"),
             "display": self._t(
                 "{name} ({minutes} min)",
-                name=rec.get("display_name", rec["name"]),
-                minutes=rec["estimated_minutes"],
+                name=display_name,
+                minutes=recommendation["estimated_minutes"],
             ),
         }
         self.rec_plan.append(plan_item)
         self._refresh_recommendation_view()
-        self._set_rec_status(self._t("Added {name} to plan.", name=rec.get("display_name", name)))
+        self._set_rec_status(
+            self._t(
+                "Added {name} to plan.",
+                name=display_name,
+            )
+        )
         # Remove from recommendations list when selected.
         self.rec_recommendations = [r for r in self.rec_recommendations if r["name"] != name]
         self._recommend_screen().ids.rec_list.data = self.rec_recommendations
@@ -5236,7 +5549,16 @@ class RootWidget(BoxLayout):
         rv.refresh_from_data()
 
     def update_plan_item_weight(self, name: str, value_text: str, unit_text: str) -> None:
-        """Update the stored weight for a planned exercise."""
+        """Update the stored weight for a planned exercise.
+
+        Args:
+            name (str): Canonical exercise name in the plan.
+            value_text (str): Weight value text from the input.
+            unit_text (str): Weight unit text (normalized to kg).
+
+        Returns:
+            None: Updates the stored weight value.
+        """
         # Persist user edits without disturbing plan order.
         item = next((entry for entry in self.rec_plan if entry.get("name") == name), None)
         if not item or not item.get("supports_weight"):
@@ -5283,7 +5605,15 @@ class RootWidget(BoxLayout):
             self._validate_plan_time()
 
     def move_plan_item(self, name: str, direction: int) -> None:
-        """Move a plan item up or down by one position."""
+        """Move a plan item up or down by one position.
+
+        Args:
+            name (str): Canonical exercise name to move.
+            direction (int): Step direction (-1 for up, 1 for down).
+
+        Returns:
+            None: Updates the plan order when possible.
+        """
         # Reorder in-place and refresh the view.
         for idx, item in enumerate(self.rec_plan):
             if item["name"] == name:
@@ -5295,7 +5625,14 @@ class RootWidget(BoxLayout):
                 return
 
     def remove_plan_item(self, name: str) -> None:
-        """Remove a plan item and optionally restore it to recommendations."""
+        """Remove a plan item and optionally restore it to recommendations.
+
+        Args:
+            name (str): Canonical exercise name to remove.
+
+        Returns:
+            None: Updates plan and recommendation lists.
+        """
         # Keep recommendation list consistent with the current goal.
         self.rec_plan = [item for item in self.rec_plan if item["name"] != name]
         self._set_rec_status(self._t("Removed {name} from plan.", name=self._display_exercise_name(name)))
@@ -5355,12 +5692,26 @@ class RootWidget(BoxLayout):
             self._set_rec_status(self._t("Plan cleared."))
 
     def clear_recommendation_plan(self) -> None:
-        """Clear the plan via the public action."""
+        """Clear the plan via the public action.
+
+        Args:
+            None.
+
+        Returns:
+            None: Clears the plan and updates the UI.
+        """
         # Provide a user-facing wrapper around _reset_plan.
         self._reset_plan(silent=False)
 
     def on_rec_max_time_change(self, value: str) -> None:
-        """Update max time input and refresh plan timing feedback."""
+        """Update max time input and refresh plan timing feedback.
+
+        Args:
+            value (str): New max time value from the input field.
+
+        Returns:
+            None: Updates the max time and validation feedback.
+        """
         # Keep the display and validation in sync with user edits.
         self.rec_max_minutes_text = value.strip()
         self._validate_plan_time()
@@ -5419,7 +5770,14 @@ class RootWidget(BoxLayout):
         return False
 
     def handle_start_training(self) -> None:
-        """Start live mode using the current plan."""
+        """Start live mode using the current plan.
+
+        Args:
+            None.
+
+        Returns:
+            None: Builds the session plan and enters live mode.
+        """
         # Validate plan and build the session exercise list.
         if not self._require_user():
             return
@@ -5540,7 +5898,14 @@ class RootWidget(BoxLayout):
         self.add_icon_source = ""
 
     def handle_add_exercise(self) -> None:
-        """Validate and insert a new exercise into the database."""
+        """Validate and insert a new exercise into the database.
+
+        Args:
+            None.
+
+        Returns:
+            None: Saves the new exercise and updates UI state.
+        """
         # Enforce required fields and numeric constraints.
         ids = self._add_screen().ids
         name = ids.name_input.text.strip()
@@ -5635,21 +6000,42 @@ class RootWidget(BoxLayout):
         self._reset_form()
 
     def go_home(self) -> None:
-        """Navigate to the home screen after user validation."""
+        """Navigate to the home screen after user validation.
+
+        Args:
+            None.
+
+        Returns:
+            None: Changes the current screen when allowed.
+        """
         # Require a current user to access app content.
         if not self._require_user():
             return
         self.ids.screen_manager.current = "home"
 
     def go_browse(self) -> None:
-        """Navigate to the browse screen after user validation."""
+        """Navigate to the browse screen after user validation.
+
+        Args:
+            None.
+
+        Returns:
+            None: Changes the current screen when allowed.
+        """
         # Require a current user to access app content.
         if not self._require_user():
             return
         self.ids.screen_manager.current = "browse"
 
     def go_add(self) -> None:
-        """Navigate to the add exercise screen after user validation."""
+        """Navigate to the add exercise screen after user validation.
+
+        Args:
+            None.
+
+        Returns:
+            None: Changes the current screen and preselects defaults.
+        """
         # Preselect a goal for the add form.
         if not self._require_user():
             return
@@ -5659,7 +6045,14 @@ class RootWidget(BoxLayout):
         self.ids.screen_manager.current = "add"
 
     def go_register(self) -> None:
-        """Navigate to the register screen and reset inputs."""
+        """Navigate to the register screen and reset inputs.
+
+        Args:
+            None.
+
+        Returns:
+            None: Changes the current screen and clears the form.
+        """
         # Clear previous form values before showing the screen.
         try:
             ids = self._register_screen().ids
@@ -5679,12 +6072,26 @@ class RootWidget(BoxLayout):
         self.ids.screen_manager.current = "register"
 
     def go_users(self) -> None:
-        """Navigate to the user selection screen."""
+        """Navigate to the user selection screen.
+
+        Args:
+            None.
+
+        Returns:
+            None: Changes the current screen.
+        """
         # No validation needed to view user options.
         self.ids.screen_manager.current = "user"
 
     def go_history(self) -> None:
-        """Navigate to the history screen after user validation."""
+        """Navigate to the history screen after user validation.
+
+        Args:
+            None.
+
+        Returns:
+            None: Changes the screen and refreshes history.
+        """
         # Refresh history data on entry.
         if not self._require_user():
             return
@@ -5693,7 +6100,14 @@ class RootWidget(BoxLayout):
         self._load_history()
 
     def go_recommend(self) -> None:
-        """Navigate to the recommendation screen after user validation."""
+        """Navigate to the recommendation screen after user validation.
+
+        Args:
+            None.
+
+        Returns:
+            None: Changes the screen and refreshes recommendations.
+        """
         # Keep spinners and lists in sync with stored state.
         if not self._require_user():
             return
@@ -5727,7 +6141,14 @@ class RootWidget(BoxLayout):
         modal.open()
 
     def prompt_end_live_session(self) -> None:
-        """Ask for confirmation before ending the live workout."""
+        """Ask for confirmation before ending the live workout.
+
+        Args:
+            None.
+
+        Returns:
+            None: Opens a confirmation modal.
+        """
         self._open_confirm_action(
             self._t("End the workout now?"),
             self._t("End workout"),
@@ -5735,7 +6156,14 @@ class RootWidget(BoxLayout):
         )
 
     def prompt_go_recommend(self) -> None:
-        """Ask for confirmation before returning to the plan."""
+        """Ask for confirmation before returning to the plan.
+
+        Args:
+            None.
+
+        Returns:
+            None: Opens a confirmation modal.
+        """
         self._open_confirm_action(
             self._t("Return to the plan screen?"),
             self._t("Back to plan"),
@@ -5743,14 +6171,28 @@ class RootWidget(BoxLayout):
         )
 
     def confirm_action_modal_ok(self) -> None:
-        """Run the stored confirmation action if set."""
+        """Run the stored confirmation action if set.
+
+        Args:
+            None.
+
+        Returns:
+            None: Executes the stored callback if present.
+        """
         callback = self._confirm_action_callback
         self._confirm_action_callback = None
         if callback:
             callback()
 
     def confirm_action_modal_cancel(self) -> None:
-        """Clear the stored confirmation action without running it."""
+        """Clear the stored confirmation action without running it.
+
+        Args:
+            None.
+
+        Returns:
+            None: Clears the stored confirmation callback.
+        """
         self._confirm_action_callback = None
 
     def _clear_confirm_action_callback(self) -> None:
@@ -5758,7 +6200,14 @@ class RootWidget(BoxLayout):
         self._confirm_action_callback = None
 
     def go_live(self) -> None:
-        """Navigate to the live workout screen if active."""
+        """Navigate to the live workout screen if active.
+
+        Args:
+            None.
+
+        Returns:
+            None: Changes the current screen when a session is active.
+        """
         # Guard against starting live without a plan.
         if not self.live_active:
             self._set_rec_status(self._t("Start a session from Recommend first."), error=True)
@@ -5769,7 +6218,14 @@ class RootWidget(BoxLayout):
             pass
 
     def go_summary(self) -> None:
-        """Navigate to the workout summary screen."""
+        """Navigate to the workout summary screen.
+
+        Args:
+            None.
+
+        Returns:
+            None: Changes the current screen.
+        """
         # Used after a live session ends.
         try:
             self.ids.screen_manager.current = "summary"
@@ -5777,7 +6233,14 @@ class RootWidget(BoxLayout):
             pass
 
     def start_new_session(self) -> None:
-        """Reset live state and return to recommendations."""
+        """Reset live state and return to recommendations.
+
+        Args:
+            None.
+
+        Returns:
+            None: Resets session flags and navigates to recommendations.
+        """
         # Ensure live state is cleared for a fresh session.
         self.live_active = False
         self.live_paused = False
@@ -5897,12 +6360,26 @@ class RootWidget(BoxLayout):
         self.live_upcoming_display = ", ".join(upcoming) if upcoming else self._none_label
 
     def toggle_live_details(self) -> None:
-        """Toggle the live exercise detail expansion."""
+        """Toggle the live exercise detail expansion.
+
+        Args:
+            None.
+
+        Returns:
+            None: Updates the expanded detail state.
+        """
         # Flip the detail pane visibility flag.
         self.live_details_expanded = not self.live_details_expanded
 
     def set_live_rest_seconds(self, value: str) -> None:
-        """Allow the user to choose break length while keeping a sane minimum."""
+        """Allow the user to choose break length while keeping a sane minimum.
+
+        Args:
+            value (str): New rest duration value from the input.
+
+        Returns:
+            None: Updates rest timing state and UI feedback.
+        """
         # Validate input and keep timers in sync when changed mid-session.
         raw = (value or "").strip()
         if not raw:
@@ -5932,7 +6409,14 @@ class RootWidget(BoxLayout):
         self._recalculate_recommendation_times()
 
     def set_live_weight_value(self, value: str) -> None:
-        """Update the current live exercise weight value."""
+        """Update the current live exercise weight value.
+
+        Args:
+            value (str): Weight value text from the input.
+
+        Returns:
+            None: Updates the active exercise weight value.
+        """
         # Store parsed values on the active exercise dictionary.
         exercise = self._current_live_exercise()
         if not exercise or not exercise.get("supports_weight"):
@@ -5954,7 +6438,14 @@ class RootWidget(BoxLayout):
         self._update_live_labels()
 
     def set_live_weight_unit(self, unit: str) -> None:
-        """Update the current live exercise weight unit."""
+        """Update the current live exercise weight unit.
+
+        Args:
+            unit (str): Weight unit label (normalized to kg).
+
+        Returns:
+            None: Updates the active exercise weight unit.
+        """
         # Normalize units and store on the active exercise.
         exercise = self._current_live_exercise()
         if not exercise or not exercise.get("supports_weight"):
@@ -5964,7 +6455,14 @@ class RootWidget(BoxLayout):
         self._update_live_labels()
 
     def start_live_workout(self) -> None:
-        """Start the live workout timers and state."""
+        """Start the live workout timers and state.
+
+        Args:
+            None.
+
+        Returns:
+            None: Initializes timers and starts the live clock.
+        """
         # Initialize session timing state and start the clock.
         if not self.live_active or self.live_started:
             return
@@ -6429,28 +6927,56 @@ class RootWidget(BoxLayout):
         self._flash_signal(self._t("Starting {name}", name=self.live_exercise_title), color=(0.16, 0.32, 0.6, 1))
 
     def skip_current_exercise(self) -> None:
-        """Skip the current exercise and enter rest."""
+        """Skip the current exercise and enter rest.
+
+        Args:
+            None.
+
+        Returns:
+            None: Marks the exercise as skipped and advances.
+        """
         # Use the between-exercise rest flow.
         if not self.live_active or not self.live_started:
             return
         self._start_between_exercise_rest(skipped=True)
 
     def manual_next_exercise(self) -> None:
-        """Manually finish the exercise and move to rest."""
+        """Manually finish the exercise and move to rest.
+
+        Args:
+            None.
+
+        Returns:
+            None: Marks the exercise as completed and advances.
+        """
         # Use the between-exercise rest flow.
         if not self.live_active or not self.live_started:
             return
         self._start_between_exercise_rest(skipped=False)
 
     def manual_complete_set(self) -> None:
-        """Manually complete the current set."""
+        """Manually complete the current set.
+
+        Args:
+            None.
+
+        Returns:
+            None: Advances to rest or the next exercise.
+        """
         # Ignore if already resting.
         if not self.live_active or not self.live_started or self._live_phase in ("rest", "between_exercises"):
             return
         self._complete_current_set(auto=False)
 
     def toggle_live_pause(self) -> None:
-        """Pause or resume the live timers."""
+        """Pause or resume the live timers.
+
+        Args:
+            None.
+
+        Returns:
+            None: Toggles the live pause state.
+        """
         # Switch between paused and active states.
         if not self.live_active or not self.live_started:
             return
@@ -6468,7 +6994,14 @@ class RootWidget(BoxLayout):
             self._set_hint(self._t("Resumed."), color=(0.18, 0.4, 0.2, 1))
 
     def end_live_session(self, *, early: bool = False) -> None:
-        """End the live session, summarize, and log results."""
+        """End the live session, summarize, and log results.
+
+        Args:
+            early (bool): Whether the session ended before completion.
+
+        Returns:
+            None: Logs results and navigates to the summary screen.
+        """
         # Finalize timing, attempts, and UI state.
         if not self.live_active:
             return
@@ -6631,17 +7164,32 @@ class RootWidget(BoxLayout):
 
 
 class ExerciseApp(App):
-    """Kivy application entry point."""
-    # Initializes database and builds the root widget.
+    """Kivy application entry point for FitTrainer."""
     language = StringProperty(localization.DEFAULT_LANGUAGE)
 
     def tr(self, text: str, lang: Optional[str] = None, **kwargs: Any) -> str:
-        """Translate UI text based on the active language."""
+        """Translate UI text based on the active language.
+
+        Args:
+            text (str): English source string to translate.
+            lang (str | None): Optional language override.
+            **kwargs (Any): Placeholder values for formatting.
+
+        Returns:
+            str: Localized and formatted string.
+        """
         active = lang or self.language or localization.DEFAULT_LANGUAGE
         return localization.translate(text, active, **kwargs)
 
     def build(self):
-        """Construct the Kivy root widget and load KV rules."""
+        """Construct the Kivy root widget and load KV rules.
+
+        Args:
+            None.
+
+        Returns:
+            RootWidget: Initialized root widget for the app.
+        """
         # Ensure database schema exists before UI uses it.
         exercise_database.initialize_database()
         Builder.load_string(KV)

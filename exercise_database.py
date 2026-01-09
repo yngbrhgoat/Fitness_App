@@ -20,7 +20,16 @@ EXAMPLE_USERNAME = "exaple-user"
 EXAMPLE_DISPLAY_NAME = "Example User"
 EXAMPLE_PREFERRED_GOAL = "muscle_building"
 
-_TAG_DESCRIPTOR_WORDS = {"focus", "emphasis", "target", "targeting", "optional", "mainly", "primary", "secondary"}
+_TAG_DESCRIPTOR_WORDS = {
+    "focus",
+    "emphasis",
+    "target",
+    "targeting",
+    "optional",
+    "mainly",
+    "primary",
+    "secondary",
+}
 _EQUIPMENT_ALIASES = {
     "barbell": ["Barbell"],
     "plates": ["Barbell"],
@@ -54,7 +63,14 @@ _MUSCLE_ALIASES = {
     "calves": ["Calves", "Legs"],
     "full body": ["Full Body"],
 }
-_WEIGHT_EQUIPMENT = {"Barbell", "Dumbbell", "Machine", "Kettlebell", "Bands", "Medicine Ball"}
+_WEIGHT_EQUIPMENT = {
+    "Barbell",
+    "Dumbbell",
+    "Machine",
+    "Kettlebell",
+    "Bands",
+    "Medicine Ball",
+}
 
 
 def _normalize_tag_key(value: str) -> str:
@@ -113,12 +129,27 @@ def _normalize_weight_unit(value: Optional[str]) -> Optional[str]:
 
 
 def normalize_weight_unit(value: Optional[str]) -> Optional[str]:
-    """Public wrapper for weight unit normalization."""
+    """Normalize a weight unit to the canonical ``kg`` label.
+
+    Args:
+        value (str | None): Raw weight unit string to normalize.
+
+    Returns:
+        str | None: ``"kg"`` when recognized, otherwise ``None``.
+    """
     return _normalize_weight_unit(value)
 
 
 def infer_supports_weight(required_equipment: Iterable[str] | str | None) -> bool:
-    """Determine whether an exercise supports external load based on equipment."""
+    """Determine whether equipment implies external load support.
+
+    Args:
+        required_equipment (Iterable[str] | str | None): Equipment tags to
+            inspect.
+
+    Returns:
+        bool: ``True`` when equipment suggests external weights are used.
+    """
     equipment_items = normalize_equipment_list(required_equipment or "")
     return bool(set(equipment_items) & _WEIGHT_EQUIPMENT)
 
@@ -137,13 +168,27 @@ def _dedupe_preserve_order(items: Iterable[str]) -> list[str]:
 
 
 def format_tag_list(items: Sequence[str]) -> str:
-    """Join non-empty tags with commas."""
+    """Join non-empty tags into a comma-separated string.
+
+    Args:
+        items (Sequence[str]): Tags to format.
+
+    Returns:
+        str: Comma-separated list with empty items removed.
+    """
     # Filter out falsy items for clean display.
     return ", ".join([item for item in items if item])
 
 
 def normalize_equipment_list(value: Iterable[str] | str) -> list[str]:
-    """Normalize equipment labels into canonical display values."""
+    """Normalize equipment labels into canonical display values.
+
+    Args:
+        value (Iterable[str] | str): Raw equipment labels or tags.
+
+    Returns:
+        list[str]: Canonicalized, de-duplicated equipment labels.
+    """
     # Map known aliases and title-case unknown entries.
     items: list[str] = []
     for token in _flatten_tag_input(value):
@@ -159,7 +204,14 @@ def normalize_equipment_list(value: Iterable[str] | str) -> list[str]:
 
 
 def normalize_muscle_group_list(value: Iterable[str] | str) -> list[str]:
-    """Normalize muscle group labels into canonical display values."""
+    """Normalize muscle group labels into canonical display values.
+
+    Args:
+        value (Iterable[str] | str): Raw muscle group labels or tags.
+
+    Returns:
+        list[str]: Canonicalized, de-duplicated muscle group labels.
+    """
     # Map known aliases and title-case unknown entries.
     items: list[str] = []
     for token in _flatten_tag_input(value):
@@ -175,7 +227,14 @@ def normalize_muscle_group_list(value: Iterable[str] | str) -> list[str]:
 
 
 def get_connection(db_path: Path = DB_PATH) -> sqlite3.Connection:
-    """Create a connection with foreign keys enabled."""
+    """Create a SQLite connection with foreign keys enabled.
+
+    Args:
+        db_path (Path): Location of the SQLite database file.
+
+    Returns:
+        sqlite3.Connection: Connection configured with foreign key support.
+    """
     # Enable foreign keys on each new connection.
     conn = sqlite3.connect(db_path)
     conn.execute("PRAGMA foreign_keys = ON;")
@@ -183,7 +242,14 @@ def get_connection(db_path: Path = DB_PATH) -> sqlite3.Connection:
 
 
 def create_schema(conn: sqlite3.Connection) -> None:
-    """Create tables to store exercises and per-goal recommendations."""
+    """Create tables to store exercises and per-goal recommendations.
+
+    Args:
+        conn (sqlite3.Connection): Open connection to the database.
+
+    Returns:
+        None: Schema changes are applied in place.
+    """
     # Create tables if they do not already exist.
     conn.execute(
         """
@@ -256,7 +322,12 @@ def create_schema(conn: sqlite3.Connection) -> None:
     conn.commit()
 
 
-def _add_column_if_missing(conn: sqlite3.Connection, table: str, column: str, definition: str) -> None:
+def _add_column_if_missing(
+    conn: sqlite3.Connection,
+    table: str,
+    column: str,
+    definition: str,
+) -> None:
     """Add a column only when it is absent to support simple migrations."""
     # Inspect table columns and append missing fields.
     columns = {row[1] for row in conn.execute(f"PRAGMA table_info({table});")}
@@ -265,7 +336,14 @@ def _add_column_if_missing(conn: sqlite3.Connection, table: str, column: str, de
 
 
 def migrate_schema(conn: sqlite3.Connection) -> None:
-    """Ensure newer columns exist for enriched workout logging."""
+    """Apply lightweight schema upgrades for existing databases.
+
+    Args:
+        conn (sqlite3.Connection): Open connection to migrate in place.
+
+    Returns:
+        None: Updates the database schema and commits changes.
+    """
     # Apply lightweight schema upgrades for existing databases.
     _add_column_if_missing(conn, "users", "display_name", "display_name TEXT")
     _add_column_if_missing(conn, "users", "preferred_goal", "preferred_goal TEXT")
@@ -336,10 +414,16 @@ def _convert_weights_to_kg(conn: sqlite3.Connection) -> None:
 
 
 def seed_sample_data(conn: sqlite3.Connection) -> None:
-    """
-    Seed a baseline set of exercises with per-goal recommendations.
+    """Seed baseline exercises and per-goal recommendations.
 
-    Existing entries are updated with the latest descriptions/instructions; defaults are filled when missing.
+    Existing entries are updated with newer descriptions and instructions, and
+    defaults are filled when missing.
+
+    Args:
+        conn (sqlite3.Connection): Open connection for inserting seed data.
+
+    Returns:
+        None: Inserts or updates seed exercise rows.
     """
     # Preload a curated set of exercises for first-time users.
     existing_names = {row[0].strip().lower() for row in conn.execute("SELECT name FROM exercises;")}
@@ -1325,7 +1409,14 @@ def seed_sample_data(conn: sqlite3.Connection) -> None:
 
 
 def seed_example_user(conn: sqlite3.Connection) -> None:
-    """Ensure a sample user exists with a few workouts for previewing the app."""
+    """Ensure a sample user exists with example workouts for previews.
+
+    Args:
+        conn (sqlite3.Connection): Open connection for seeding sample data.
+
+    Returns:
+        None: Inserts or updates the sample user and workouts.
+    """
     # Create or update a sample profile with starter workouts.
     row = conn.execute(
         "SELECT id, display_name, preferred_goal FROM users WHERE username = ?;",
@@ -1420,7 +1511,14 @@ def seed_example_user(conn: sqlite3.Connection) -> None:
 
 
 def initialize_database(db_path: Optional[Path] = None) -> Path:
-    """Create the SQLite database file with schema and seed data."""
+    """Create the SQLite database with schema and seed data.
+
+    Args:
+        db_path (Path | None): Optional override for the database path.
+
+    Returns:
+        Path: The resolved database path that was initialized.
+    """
     # Initialize schema and sample content in a single entry point.
     target_path = db_path or DB_PATH
     with get_connection(target_path) as conn:
@@ -1432,7 +1530,14 @@ def initialize_database(db_path: Optional[Path] = None) -> Path:
 
 
 def fetch_all(conn: sqlite3.Connection) -> list[tuple]:
-    """Helper for quick manual inspection when debugging."""
+    """Fetch all exercises with goal recommendations for inspection.
+
+    Args:
+        conn (sqlite3.Connection): Open connection to query.
+
+    Returns:
+        list[tuple]: Raw rows of exercise and recommendation data.
+    """
     # Return all exercise rows with goal recommendations attached.
     return conn.execute(
         """
@@ -1467,13 +1572,31 @@ def add_exercise(
     icon: str = "",
     db_path: Path = DB_PATH,
 ) -> int:
-    """
-    Insert a new exercise and per-goal recommendations. Returns new exercise id.
+    """Insert a new exercise and per-goal recommendations.
 
-    The database constraints enforce goal membership and rating range.
-    Missing goal ratings fall back to DEFAULT_GOAL_RATING.
-    Equipment and muscle group inputs are normalized into atomic tags.
-    Weight fields are optional and ignored when supports_weight is False.
+    Args:
+        name (str): Canonical exercise name.
+        short_description (str): Short summary displayed in lists.
+        execution_instructions (str): Detailed step-by-step instructions.
+        required_equipment (Iterable[str] | str): Equipment labels or tags.
+        target_muscle_group (Iterable[str] | str): Target muscle labels or
+            tags.
+        goal (str): Primary goal code for this exercise.
+        suitability_rating (int): Base suitability rating for the primary goal.
+        goal_ratings (dict[str, int] | None): Optional per-goal ratings.
+        recommended_sets (int | None): Recommended sets for the primary goal.
+        recommended_reps_per_set (int | None): Recommended reps for the primary
+            goal.
+        recommended_time_seconds (int | None): Recommended time for the primary
+            goal.
+        supports_weight (bool | None): Explicit weight-support flag override.
+        default_weight_value (float | None): Default weight value for logging.
+        default_weight_unit (str | None): Unit for the default weight value.
+        icon (str): Optional icon key for UI display.
+        db_path (Path): Database location.
+
+    Returns:
+        int: Newly created exercise id.
     """
     # Normalize inputs and insert both exercise and goal recommendation rows.
     if goal_ratings is None:
@@ -1557,7 +1680,17 @@ def add_user(
     preferred_goal: Optional[str] = None,
     db_path: Path = DB_PATH,
 ) -> int:
-    """Register a new user and return the user id."""
+    """Register a new user profile.
+
+    Args:
+        username (str): Unique username for the profile.
+        display_name (str | None): Optional display name for UI.
+        preferred_goal (str | None): Optional preferred goal code.
+        db_path (Path): Database location.
+
+    Returns:
+        int: Newly created user id.
+    """
     # Validate inputs and insert a user row.
     username = username.strip()
     if not username:
@@ -1574,7 +1707,15 @@ def add_user(
 
 
 def fetch_users(conn: sqlite3.Connection) -> list[tuple[int, str, Optional[str], Optional[str]]]:
-    """Return a list of user ids, usernames, display names, and preferred goals."""
+    """Return user profiles ordered by username.
+
+    Args:
+        conn (sqlite3.Connection): Open connection to query.
+
+    Returns:
+        list[tuple[int, str, str | None, str | None]]: User id, username,
+        display name, and preferred goal for each row.
+    """
     # Return users in username order for stable UI display.
     return conn.execute(
         "SELECT id, username, display_name, preferred_goal FROM users ORDER BY username;"
@@ -1588,7 +1729,17 @@ def update_user_profile(
     preferred_goal: Optional[str],
     db_path: Path = DB_PATH,
 ) -> None:
-    """Update profile details for a user."""
+    """Update profile details for a user.
+
+    Args:
+        user_id (int): Database id of the user to update.
+        display_name (str | None): Updated display name value.
+        preferred_goal (str | None): Updated preferred goal code.
+        db_path (Path): Database location.
+
+    Returns:
+        None: Updates the user profile in place.
+    """
     # Update the profile fields for an existing user.
     with get_connection(db_path) as conn:
         conn.execute(
@@ -1603,7 +1754,15 @@ def update_user_profile(
 
 
 def delete_user(*, user_id: int, db_path: Path = DB_PATH) -> bool:
-    """Delete a user and cascade removal of their workouts."""
+    """Delete a user and cascade removal of their workouts.
+
+    Args:
+        user_id (int): Database id of the user to remove.
+        db_path (Path): Database location.
+
+    Returns:
+        bool: ``True`` when a user row was deleted.
+    """
     # Remove the user row and let foreign keys clean up dependent data.
     with get_connection(db_path) as conn:
         cursor = conn.execute("DELETE FROM users WHERE id = ?;", (user_id,))
@@ -1639,14 +1798,25 @@ def log_workout(
     exercise_weights: Optional[Iterable[Tuple[str, Optional[float], Optional[str]]]] = None,
     db_path: Path = DB_PATH,
 ) -> int:
-    """
-    Persist a completed workout for a user and return the workout id.
+    """Persist a completed workout session for a user.
 
-    When exercise_statuses is provided, it must contain tuples of (name, status)
-    where status is either "completed" or "skipped". If not provided, all
-    exercises are stored as completed.
-    exercise_weights, when provided, should contain tuples of
-    (name, weight_value, weight_unit) where unit is "kg".
+    Args:
+        user_id (int): Database id of the user who completed the workout.
+        performed_at (str): ISO date or datetime string for the session.
+        duration_minutes (int): Duration of the session in whole minutes.
+        exercises (Sequence[str]): Exercise names performed in the session.
+        goal (str | None): Optional goal label or code for the session.
+        duration_seconds (int | None): Optional precise duration in seconds.
+        total_sets_completed (int | None): Optional total sets completed.
+        exercise_statuses (Iterable[tuple[str, str]] | None): Optional
+            per-exercise status values of ``"completed"`` or ``"skipped"``.
+        exercise_weights (
+            Iterable[tuple[str, float | None, str | None]] | None
+        ): Optional per-exercise weight values in kilograms.
+        db_path (Path): Database location.
+
+    Returns:
+        int: Newly created workout id.
     """
     # Validate inputs and write workout plus exercise rows.
     if duration_minutes <= 0:
@@ -1772,10 +1942,16 @@ def fetch_workout_history(
     end_date: Optional[str] = None,
     db_path: Path = DB_PATH,
 ) -> list[dict[str, object]]:
-    """
-    Return workouts for a user with exercises aggregated per session.
+    """Return workouts for a user with exercises aggregated per session.
 
-    Dates are compared using SQLite's date() to respect YYYY-MM-DD strings.
+    Args:
+        user_id (int): Database id of the user.
+        start_date (str | None): Optional YYYY-MM-DD filter start date.
+        end_date (str | None): Optional YYYY-MM-DD filter end date.
+        db_path (Path): Database location.
+
+    Returns:
+        list[dict[str, object]]: Workout entries with exercise details.
     """
     # Build a query with optional date filters, then group by workout id.
     query = """
@@ -1852,7 +2028,17 @@ def fetch_workout_stats(
     end_date: Optional[str] = None,
     db_path: Path = DB_PATH,
 ) -> dict[str, object]:
-    """Aggregate stats for a user's workouts."""
+    """Aggregate summary statistics for a user's workouts.
+
+    Args:
+        user_id (int): Database id of the user.
+        start_date (str | None): Optional YYYY-MM-DD filter start date.
+        end_date (str | None): Optional YYYY-MM-DD filter end date.
+        db_path (Path): Database location.
+
+    Returns:
+        dict[str, object]: Aggregate totals and top exercise stats.
+    """
     # Compute totals and top exercise counts with optional date filters.
     stats = {
         "total_workouts": 0,
@@ -1927,10 +2113,17 @@ def fetch_recent_exercise_usage(
     limit: int = 100,
     db_path: Path = DB_PATH,
 ) -> list[tuple[str, str]]:
-    """
-    Return a list of (exercise_name, performed_at) sorted from newest to oldest.
+    """Return recent exercise usage ordered from newest to oldest.
 
-    Used to bias recommendations toward less recently performed movements.
+    Args:
+        user_id (int): Database id of the user.
+        start_date (str | None): Optional YYYY-MM-DD filter start date.
+        end_date (str | None): Optional YYYY-MM-DD filter end date.
+        limit (int): Maximum number of rows to return.
+        db_path (Path): Database location.
+
+    Returns:
+        list[tuple[str, str]]: Exercise name and performed_at timestamp pairs.
     """
     # Limit output to keep the recommendation query efficient.
     filters = ["w.user_id = ?"]

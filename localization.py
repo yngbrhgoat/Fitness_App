@@ -632,7 +632,16 @@ MONTH_NAMES = {
 
 
 def translate(text: str, lang: str = DEFAULT_LANGUAGE, **kwargs: object) -> str:
-    """Translate UI text to the requested language, formatting placeholders."""
+    """Translate UI text to the requested language and format placeholders.
+
+    Args:
+        text (str): English source string used as the lookup key.
+        lang (str): Language code to translate into.
+        **kwargs (object): Placeholder values for ``str.format`` substitution.
+
+    Returns:
+        str: Localized and formatted string.
+    """
     if lang == "en":
         template = text
     else:
@@ -644,13 +653,28 @@ def translate(text: str, lang: str = DEFAULT_LANGUAGE, **kwargs: object) -> str:
 
 
 def translate_goal(goal_code: str, lang: str = DEFAULT_LANGUAGE) -> str:
-    """Return a localized label for a goal code."""
+    """Return a localized label for a goal code.
+
+    Args:
+        goal_code (str): Canonical goal identifier.
+        lang (str): Language code to translate into.
+
+    Returns:
+        str: Localized goal label.
+    """
     entry = GOAL_LABELS.get(goal_code, {})
     return entry.get(lang) or entry.get("en") or goal_code.replace("_", " ").title()
 
 
 def goal_code_from_label(label: str) -> str | None:
-    """Return a goal code for any known localized label."""
+    """Resolve a localized goal label back to its goal code.
+
+    Args:
+        label (str): Localized goal label or code.
+
+    Returns:
+        str | None: Canonical goal code when recognized, otherwise ``None``.
+    """
     if not label:
         return None
     normalized = label.strip().lower()
@@ -664,7 +688,15 @@ def goal_code_from_label(label: str) -> str | None:
 
 
 def translate_equipment(label: str, lang: str = DEFAULT_LANGUAGE) -> str:
-    """Translate a canonical equipment label."""
+    """Translate a canonical equipment label.
+
+    Args:
+        label (str): Canonical equipment label.
+        lang (str): Language code to translate into.
+
+    Returns:
+        str: Localized equipment label.
+    """
     if lang == "en":
         return label
     entry = EQUIPMENT_LABELS.get(label, {})
@@ -672,7 +704,15 @@ def translate_equipment(label: str, lang: str = DEFAULT_LANGUAGE) -> str:
 
 
 def translate_muscle(label: str, lang: str = DEFAULT_LANGUAGE) -> str:
-    """Translate a canonical muscle group label."""
+    """Translate a canonical muscle group label.
+
+    Args:
+        label (str): Canonical muscle group label.
+        lang (str): Language code to translate into.
+
+    Returns:
+        str: Localized muscle group label.
+    """
     if lang == "en":
         return label
     entry = MUSCLE_LABELS.get(label, {})
@@ -680,7 +720,15 @@ def translate_muscle(label: str, lang: str = DEFAULT_LANGUAGE) -> str:
 
 
 def translate_exercise_name(name: str, lang: str = DEFAULT_LANGUAGE) -> str:
-    """Translate a seeded exercise name when available."""
+    """Translate a seeded exercise name when available.
+
+    Args:
+        name (str): Canonical exercise name.
+        lang (str): Language code to translate into.
+
+    Returns:
+        str: Localized exercise name.
+    """
     if lang == "en":
         return name
     entry = EXERCISE_TRANSLATIONS.get(name)
@@ -690,7 +738,16 @@ def translate_exercise_name(name: str, lang: str = DEFAULT_LANGUAGE) -> str:
 
 
 def translate_exercise_description(name: str, description: str, lang: str = DEFAULT_LANGUAGE) -> str:
-    """Translate a seeded exercise description when available."""
+    """Translate a seeded exercise description when available.
+
+    Args:
+        name (str): Canonical exercise name.
+        description (str): English description text.
+        lang (str): Language code to translate into.
+
+    Returns:
+        str: Localized description text.
+    """
     if lang == "en":
         return description
     entry = EXERCISE_TRANSLATIONS.get(name)
@@ -700,7 +757,16 @@ def translate_exercise_description(name: str, description: str, lang: str = DEFA
 
 
 def translate_exercise_instructions(name: str, instructions: str, lang: str = DEFAULT_LANGUAGE) -> str:
-    """Translate a seeded exercise instruction block when available."""
+    """Translate a seeded exercise instruction block when available.
+
+    Args:
+        name (str): Canonical exercise name.
+        instructions (str): English instruction text.
+        lang (str): Language code to translate into.
+
+    Returns:
+        str: Localized instruction text.
+    """
     if lang == "en":
         return instructions
     entry = EXERCISE_TRANSLATIONS.get(name)
@@ -710,12 +776,28 @@ def translate_exercise_instructions(name: str, instructions: str, lang: str = DE
 
 
 def weekday_labels(lang: str = DEFAULT_LANGUAGE) -> list[str]:
-    """Return weekday labels for the calendar."""
+    """Return weekday labels for the calendar UI.
+
+    Args:
+        lang (str): Language code to translate into.
+
+    Returns:
+        list[str]: Weekday labels in display order.
+    """
     return list(WEEKDAY_LABELS.get(lang, WEEKDAY_LABELS["en"]))
 
 
 def format_month_year(year: int, month: int, lang: str = DEFAULT_LANGUAGE) -> str:
-    """Return a localized month+year label."""
+    """Return a localized month and year label.
+
+    Args:
+        year (int): Year to display.
+        month (int): Month number (1-12).
+        lang (str): Language code to translate into.
+
+    Returns:
+        str: Localized month-year string.
+    """
     names = MONTH_NAMES.get(lang, MONTH_NAMES["en"])
     month_name = names[month - 1] if 1 <= month <= 12 else str(month)
     return f"{month_name} {year}"
