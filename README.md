@@ -1,151 +1,59 @@
-# FitTrainer – Kivy Desktop Trainings-App
+# FitTrainer - Deine Trainingsbegleitung am Desktop
 
-FitTrainer ist eine Python-Desktop-Anwendung (Kivy), mit der Benutzer geführte Trainings
-durchführen können – inklusive:
+FitTrainer ist eine einfach zu bedienende Desktop-App, die dich von der Trainingsplanung
+bis zum Abschluss einer Einheit begleitet. Du bekommst passende Vorschlaege, kannst dein
+Workout frei anpassen und siehst am Ende eine klare Zusammenfassung.
 
-- **Übungsdatenbank** mit Filtern
-- **Benutzerverwaltung** und Trainingshistorie
-- **Empfehlungssystem** basierend auf Ziel & Verfügbarkeit
-- **Live-Modus** mit Timern, Pausen und Tempo-Anleitung
+## Was du damit machen kannst
 
-Die Anwendung ist als Python-Paket installierbar und speichert alle Daten lokal (SQLite).
+- Uebungen durchsuchen und nach Ziel, Muskelgruppe oder Ausruestung filtern
+- Trainingsempfehlungen erhalten, die zu deinem Ziel und deiner Zeit passen
+- Im Live-Modus trainieren: Timer, Pausen und Tempo-Hinweise inklusive
+- Deinen Trainingsverlauf ansehen und Fortschritte nachvollziehen
 
----
+## So laeuft eine Einheit ab
 
-## 🧱 Hauptfunktionen (Überblick)
+1. Benutzername waehlen (damit dein Verlauf gespeichert wird)
+2. Ziel und Trainingszeit angeben
+3. Vorschlaege pruefen, Uebungen auswaehlen und Reihenfolge anpassen
+4. Training starten und Schritt fuer Schritt durchfuehren
+5. Zusammenfassung am Ende speichern
 
-Die wichtigsten Funktionsbereiche im Abgleich mit den Anforderungen:
+## Workout erstellen (Schritt fuer Schritt)
 
-### 1. Übungsdatenbank
+1. Im Hauptmenue auf "Trainingsempfehlung" gehen
+2. Ziel auswaehlen (z. B. Muskelaufbau oder Ausdauer) und die Wunschdauer angeben
+3. Vorschlaege ansehen und Uebungen nach Bedarf hinzufuegen/entfernen
+4. Reihenfolge anpassen, damit das Workout zu dir passt
+5. Mit "Start" in den Live-Modus wechseln
 
-- Verwaltung einer lokalen Übungsdatenbank mit:
-  - Name
-  - Icon
-  - Beschreibung
-  - Benötigte Ausrüstung (z. B. „Hantel“, „keine“)
-  - Ziel-Muskelgruppe (Brust, Rücken, Beine, Schultern, Arme, Core, Ganzkörper, …)
-  - Für jedes Ziel:
-    - Eignungsbewertung (0–10)
-    - Empfohlene Sätze
-    - Empfohlene Wiederholungen
-    - Empfohlene Zeit (Sekunden)
-- Übungsbrowser mit Filterung nach:
-  - Ziel (Muskelaufbau, Gewichtsverlust, Kraftsteigerung, Ausdauersteigerung)
-  - Muskelgruppe
-  - Ausrüstung
-- Detailansicht mit allen Parametern
-- Formular zum Hinzufügen neuer Übungen
-- Mindestens 15 vorinstallierte Übungen, die verschiedene Muskelgruppen abdecken
+## Live-Modus bedienen
 
-### 2. Benutzerverwaltung & Historie
+- Die App fuehrt dich automatisch durch die Uebungen in der festgelegten Reihenfolge
+- Timer und Pausen zeigen dir, wann es weitergeht
+- Du kannst eine Uebung ueberspringen oder das Training pausieren/fortsetzen
+- Am Ende bekommst du eine Zusammenfassung und der Verlauf wird gespeichert
 
-- Anmeldung durch Eingabe eines **Benutzernamens**
-- Pro Benutzer werden gespeichert:
-  - Benutzername
-  - Vollständige Trainingshistorie (alle Einheiten)
-- Trainingshistorie-Ansicht:
-  - Datum der Einheit
-  - Liste der Übungen
-  - Dauer der Einheit
-- Filterung der Historie nach Datumsbereich
-- Zusammenfassende Statistiken:
-  - Gesamtanzahl der Trainingseinheiten
-  - Gesamttrainingszeit
-  - Am häufigsten durchgeführte Übungen
+## Daten & Datenschutz
 
-### 3. Trainings-Empfehlungssystem
+- Alles bleibt lokal auf deinem Rechner
+- Die Uebungs- und Trainingsdaten werden in einer SQLite-Datei gespeichert
 
-- Benutzer wählt:
-  - Ziel: `Muskelaufbau`, `Gewichtsverlust`, `Kraftsteigerung`, `Ausdauersteigerung`
-  - Gewünschte Trainingszeit (Minuten)
-- Alle passenden Übungen werden bewertet anhand:
-  - Eignungsbewertung (0–10)
-  - Neuheit (nicht kürzlich ausgeführte Übungen werden bevorzugt)
-- Kombinierter Empfehlungs-Score
-- Ausgabe: sortierte Liste empfohlener Übungen
-- Benutzer wählt Übungen für die Session aus, kann:
-  - Übungen hinzufügen/entfernen
-  - Reihenfolge frei ändern
-- Berechnung der geschätzten Gesamttrainingszeit
-- Sicherstellung, dass die geschätzte Zeit die gewünschte Zeit **nicht wesentlich** über/-unterschreitet
-- Start-Schaltfläche zum Übergang in den Live-Modus
+## Technik (kurz)
 
-### 4. Live-Modus
+- Programmiert in Python
+- Benutzeroberflaeche mit Kivy
+- Lokale Speicherung mit SQLite
+- Tests mit pytest (fuer die Entwicklung)
 
-- Zeigt nacheinander alle ausgewählten Übungen in der vorgegebenen Reihenfolge
-- Für jede Übung werden angezeigt:
-  - Name
-  - Icon (falls vorhanden)
-  - Anvisierte Muskelgruppe(n)
-  - Benötigte Ausrüstung
-  - Empfohlene Sätze und Wiederholungen
-  - Timer (verstrichene Zeit je Übung)
-  - Aktueller Satz
-  - Aktuelle Wiederholungsanweisung
-- Funktionen:
-  - Automatisches Fortschreiten zum nächsten Satz (nach Ablauf Pause / Zeit)
-  - Manuelles Fortschreiten zur nächsten Übung
-  - Pause / Fortsetzen des Trainings
-  - Aktuelle Übung überspringen
-  - Training vorzeitig beenden
-- Pausen-Timer zwischen Sätzen
-- Akustische oder visuelle Hinweise bei:
-  - Satzwechsel
-  - Übungswechsel
-- Anzeige des Gesamtfortschritts (z. B. „Übung 3 / 7“)
-- Tempo-Anleitung:
-  - Basierend auf empfohlener Zeit und Wiederholungen
-  - z. B. „Du solltest jetzt bei Wiederholung 8 sein“
+## Schnellstart
 
-### 5. Trainingsabschluss & Protokollierung
+Voraussetzungen: Python 3.10 oder neuer.
 
-- Zusammenfassung nach dem Training:
-  - Gesamtdauer
-  - Abgeschlossene Übungen
-  - Übersprungene Übungen oder in der Mitte abgebrochen
-  - Gesamtzahl der abgeschlossenen Sätze
-- Speicherung in der Benutzerhistorie:
-  - Datum/Uhrzeit
-  - Ziel, das für die Empfehlung gewählt wurde
-  - Alle versuchten Übungen
-  - Markierung: abgeschlossen vs. übersprungen
-  - Gesamtdauer der Einheit
-- Option:
-  - Zurück zum Hauptmenü
-  - Neue Trainingseinheit starten
+```bash
+python -m pip install .
+python main.py
+```
 
-### 6. Benutzeroberfläche
-
-- Hauptmenü mit Zugriff auf:
-  - Übungen durchsuchen
-  - Trainingsempfehlung
-  - Trainingshistorie
-  - Benutzerwahl/-anmeldung
-- Alle Formulare mit Eingabevalidierung und verständlichen Fehlermeldungen
-- Live-Modus im Vollbild/maximierten Fenster
-- Konsistentes UI-Design, umgesetzt mit **Kivy-Widgets**
-
----
-
-## 🧰 Technischer Überblick
-
-- Programmiersprache: **Python 3.10+**
-- GUI-Framework: **Kivy**
-- Datenbank: **SQLite** (lokale Datei)
-- Tests: **pytest** (oder `unittest`, je nach Umsetzung)
-- Paketierung: **pyproject.toml** mit `setuptools` oder `hatchling` als Build-Backend
-
----
-
-## 📦 Installation
-
-> Voraussetzungen:
-> - Python **3.10 oder höher**
-> - `pip` installiert
-> - Optional: virtuelles Environment wird empfohlen
-
-1. Repository klonen oder Projektordner herunterladen:
-
-   ```bash
-   git clone <DEIN-REPO-URL> fittrainer
-   cd fittrainer
+Wenn du die App nur ausprobieren willst, reicht es, das Projekt zu entpacken und
+`python main.py` auszufuehren.

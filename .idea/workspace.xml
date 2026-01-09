@@ -1,15 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="0314f889-1c24-4d0f-8172-0c21a925c2b1" name="Changes" comment="Löschen von Usern und keine Workouts in der Zukunft als gemacht eintragen (verbessert)">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/exercise_database.py" beforeDir="false" afterPath="$PROJECT_DIR$/exercise_database.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/localization.py" beforeDir="false" afterPath="$PROJECT_DIR$/localization.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/conftest.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/conftest.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_history_stats.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_history_stats.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_live_metrics.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_live_metrics.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_recommendation_logic.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_recommendation_logic.py" afterDir="false" />
+    <list default="true" id="0314f889-1c24-4d0f-8172-0c21a925c2b1" name="Changes" comment="Lizenz gelöscht">
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -66,14 +59,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1765371051584</updated>
-    </task>
-    <task id="LOCAL-00001" summary="Ein erster Test">
-      <option name="closed" value="true" />
-      <created>1765372513806</created>
-      <option name="number" value="00001" />
-      <option name="presentableId" value="LOCAL-00001" />
-      <option name="project" value="LOCAL" />
-      <updated>1765372513806</updated>
     </task>
     <task id="LOCAL-00002" summary="Ein erster Test">
       <option name="closed" value="true" />
@@ -451,7 +436,23 @@
       <option name="project" value="LOCAL" />
       <updated>1767799980426</updated>
     </task>
-    <option name="localTasksCounter" value="49" />
+    <task id="LOCAL-00049" summary="Verbesserung der Dokumentation">
+      <option name="closed" value="true" />
+      <created>1767961551333</created>
+      <option name="number" value="00049" />
+      <option name="presentableId" value="LOCAL-00049" />
+      <option name="project" value="LOCAL" />
+      <updated>1767961551333</updated>
+    </task>
+    <task id="LOCAL-00050" summary="Lizenz gelöscht">
+      <option name="closed" value="true" />
+      <created>1767961731557</created>
+      <option name="number" value="00050" />
+      <option name="presentableId" value="LOCAL-00050" />
+      <option name="project" value="LOCAL" />
+      <updated>1767961731558</updated>
+    </task>
+    <option name="localTasksCounter" value="51" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -466,8 +467,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="einführen des Live-Modus" />
-    <MESSAGE value="Verbesserung der UI" />
     <MESSAGE value="Hinzufügen von Trainingsabschluss &amp; Protokollierung (Punkt 5)" />
     <MESSAGE value="Verbessrung aus dem Review" />
     <MESSAGE value="Hinzufügen von Unit-Tests" />
@@ -491,7 +490,9 @@
     <MESSAGE value="Visuelle Signale im Live-Mode hinzugefügt" />
     <MESSAGE value="Löschen von Usern und keine Workouts in der Zukunft als gemacht eintragen" />
     <MESSAGE value="Löschen von Usern und keine Workouts in der Zukunft als gemacht eintragen (verbessert)" />
-    <option name="LAST_COMMIT_MESSAGE" value="Löschen von Usern und keine Workouts in der Zukunft als gemacht eintragen (verbessert)" />
+    <MESSAGE value="Verbesserung der Dokumentation" />
+    <MESSAGE value="Lizenz gelöscht" />
+    <option name="LAST_COMMIT_MESSAGE" value="Lizenz gelöscht" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
