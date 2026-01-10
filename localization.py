@@ -212,6 +212,7 @@ TRANSLATIONS = {
     "Profile saved.": "Profil gespeichert.",
     "User '{username}' selected.": "Benutzer '{username}' ausgewählt.",
     "Unknown exercises: {names}": "Unbekannte Übungen: {names}",
+    "Duplicate exercises: {names}": "Doppelte Übungen: {names}",
     "Date is required (YYYY-MM-DD).": "Datum ist erforderlich (YYYY-MM-DD).",
     "Use YYYY-MM-DD format.": "Bitte das Format YYYY-MM-DD verwenden.",
     "Workout date cannot be in the future.": "Trainingsdatum darf nicht in der Zukunft liegen.",

@@ -117,3 +117,56 @@ def test_fetch_workout_stats_totals_and_top_exercise(db_path) -> None:
     assert stats["total_minutes"] == 60
     assert stats["top_exercise"] == "Push-Up"
     assert stats["top_exercise_count"] == 2
+
+
+def test_fetch_workout_stats_excludes_skipped_from_top_exercise(db_path) -> None:
+    """Ensure skipped exercises are excluded from top exercise stats."""
+    user_id = exercise_database.add_user("stats-user-skipped", db_path=db_path)
+    exercise_database.log_workout(
+        user_id=user_id,
+        performed_at="2024-01-05",
+        duration_minutes=20,
+        exercises=["Push-Up", "Squat"],
+        goal="Strength",
+        exercise_statuses=[("Push-Up", "completed"), ("Squat", "skipped")],
+        db_path=db_path,
+    )
+    exercise_database.log_workout(
+        user_id=user_id,
+        performed_at="2024-01-10",
+        duration_minutes=15,
+        exercises=["Squat"],
+        goal="Strength",
+        exercise_statuses=[("Squat", "skipped")],
+        db_path=db_path,
+    )
+    exercise_database.log_workout(
+        user_id=user_id,
+        performed_at="2024-01-20",
+        duration_minutes=25,
+        exercises=["Push-Up"],
+        goal="Strength",
+        exercise_statuses=[("Push-Up", "completed")],
+        db_path=db_path,
+    )
+    stats = exercise_database.fetch_workout_stats(user_id, db_path=db_path)
+    assert stats["top_exercise"] == "Push-Up"
+    assert stats["top_exercise_count"] == 2
+
+
+def test_fetch_recent_exercise_usage_excludes_skipped(db_path) -> None:
+    """Ensure recent usage excludes skipped exercises."""
+    user_id = exercise_database.add_user("recent-user", db_path=db_path)
+    exercise_database.log_workout(
+        user_id=user_id,
+        performed_at="2024-01-05",
+        duration_minutes=20,
+        exercises=["Push-Up", "Squat"],
+        goal="Strength",
+        exercise_statuses=[("Push-Up", "completed"), ("Squat", "skipped")],
+        db_path=db_path,
+    )
+    rows = exercise_database.fetch_recent_exercise_usage(user_id, db_path=db_path)
+    names = {name for name, _ in rows}
+    assert "Push-Up" in names
+    assert "Squat" not in names

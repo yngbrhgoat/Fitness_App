@@ -2093,6 +2093,7 @@ def fetch_workout_stats(
             FROM workouts w
             JOIN workout_exercises we ON w.id = we.workout_id
             WHERE {filter_clause}
+              AND we.status = 'completed'
             GROUP BY we.exercise_name
             ORDER BY cnt DESC, we.exercise_name ASC
             LIMIT 1;
@@ -2143,6 +2144,7 @@ def fetch_recent_exercise_usage(
             FROM workouts w
             JOIN workout_exercises we ON w.id = we.workout_id
             WHERE {filter_clause}
+              AND we.status = 'completed'
             ORDER BY w.performed_at DESC
             LIMIT ?;
             """,

@@ -2579,6 +2579,7 @@ class RecommendationCard(BoxLayout):
 class DatePickerPopup(ModalView):
     """Modal date picker used by history filters and workout logging."""
     # Kivy properties that track selected date state.
+    MIN_YEAR = 2000
     month_label = StringProperty("")
     selected_label = StringProperty("")
 
@@ -2597,6 +2598,9 @@ class DatePickerPopup(ModalView):
         super().__init__(**kwargs)
         self._on_select = on_select
         chosen = initial_date or date.today()
+        min_date = date(self.MIN_YEAR, 1, 1)
+        if chosen < min_date:
+            chosen = min_date
         self._selected_date = chosen
         self.selected_label = chosen.isoformat()
         self._shown_year = chosen.year
@@ -2693,8 +2697,9 @@ class DatePickerPopup(ModalView):
         """Adjust the shown month by a delta and refresh labels."""
         # Clamp negative values so calendar math stays valid.
         total_months = (self._shown_year * 12 + (self._shown_month - 1)) + delta_months
-        if total_months < 0:
-            total_months = 0
+        min_total_months = self.MIN_YEAR * 12
+        if total_months < min_total_months:
+            total_months = min_total_months
         new_year, month_index = divmod(total_months, 12)
         self._shown_year = new_year
         self._shown_month = month_index + 1
@@ -5003,13 +5008,32 @@ class RootWidget(BoxLayout):
             self._set_history_status(validation_error, error=True)
             return
 
+        canonical_exercises = [self._resolve_exercise_name(name) for name in exercises]
+        duplicate_names: list[str] = []
+        seen: set[str] = set()
+        for name in canonical_exercises:
+            key = name.strip().lower()
+            if key in seen:
+                duplicate_names.append(self._display_exercise_name(name))
+            else:
+                seen.add(key)
+        if duplicate_names:
+            unique_duplicates: list[str] = []
+            for name in duplicate_names:
+                if name not in unique_duplicates:
+                    unique_duplicates.append(name)
+            self._set_history_status(
+                self._t("Duplicate exercises: {names}", names=", ".join(unique_duplicates)),
+                error=True,
+            )
+            return
+
         goal_label = ids.workout_goal_spinner.text.strip()
         goal = None
         if goal_label and goal_label != self._no_goal_label:
             goal = self._goal_label_map.get(goal_label) or goal_label
 
         exercise_weights = []
-        canonical_exercises = [self._resolve_exercise_name(name) for name in exercises]
         for name in canonical_exercises:
             record = self._record_for_name(name)
             if record and record.get("supports_weight"):
@@ -5200,9 +5224,12 @@ class RootWidget(BoxLayout):
                 continue
             try:
                 performed_date = date.fromisoformat(performed_at)
-                recency[name] = (today - performed_date).days
-            except Exception:
-                continue
+            except (TypeError, ValueError):
+                try:
+                    performed_date = datetime.fromisoformat(performed_at).date()
+                except (TypeError, ValueError):
+                    continue
+            recency[name] = (today - performed_date).days
         return recency
 
     def _score_recommendation(self, record: dict[str, Any], recency_days: Optional[int]) -> float:
