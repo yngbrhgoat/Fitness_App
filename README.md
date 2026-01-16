@@ -46,14 +46,6 @@ Workout frei anpassen und siehst am Ende eine klare Zusammenfassung.
 - Lokale Speicherung mit SQLite
 - Tests mit pytest (für die Entwicklung)
 
-## Schnellstart
+## App starten
 
-Voraussetzungen: Python 3.10 oder neuer.
-
-```bash
-python -m pip install .
-python main.py
-```
-
-Wenn du die App nur ausprobieren willst, reicht es, das Projekt zu entpacken und
-`python main.py` auszuführen.
+Nach dem Download, einfach 'python3 main.py' in der Konsole ausführen
