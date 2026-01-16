@@ -10,6 +10,7 @@ Workout frei anpassen und siehst am Ende eine klare Zusammenfassung.
 - Trainingsempfehlungen erhalten, die zu deinem Ziel und deiner Zeit passen
 - Im Live-Modus trainieren: Timer, Pausen und Tempo-Hinweise inklusive
 - Deinen Trainingsverlauf ansehen und Fortschritte nachvollziehen
+- eigene Übungen hinzufügen und/ oder mit den 15 vorgefertigten Übungen arbeiten
 
 ## So läuft eine Einheit ab
 
