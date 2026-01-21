@@ -15,7 +15,7 @@ Workout frei anpassen und siehst am Ende eine klare Zusammenfassung.
 ## So läuft eine Einheit ab
 
 1. Benutzername wählen (damit dein Verlauf gespeichert wird)
-2. Ziel und Trainingszeit angeben
+2. Ziel und Trainingszeit angeben und auf 'Empfehlungen erstellen' klicken
 3. Vorschläge prüfen, Übungen auswählen und Reihenfolge anpassen
 4. Training starten und Schritt für Schritt durchführen
 5. Zusammenfassung am Ende speichern
